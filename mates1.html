@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemáticas I · Prof. López Saynes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy:#1B3A6B; --navy-d:#112447; --navy-l:#254d8f; --gold:#C9A84C; --gold-l:#e8c96a; --white:#F8F9FC; --gray:#8A95A3; --border:#e6eaf0; --text:#1e293b; --muted:#64748b; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 1px 12px rgba(17,36,71,.05); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-brand { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .nav-brand img { height: 42px; width: auto; display: block; }
+    .nav-brand .nb-divider { width: 1px; height: 32px; background: var(--border); }
+    .nav-brand .nb-text { font-size: .78rem; color: var(--muted); line-height: 1.3; }
+    .nav-brand .nb-text strong { color: var(--navy); display: block; font-size: .85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .02em; padding: .4rem 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover { color: var(--navy); }
+    .nav-links a.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .page-header { background: linear-gradient(135deg, var(--navy-d) 0%, var(--navy) 70%, #2a5499 100%); padding: 3.25rem 2rem 2.75rem; position: relative; overflow: hidden; }
+    #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .page-header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .breadcrumb { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+    .breadcrumb a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .8rem; }
+    .breadcrumb a:hover { color: var(--gold); }
+    .breadcrumb span { color: rgba(255,255,255,.25); font-size: .8rem; }
+    .breadcrumb em { color: rgba(255,255,255,.75); font-style: normal; font-size: .8rem; }
+    .ph-tag { display: inline-flex; align-items: center; gap: .4rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.35); color: var(--gold-l); font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .9rem; border-radius: 2rem; margin-bottom: 1rem; }
+    .ph-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-l); }
+    .page-header h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: clamp(1.9rem, 4vw, 2.7rem); margin-bottom: .5rem; }
+    .page-header p { color: rgba(255,255,255,.6); font-size: .95rem; max-width: 580px; line-height: 1.6; }
+    .group-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+    .group-chip { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.9); border-radius: 8px; padding: .4rem .9rem; font-size: .85rem; font-weight: 600; }
+    .group-chip .gc-label { color: rgba(255,255,255,.45); font-weight: 400; font-size: .72rem; display: block; }
+    .layout { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 2rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; cursor: pointer; white-space: nowrap; padding: .75rem 1.25rem; font-size: .88rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .2s, border-color .2s; }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+    .tab-btn:hover:not(.active) { color: var(--navy-l); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .welcome-box { background: linear-gradient(135deg, var(--navy-d), var(--navy)); border-radius: 14px; padding: 2rem; margin-bottom: 1.75rem; color: #fff; }
+    .welcome-box h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: .75rem; }
+    .welcome-box p { color: rgba(255,255,255,.72); font-size: .92rem; line-height: 1.7; margin-bottom: .75rem; }
+    .welcome-box p:last-child { margin-bottom: 0; }
+    .section-h { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+    .next-event { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: .85rem 1rem; margin-bottom: .7rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .ne-info .ne-label { font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #9a7d2e; }
+    .ne-info .ne-title { font-size: .9rem; font-weight: 600; color: var(--navy); margin-top: .15rem; }
+    .ne-date { text-align: right; flex-shrink: 0; }
+    .ne-date .ned-day { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+    .ne-date .ned-rest { font-size: .75rem; color: var(--muted); }
+    .ne-countdown { font-size: .7rem; color: var(--gold); font-weight: 600; }
+    .unit-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
+    .unit-header { background: var(--navy); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .unit-header h3 { font-size: .95rem; font-weight: 600; }
+    .unit-header .arrow { transition: transform .3s; font-size: .8rem; }
+    .unit-card.open .unit-header .arrow { transform: rotate(90deg); }
+    .unit-body { padding: .5rem 1.25rem 1rem; display: none; }
+    .unit-card.open .unit-body { display: block; }
+    .topic { padding: .9rem 0; border-bottom: 1px solid #f1f5f9; }
+    .topic:last-child { border-bottom: none; }
+    .topic-title { display: flex; align-items: baseline; gap: .55rem; font-size: .92rem; font-weight: 600; color: var(--navy); }
+    .topic-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .subchips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; padding-left: 1.25rem; }
+    .subchip { background: #f1f5f9; color: #475569; font-size: .76rem; padding: .25rem .6rem; border-radius: 6px; }
+    .cal-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .cal-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .cal-table { width: 100%; border-collapse: collapse; min-width: 360px; }
+    .cal-table th { background: var(--navy); color: #fff; font-size: .8rem; font-weight: 600; padding: .75rem 1rem; text-align: center; white-space: nowrap; }
+    .cal-table th.period-col { text-align: left; }
+    .cal-table td { padding: .8rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: .85rem; text-align: center; color: var(--text); }
+    .cal-table td.period-cell { text-align: left; font-weight: 600; color: var(--navy); background: #f8fafc; white-space: nowrap; }
+    .cal-table tr:last-child td { border-bottom: none; }
+    .cal-table tr.next-exam td { background: rgba(201,168,76,.1); }
+    .exam-date { font-weight: 600; color: var(--navy); }
+    .formula-search { width: 100%; padding: .8rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: .95rem; font-family: 'Inter'; margin-bottom: 1.5rem; }
+    .formula-search:focus { outline: 2px solid rgba(27,58,107,.2); border-color: var(--navy); }
+    .formula-unit { margin-bottom: 1.75rem; }
+    .formula-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .formula-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .85rem; }
+    .formula-card { border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; background: #fff; transition: box-shadow .2s, border-color .2s; }
+    .formula-card:hover { border-color: var(--gold); box-shadow: 0 4px 14px rgba(27,58,107,.08); }
+    .formula-card .fc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray); }
+    .formula-card .fc-nombre { font-size: .9rem; font-weight: 600; color: var(--navy); margin: .15rem 0 .6rem; }
+    .formula-card .fc-eq { background: var(--navy-d); color: #fff; border-radius: 8px; padding: .6rem .75rem; font-size: 1.05rem; text-align: center; font-weight: 600; letter-spacing: .02em; }
+    .formula-card .fc-vars { font-size: .76rem; color: var(--muted); margin-top: .6rem; line-height: 1.5; }
+    .formula-empty { color: var(--gray); font-size: .9rem; padding: 2rem; text-align: center; }
+    .video-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin: 1.5rem 0 .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; }
+    .video-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+    .video-thumb { position: relative; cursor: pointer; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .92; transition: opacity .2s; }
+    .video-thumb:hover img { opacity: 1; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .video-play span { width: 54px; height: 54px; background: rgba(27,58,107,.88); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; padding-left: 4px; }
+    .video-thumb:hover .video-play span { background: var(--gold); color: var(--navy-d); }
+    .video-card .vc-body { padding: .85rem 1rem; }
+    .video-card .vc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gold); }
+    .video-card .vc-title { font-size: .88rem; font-weight: 600; color: var(--navy); margin-top: .2rem; line-height: 1.35; }
+    .video-card iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+    .sim-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; box-shadow: 0 2px 10px rgba(17,36,71,.04); }
+    .sim-header { background: var(--navy-d); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; gap: .75rem; }
+    .sim-icon { width: 38px; height: 38px; background: rgba(201,168,76,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .sim-header h3 { font-size: 1rem; font-weight: 600; }
+    .sim-header p { color: rgba(255,255,255,.5); font-size: .78rem; margin-top: .15rem; }
+    .sim-body { padding: 1.25rem; background: #fff; }
+    .sim-instructions { background: #f8fafc; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+    .sim-instructions h4 { font-size: .8rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .6rem; }
+    .ins-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .9rem; }
+    .ins-item .ins-label { font-size: .72rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+    .ins-item p { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+    .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; margin-bottom: 1.1rem; }
+    .sim-controls.three { grid-template-columns: 1fr 1fr 1fr; }
+    .ctrl-group label { display: block; font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .ctrl-row { display: flex; align-items: center; gap: .6rem; }
+    .ctrl-row input[type=range] { flex: 1; accent-color: var(--navy); }
+    .num-input { width: 74px; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 7px; font-size: .85rem; font-weight: 600; color: var(--navy); font-family: 'Inter'; text-align: right; }
+    .num-input:focus { outline: 2px solid rgba(27,58,107,.25); border-color: var(--navy); }
+    .num-unit { font-size: .78rem; color: var(--gray); min-width: 20px; }
+    .eqline { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-weight: 600; color: var(--navy); margin-bottom: .6rem; }
+    .eqline input { width: 58px; }
+    .sim-canvas-wrap { background: #f8fafc; border-radius: 8px; overflow: hidden; margin-bottom: .75rem; border: 1px solid var(--border); }
+    canvas { display: block; width: 100%; }
+    .sim-btns { display: flex; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
+    .btn-sim { padding: .55rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-size: .85rem; font-weight: 600; transition: background .2s; display: inline-flex; align-items: center; gap: .4rem; }
+    .btn-primary { background: var(--navy); color: #fff; flex: 1; justify-content: center; }
+    .btn-primary:hover { background: var(--navy-l); }
+    .btn-secondary { background: #f1f5f9; color: var(--navy); flex: 1; justify-content: center; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-export { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+    .btn-export:hover { background: var(--navy); color: #fff; }
+    .sim-readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1rem; }
+    .readout-item { background: #f8fafc; border-radius: 8px; padding: .6rem .75rem; text-align: center; }
+    .readout-item .rval { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+    .readout-item .rlbl { font-size: .68rem; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; margin-top: .1rem; }
+    .formula-box { background: var(--navy-d); border-radius: 10px; padding: 1rem 1.25rem; color: #fff; }
+    .formula-box .fb-label { font-size: .7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .formula-box .fb-eq { font-size: .92rem; line-height: 1.8; }
+    .formula-box .fb-eq .gold { color: var(--gold-l); font-weight: 700; }
+    .mat-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .mat-unit { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .mat-unit-header { background: var(--navy); color: #fff; padding: .85rem 1.25rem; font-size: .9rem; font-weight: 600; border-bottom: 2px solid var(--gold); }
+    .mat-unit-body { padding: 1rem 1.25rem; }
+    .mat-folder-btn { display: flex; align-items: center; gap: .75rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.1rem; text-decoration: none; color: var(--text); transition: all .15s; }
+    .mat-folder-btn:hover { background: #fff; border-color: var(--gold); box-shadow: 0 2px 10px rgba(27,58,107,.08); }
+    .mat-folder-btn .mf-icon { font-size: 1.5rem; }
+    .mat-folder-btn .mf-title { font-weight: 600; font-size: .9rem; }
+    .mat-folder-btn .mf-sub { font-size: .78rem; color: var(--gray); }
+    .mat-folder-btn .mf-arrow { margin-left: auto; color: var(--gold); font-weight: 700; }
+    footer { background: var(--navy-d); border-top: 1px solid rgba(201,168,76,.3); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: rgba(255,255,255,.35); font-size: .8rem; }
+    footer p span { color: var(--gold); }
+    @media (max-width: 640px) { nav { padding: 0 1rem; height: 64px; } .nav-brand .nb-text { display: none; } .nav-links { gap: 1rem; } .page-header { padding: 2.5rem 1.25rem 2rem; } .layout { padding: 2rem 1.25rem 3rem; } .sim-controls, .sim-controls.three, .ins-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
+    <div class="nb-divider"></div>
+    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+  </a>
+  <div class="nav-links">
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html" class="active">Matemáticas I</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <canvas id="heroCanvas"></canvas>
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">Inicio</a><span>/</span><em>Matemáticas I</em></div>
+    <div class="ph-tag"><span class="ph-dot"></span>Obligatoria · 80 horas</div>
+    <h1>Matemáticas I</h1>
+    <p>Del pensamiento aritmético al algebraico: números reales, variación y funciones lineales, ecuaciones y sistemas. Ciclo escolar 2026-2027-1.</p>
+    <div class="group-chips"><span class="group-chip"><span class="gc-label">Grupo</span>1010</span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('bienvenida')">Bienvenida</button>
+    <button class="tab-btn" onclick="switchTab('programa')">Programa</button>
+    <button class="tab-btn" onclick="switchTab('formulas')">Fórmulas</button>
+    <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
+    <button class="tab-btn" onclick="switchTab('herramientas')">Herramientas</button>
+    <button class="tab-btn" onclick="switchTab('calendario')">Calendario de exámenes</button>
+    <button class="tab-btn" onclick="switchTab('material')">Material</button>
+  </div>
+
+  <!-- BIENVENIDA -->
+  <div class="tab-panel active" id="tab-bienvenida">
+    <div class="welcome-box">
+      <h2>Bienvenidos a Matemáticas I</h2>
+      <p>En este curso harás el tránsito de la <strong>aritmética al álgebra</strong>: darás significado a las operaciones, aprenderás a modelar situaciones con funciones lineales, y resolverás ecuaciones y sistemas usando representaciones verbales, tabulares, gráficas y algebraicas.</p>
+      <p>Aquí tienes el programa, el calendario de exámenes, herramientas interactivas (graficador, solucionadores), fórmulas y videos de apoyo.</p>
+    </div>
+    <div class="section-h">📅 Próximos exámenes</div>
+    <div id="proximos-examenes"></div>
+  </div>
+
+  <!-- PROGRAMA -->
+  <div class="tab-panel" id="tab-programa">
+    <div class="unit-card open">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 1 · El significado de los números y sus operaciones (30 h)</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic"><div class="topic-title">Conjuntos numéricos</div><div class="subchips"><span class="subchip">Naturales ℕ</span><span class="subchip">Enteros ℤ</span><span class="subchip">Racionales ℚ</span><span class="subchip">Irracionales 𝕀</span><span class="subchip">Reales ℝ</span></div></div>
+        <div class="topic"><div class="topic-title">Divisibilidad y representaciones</div><div class="subchips"><span class="subchip">m.c.m. y M.C.D.</span><span class="subchip">Fracciones, decimales y porcentajes</span><span class="subchip">Fracciones equivalentes</span><span class="subchip">Relaciones de orden</span></div></div>
+        <div class="topic"><div class="topic-title">Operaciones básicas</div><div class="subchips"><span class="subchip">Suma, resta, multiplicación y división</span><span class="subchip">Potencias (exponentes + , − y fraccionarios)</span><span class="subchip">Radicales</span><span class="subchip">Jerarquía de operaciones</span></div></div>
+      </div>
+    </div>
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 2 · Variación directamente proporcional y funciones lineales (15 h)</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic"><div class="topic-title">Variación entre magnitudes</div><div class="subchips"><span class="subchip">Variables dependiente e independiente</span><span class="subchip">Razón de cambio</span></div></div>
+        <div class="topic"><div class="topic-title">Funciones lineales</div><div class="subchips"><span class="subchip">Variación lineal y = ax + b</span><span class="subchip">Proporcionalidad directa (b = 0)</span><span class="subchip">Registros: tabular, gráfico, verbal y algebraico</span></div></div>
+      </div>
+    </div>
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 3 · Ecuaciones de primer grado con una incógnita (15 h)</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic"><div class="topic-title">Lenguaje algebraico y ecuación</div><div class="subchips"><span class="subchip">Traducción del lenguaje verbal al algebraico</span><span class="subchip">La ecuación como condición de la incógnita</span></div></div>
+        <div class="topic"><div class="topic-title">Resolución</div><div class="subchips"><span class="subchip">Ecuaciones equivalentes</span><span class="subchip">Propiedades de la igualdad</span><span class="subchip">Reglas de transposición</span></div></div>
+      </div>
+    </div>
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 4 · Sistemas de ecuaciones lineales (20 h)</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic"><div class="topic-title">Sistemas 2×2</div><div class="subchips"><span class="subchip">Ecuación lineal con dos incógnitas</span><span class="subchip">Método gráfico</span><span class="subchip">Sistemas consistentes e inconsistentes</span></div></div>
+        <div class="topic"><div class="topic-title">Métodos algebraicos</div><div class="subchips"><span class="subchip">Igualación</span><span class="subchip">Sustitución</span><span class="subchip">Reducción (suma o resta)</span><span class="subchip">Extensión a sistemas 3×3</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FÓRMULAS -->
+  <div class="tab-panel" id="tab-formulas">
+    <p class="cal-intro">Formulario del curso. Usa el buscador para encontrar una fórmula por nombre, tema o variable.</p>
+    <input type="text" id="formula-search" class="formula-search" placeholder="🔍 Buscar… (ej: pendiente, mcm, ecuación, porcentaje)" oninput="renderFormulas()" />
+    <div id="formulas-container"></div>
+  </div>
+
+  <!-- VIDEOS -->
+  <div class="tab-panel" id="tab-videos">
+    <p class="cal-intro">Videos seleccionados para reforzar cada tema. Da clic en uno para reproducirlo aquí mismo.</p>
+    <div id="videos-container"></div>
+  </div>
+
+  <!-- HERRAMIENTAS -->
+  <div class="tab-panel" id="tab-herramientas">
+
+    <!-- GRAFICADOR LINEAL -->
+    <div class="sim-card">
+      <div class="sim-header"><div class="sim-icon">📈</div><div><h3>Graficador de funciones lineales</h3><p>Unidad 2 · y = m·x + b</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>pendiente m</strong> (razón de cambio) y la <strong>ordenada al origen b</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>La recta en el plano; cómo m cambia la inclinación y b el corte con el eje y.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Lee la pendiente, los cortes con los ejes y exporta la gráfica.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Pendiente m</label><div class="ctrl-row"><input type="range" id="lm" min="-5" max="5" value="1" step="0.25" oninput="syncFrom('lm','range')"><input type="number" class="num-input" id="lmn" value="1" step="0.25" oninput="syncFrom('lm','num')"></div></div>
+          <div class="ctrl-group"><label>Ordenada al origen b</label><div class="ctrl-row"><input type="range" id="lb" min="-10" max="10" value="2" step="0.5" oninput="syncFrom('lb','range')"><input type="number" class="num-input" id="lbn" value="2" step="0.5" oninput="syncFrom('lb','num')"></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="graphCanvas" height="300"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(graphCanvas,'grafica_lineal')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="g-m">—</div><div class="rlbl">Pendiente</div></div>
+          <div class="readout-item"><div class="rval" id="g-y0">—</div><div class="rlbl">Corte eje y</div></div>
+          <div class="readout-item"><div class="rval" id="g-x0">—</div><div class="rlbl">Corte eje x (raíz)</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Ecuación de la recta</div><div class="fb-eq" id="fb-lineal"></div></div>
+      </div>
+    </div>
+
+    <!-- SISTEMAS 2x2 GRÁFICO -->
+    <div class="sim-card">
+      <div class="sim-header"><div class="sim-icon">⚖️</div><div><h3>Sistemas de ecuaciones 2×2</h3><p>Unidad 4 · Método gráfico y solución</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>Los coeficientes de las dos ecuaciones <strong>a·x + b·y = c</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>Las dos rectas y su <strong>punto de intersección</strong> = la solución del sistema.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Indica si el sistema es consistente (1 solución), dependiente (∞) o inconsistente (0).</p></div>
+        </div></div>
+        <div class="eqline">Ecuación 1: <input type="number" class="num-input" id="s_a1" value="1" oninput="updateSistema()"> x + <input type="number" class="num-input" id="s_b1" value="1" oninput="updateSistema()"> y = <input type="number" class="num-input" id="s_c1" value="5" oninput="updateSistema()"></div>
+        <div class="eqline">Ecuación 2: <input type="number" class="num-input" id="s_a2" value="1" oninput="updateSistema()"> x + <input type="number" class="num-input" id="s_b2" value="-1" oninput="updateSistema()"> y = <input type="number" class="num-input" id="s_c2" value="1" oninput="updateSistema()"></div>
+        <div class="sim-canvas-wrap"><canvas id="sysCanvas" height="320"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(sysCanvas,'sistema_2x2')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="sy-x">—</div><div class="rlbl">x</div></div>
+          <div class="readout-item"><div class="rval" id="sy-y">—</div><div class="rlbl">y</div></div>
+          <div class="readout-item"><div class="rval" id="sy-tipo">—</div><div class="rlbl">Tipo de sistema</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Solución</div><div class="fb-eq" id="fb-sistema"></div></div>
+      </div>
+    </div>
+
+    <!-- ECUACIÓN PRIMER GRADO -->
+    <div class="sim-card">
+      <div class="sim-header"><div class="sim-icon">🟰</div><div><h3>Solucionador de ecuación de primer grado</h3><p>Unidad 3 · a·x + b = c·x + d</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>Los coeficientes de la ecuación <strong>a·x + b = c·x + d</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué obtienes</div><p>El valor de <strong>x</strong> con el procedimiento de transposición.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Sirve para comprobar tus despejes. Detecta casos sin solución o con infinitas.</p></div>
+        </div></div>
+        <div class="eqline" style="font-size:1.05rem;"><input type="number" class="num-input" id="e_a" value="3"> x + <input type="number" class="num-input" id="e_b" value="5"> = <input type="number" class="num-input" id="e_c" value="1"> x + <input type="number" class="num-input" id="e_d" value="13"></div>
+        <div class="sim-btns"><button class="btn-sim btn-primary" onclick="resolverEc()">✓ Resolver</button></div>
+        <div class="formula-box"><div class="fb-label">Procedimiento</div><div class="fb-eq" id="fb-ecuacion">Ingresa los valores y pulsa Resolver.</div></div>
+      </div>
+    </div>
+
+    <!-- M.C.M. y M.C.D. -->
+    <div class="sim-card">
+      <div class="sim-header"><div class="sim-icon">🔢</div><div><h3>Calculadora de m.c.m. y M.C.D.</h3><p>Unidad 1 · Mínimo común múltiplo y máximo común divisor</p></div></div>
+      <div class="sim-body">
+        <div class="sim-controls three">
+          <div class="ctrl-group"><label>Número 1</label><div class="ctrl-row"><input type="number" class="num-input" id="m_n1" value="12" style="width:100%"></div></div>
+          <div class="ctrl-group"><label>Número 2</label><div class="ctrl-row"><input type="number" class="num-input" id="m_n2" value="18" style="width:100%"></div></div>
+          <div class="ctrl-group"><label>Número 3 (opcional)</label><div class="ctrl-row"><input type="number" class="num-input" id="m_n3" placeholder="—" style="width:100%"></div></div>
+        </div>
+        <div class="sim-btns"><button class="btn-sim btn-primary" onclick="calcMCM()">✓ Calcular</button></div>
+        <div class="sim-readout" style="grid-template-columns:1fr 1fr;">
+          <div class="readout-item"><div class="rval" id="mc-mcd">—</div><div class="rlbl">M.C.D. (máximo común divisor)</div></div>
+          <div class="readout-item"><div class="rval" id="mc-mcm">—</div><div class="rlbl">m.c.m. (mínimo común múltiplo)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERSOR FRACCIÓN / DECIMAL / % -->
+    <div class="sim-card">
+      <div class="sim-header"><div class="sim-icon">½</div><div><h3>Conversor: fracción ↔ decimal ↔ porcentaje</h3><p>Unidad 1 · Representaciones de los racionales</p></div></div>
+      <div class="sim-body">
+        <div class="eqline" style="font-size:1.05rem;">Fracción: <input type="number" class="num-input" id="f_num" value="3"> / <input type="number" class="num-input" id="f_den" value="4"></div>
+        <div class="sim-btns"><button class="btn-sim btn-primary" onclick="calcConv()">✓ Convertir</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="cv-frac">—</div><div class="rlbl">Fracción simplificada</div></div>
+          <div class="readout-item"><div class="rval" id="cv-dec">—</div><div class="rlbl">Decimal</div></div>
+          <div class="readout-item"><div class="rval" id="cv-pct">—</div><div class="rlbl">Porcentaje</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="tab-panel" id="tab-calendario">
+    <p class="cal-intro">Fechas de exámenes del ciclo 2026-2027-1, grupo 1010. La fila resaltada es el próximo examen.</p>
+    <div class="cal-wrap"><table class="cal-table"><thead><tr><th class="period-col">Periodo</th><th>Fecha</th></tr></thead><tbody id="cal-body"></tbody></table></div>
+    <p style="font-size:.8rem;color:var(--gray);margin-top:1rem;">* Fechas sujetas a cambios según indicaciones institucionales.</p>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="tab-panel" id="tab-material">
+    <p class="mat-intro">Cada unidad tiene una carpeta de Google Drive con su material. Da clic para abrir la carpeta.</p>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 1 · Números y operaciones</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 1</div><div class="mf-sub">Conjuntos numéricos, operaciones y fracciones</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 2 · Funciones lineales</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 2</div><div class="mf-sub">Variación, razón de cambio y funciones lineales</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 3 · Ecuaciones de primer grado</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 3</div><div class="mf-sub">Lenguaje algebraico y resolución de ecuaciones</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 4 · Sistemas de ecuaciones</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 4</div><div class="mf-sub">Métodos gráfico, igualación, sustitución y reducción</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+  </div>
+</div>
+
+<footer><p>Prof. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · Ciclo 2026-2027-1</p></footer>
+
+<script>
+/* ════════ EXÁMENES (Matemáticas I · grupo 1010) ════════ */
+const PERIODOS=['1.er Interparcial','1.er Parcial','2.º Interparcial','2.º Parcial','Final · 1.ª vuelta','Final · 2.ª vuelta','Extraordinario'];
+const FECHAS={
+  '1.er Interparcial':'2026-09-08', '1.er Parcial':'2026-10-06', '2.º Interparcial':'2026-11-10',
+  '2.º Parcial':'2026-12-08', 'Final · 1.ª vuelta':'2026-12-15', 'Final · 2.ª vuelta':'2027-01-07', 'Extraordinario':'2027-01-19'
+};
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESES_L=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function fmtLargo(iso){ const d=new Date(iso+'T00:00:00'); return d.getDate()+' de '+MESES_L[d.getMonth()]+' de '+d.getFullYear(); }
+const HOY=new Date(); HOY.setHours(0,0,0,0);
+function renderCalendario(){
+  let nextP=null,nextD=Infinity;
+  PERIODOS.forEach(p=>{ const t=new Date(FECHAS[p]+'T00:00:00').getTime(); if(t>=HOY.getTime()&&t<nextD){ nextD=t; nextP=p; } });
+  document.getElementById('cal-body').innerHTML=PERIODOS.map(p=>`<tr${p===nextP?' class="next-exam"':''}><td class="period-cell">${p}</td><td><span class="exam-date">${fmtLargo(FECHAS[p])}</span></td></tr>`).join('');
+}
+function renderProximos(){
+  const ev=PERIODOS.map(p=>({periodo:p,iso:FECHAS[p]})).filter(e=>new Date(e.iso+'T00:00:00').getTime()>=HOY.getTime()).sort((a,b)=>new Date(a.iso)-new Date(b.iso)).slice(0,4);
+  const cont=document.getElementById('proximos-examenes');
+  if(!ev.length){ cont.innerHTML='<p style="color:var(--muted);font-size:.9rem;">No hay exámenes próximos programados.</p>'; return; }
+  cont.innerHTML=ev.map(e=>{ const d=new Date(e.iso+'T00:00:00'), dias=Math.round((d-HOY)/86400000), cd=dias===0?'Hoy':dias===1?'Mañana':'En '+dias+' días';
+    return `<div class="next-event"><div class="ne-info"><div class="ne-label">${e.periodo}</div><div class="ne-title">Grupo 1010</div></div><div class="ne-date"><div class="ned-day">${d.getDate()} ${MESES[d.getMonth()]}</div><div class="ned-rest">${d.getFullYear()}</div><div class="ne-countdown">${cd}</div></div></div>`;
+  }).join('');
+}
+
+/* ════════ TABS ════════ */
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  const map={bienvenida:0,programa:1,formulas:2,videos:3,herramientas:4,calendario:5,material:6};
+  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+  if(id==='herramientas') resizeCanvases();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleUnit(h){ h.closest('.unit-card').classList.toggle('open'); }
+
+/* ════════ FÓRMULAS ════════ */
+const FORMULAS=[
+  {unidad:'Unidad 1 · Números', tema:'Potencias', nombre:'Producto de potencias', eq:'aᵐ · aⁿ = aᵐ⁺ⁿ', vars:'misma base, se suman exponentes'},
+  {unidad:'Unidad 1 · Números', tema:'Potencias', nombre:'Exponente negativo', eq:'a⁻ⁿ = 1 / aⁿ', vars:'a ≠ 0'},
+  {unidad:'Unidad 1 · Números', tema:'Radicales', nombre:'Exponente fraccionario', eq:'a^(m/n) = ⁿ√(aᵐ)', vars:'raíz n-ésima de a elevado a m'},
+  {unidad:'Unidad 1 · Números', tema:'Porcentaje', nombre:'Porcentaje', eq:'% = (parte / total) × 100', vars:'parte y total de una cantidad'},
+  {unidad:'Unidad 2 · Funciones lineales', tema:'Función lineal', nombre:'Forma pendiente-ordenada', eq:'y = m·x + b', vars:'m: pendiente · b: ordenada al origen'},
+  {unidad:'Unidad 2 · Funciones lineales', tema:'Pendiente', nombre:'Razón de cambio (pendiente)', eq:'m = (y₂ − y₁) / (x₂ − x₁)', vars:'dos puntos de la recta'},
+  {unidad:'Unidad 2 · Funciones lineales', tema:'Proporcionalidad', nombre:'Proporcionalidad directa', eq:'y = k·x', vars:'k: constante de proporcionalidad'},
+  {unidad:'Unidad 3 · Ecuaciones', tema:'Primer grado', nombre:'Ecuación de primer grado', eq:'a·x + b = 0  →  x = −b/a', vars:'a ≠ 0'},
+  {unidad:'Unidad 4 · Sistemas', tema:'Sistemas 2×2', nombre:'Regla de Cramer', eq:'x = Dx/D , y = Dy/D', vars:'D = a₁b₂ − a₂b₁ (determinante)'},
+  {unidad:'Unidad 4 · Sistemas', tema:'Sistemas 2×2', nombre:'Tipo de solución', eq:'D ≠ 0: única · D = 0: ∞ o ninguna', vars:'según el determinante'},
+];
+function quitarAcentos(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+function renderFormulas(){
+  const q=quitarAcentos(document.getElementById('formula-search').value.trim());
+  const cont=document.getElementById('formulas-container');
+  const f=FORMULAS.filter(x=>!q||quitarAcentos(x.nombre+' '+x.tema+' '+x.eq+' '+x.vars+' '+x.unidad).includes(q));
+  if(!f.length){ cont.innerHTML='<div class="formula-empty">No se encontraron fórmulas.</div>'; return; }
+  const us=[...new Set(f.map(x=>x.unidad))];
+  cont.innerHTML=us.map(u=>`<div class="formula-unit"><div class="formula-unit-title">${u}</div><div class="formula-cards">${f.filter(x=>x.unidad===u).map(x=>`<div class="formula-card"><div class="fc-tema">${x.tema}</div><div class="fc-nombre">${x.nombre}</div><div class="fc-eq">${x.eq}</div><div class="fc-vars">${x.vars}</div></div>`).join('')}</div></div>`).join('');
+}
+
+/* ════════ VIDEOS ════════ */
+const VIDEOS=[
+  {unidad:'Unidad 1 · Números', tema:'Conjuntos numéricos', title:'Clasificación de los números reales', id:'k9lPjLbkMos'},
+  {unidad:'Unidad 1 · Números', tema:'Divisibilidad', title:'Mínimo común múltiplo y máximo común divisor (mcm y MCD)', id:'4Vrqghvp2j8'},
+  {unidad:'Unidad 2 · Funciones lineales', tema:'Proporcionalidad', title:'La función lineal o de proporcionalidad directa', id:'UfbrKTtZo1c'},
+  {unidad:'Unidad 2 · Funciones lineales', tema:'Pendiente', title:'Pendiente y razón de cambio', id:'VA31OVw-6BQ'},
+  {unidad:'Unidad 3 · Ecuaciones', tema:'Primer grado', title:'Solución de ecuaciones de primer grado: todo lo que debes saber', id:'lolGRSlyY5E'},
+  {unidad:'Unidad 4 · Sistemas', tema:'Métodos', title:'Resolver sistemas de ecuaciones 2×2 y 3×3 con varios métodos', id:'YG_cPoIvqLo'},
+  {unidad:'Unidad 4 · Sistemas', tema:'Igualación', title:'Sistemas 2×2: método de igualación', id:'apPXOlZnRhg'},
+];
+function renderVideos(){
+  const cont=document.getElementById('videos-container'); const us=[...new Set(VIDEOS.map(v=>v.unidad))];
+  cont.innerHTML=us.map(u=>`<div class="video-unit-title">${u}</div><div class="video-grid">${VIDEOS.filter(v=>v.unidad===u).map(v=>`<div class="video-card"><div class="video-thumb" onclick="playVideo(this,'${v.id}')"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" loading="lazy" /><div class="video-play"><span>▶</span></div></div><div class="vc-body"><div class="vc-tema">${v.tema}</div><div class="vc-title">${v.title}</div></div></div>`).join('')}</div>`).join('');
+}
+function playVideo(thumb,id){ thumb.outerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>'; }
+
+/* ════════ HELPERS ════════ */
+function val(id){ return parseFloat(document.getElementById(id).value); }
+function setT(id,t){ document.getElementById(id).textContent=t; }
+function syncFrom(id,src){ const r=document.getElementById(id),n=document.getElementById(id+'n'); if(src==='range')n.value=r.value; else r.value=n.value; updateAll(); }
+function exportJPG(src,name){ const t=document.createElement('canvas'); t.width=src.width; t.height=src.height; const c=t.getContext('2d'); c.fillStyle='#fff'; c.fillRect(0,0,t.width,t.height); c.drawImage(src,0,0); const a=document.createElement('a'); a.download=name+'.jpg'; a.href=t.toDataURL('image/jpeg',0.95); a.click(); }
+const _g=x=>'<span class="gold">'+x+'</span>';
+
+/* dibuja un plano cartesiano y devuelve función de mapeo */
+function planoCartesiano(ctx,W,H,rango){
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2, s=Math.min(W,H)/(2*rango);
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  for(let i=-rango;i<=rango;i++){ const x=cx+i*s,y=cy-i*s; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  ctx.fillStyle='#94a3b8'; ctx.font='10px Inter'; ctx.textAlign='center'; ctx.fillText(rango,cx+rango*s-8,cy+12); ctx.fillText('x',W-8,cy-6); ctx.fillText('y',cx+8,10);
+  return {cx,cy,s, X:x=>cx+x*s, Y:y=>cy-y*s};
+}
+
+/* ════════ HERRAMIENTA 1: GRAFICADOR LINEAL ════════ */
+const graphCanvas=document.getElementById('graphCanvas'), gctx=graphCanvas.getContext('2d');
+function updateLineal(){
+  const W=graphCanvas.width,H=graphCanvas.height,m=val('lm'),b=val('lb');
+  const R=10, P=planoCartesiano(gctx,W,H,R);
+  gctx.strokeStyle='#1B3A6B'; gctx.lineWidth=2.5; gctx.beginPath();
+  gctx.moveTo(P.X(-R),P.Y(m*(-R)+b)); gctx.lineTo(P.X(R),P.Y(m*R+b)); gctx.stroke();
+  // corte y
+  gctx.fillStyle='#C9A84C'; gctx.beginPath(); gctx.arc(P.X(0),P.Y(b),5,0,Math.PI*2); gctx.fill();
+  // corte x
+  const x0 = m!==0 ? -b/m : null;
+  if(x0!==null && Math.abs(x0)<=R){ gctx.fillStyle='#c0392b'; gctx.beginPath(); gctx.arc(P.X(x0),P.Y(0),5,0,Math.PI*2); gctx.fill(); }
+  setT('g-m',m.toFixed(2)); setT('g-y0','(0, '+b.toFixed(1)+')'); setT('g-x0', x0===null?'no corta':'('+x0.toFixed(2)+', 0)');
+  document.getElementById('fb-lineal').innerHTML='y = '+_g(m.toFixed(2))+' x + '+_g(b.toFixed(1))+(m!==0?' · raíz: x = '+_g(x0.toFixed(2)):'');
+}
+
+/* ════════ HERRAMIENTA 2: SISTEMAS 2x2 ════════ */
+const sysCanvas=document.getElementById('sysCanvas'), syctx=sysCanvas.getContext('2d');
+function updateSistema(){
+  const W=sysCanvas.width,H=sysCanvas.height;
+  const a1=val('s_a1'),b1=val('s_b1'),c1=val('s_c1'),a2=val('s_a2'),b2=val('s_b2'),c2=val('s_c2');
+  const R=10, P=planoCartesiano(syctx,W,H,R);
+  function recta(a,b,c,color){
+    syctx.strokeStyle=color; syctx.lineWidth=2.5; syctx.beginPath();
+    if(Math.abs(b)>1e-9){ syctx.moveTo(P.X(-R),P.Y((c-a*(-R))/b)); syctx.lineTo(P.X(R),P.Y((c-a*R)/b)); }
+    else if(Math.abs(a)>1e-9){ const x=c/a; syctx.moveTo(P.X(x),0); syctx.lineTo(P.X(x),H); }
+    syctx.stroke();
+  }
+  recta(a1,b1,c1,'#1B3A6B'); recta(a2,b2,c2,'#C9A84C');
+  const D=a1*b2-a2*b1;
+  let tipo,x,y,sol='';
+  if(Math.abs(D)>1e-9){ x=(c1*b2-c2*b1)/D; y=(a1*c2-a2*c1)/D; tipo='Única solución';
+    if(Math.abs(x)<=R&&Math.abs(y)<=R){ syctx.fillStyle='#c0392b'; syctx.beginPath(); syctx.arc(P.X(x),P.Y(y),6,0,Math.PI*2); syctx.fill(); syctx.strokeStyle='#fff'; syctx.lineWidth=2; syctx.stroke(); }
+    setT('sy-x',x.toFixed(2)); setT('sy-y',y.toFixed(2)); sol='x = '+_g(x.toFixed(2))+' , y = '+_g(y.toFixed(2));
+  } else {
+    const dep=Math.abs(a1*c2-a2*c1)<1e-9 && Math.abs(c1*b2-c2*b1)<1e-9;
+    tipo=dep?'Infinitas (dependiente)':'Sin solución (inconsistente)';
+    setT('sy-x','—'); setT('sy-y','—'); sol=dep?'Las rectas coinciden: infinitas soluciones.':'Rectas paralelas: el sistema no tiene solución.';
+  }
+  setT('sy-tipo',tipo);
+  document.getElementById('fb-sistema').innerHTML='Determinante D = a₁b₂ − a₂b₁ = '+_g(D.toFixed(2))+'<br/>'+sol;
+}
+
+/* ════════ HERRAMIENTA 3: ECUACIÓN 1.er GRADO ════════ */
+function resolverEc(){
+  const a=val('e_a'),b=val('e_b'),c=val('e_c'),d=val('e_d'), box=document.getElementById('fb-ecuacion');
+  const A=a-c, B=d-b;
+  if(Math.abs(A)<1e-9){ box.innerHTML=Math.abs(B)<1e-9?'Identidad: <span class="gold">infinitas soluciones</span> (cualquier x cumple).':'<span class="gold">Sin solución</span>: los coeficientes de x se cancelan pero los términos no coinciden.'; return; }
+  const x=B/A;
+  box.innerHTML='('+a+' − '+c+')x = '+d+' − '+b+'<br/>'+A.toFixed(2)+' x = '+B.toFixed(2)+'<br/>x = '+B.toFixed(2)+' / '+A.toFixed(2)+' = '+_g('x = '+(Math.round(x*1000)/1000));
+}
+
+/* ════════ HERRAMIENTA 4: m.c.m. y M.C.D. ════════ */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; }
+function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
+function calcMCM(){
+  let nums=[val('m_n1'),val('m_n2')]; const n3=document.getElementById('m_n3').value.trim(); if(n3!=='')nums.push(parseFloat(n3));
+  nums=nums.filter(n=>Number.isInteger(n)&&n>0);
+  if(nums.length<2){ setT('mc-mcd','—'); setT('mc-mcm','Ingresa enteros > 0'); return; }
+  let g=nums[0], l=nums[0]; nums.slice(1).forEach(n=>{ g=gcd(g,n); l=lcm(l,n); });
+  setT('mc-mcd',g); setT('mc-mcm',l);
+}
+
+/* ════════ HERRAMIENTA 5: CONVERSOR ════════ */
+function calcConv(){
+  const num=val('f_num'), den=val('f_den');
+  if(!den||den===0){ setT('cv-frac','—'); setT('cv-dec','den ≠ 0'); setT('cv-pct','—'); return; }
+  const g=gcd(Math.round(num),Math.round(den))||1;
+  const sn=Math.round(num/g), sd=Math.round(den/g);
+  setT('cv-frac', (Number.isInteger(num)&&Number.isInteger(den))? (sn+'/'+sd) : (num+'/'+den));
+  setT('cv-dec',(num/den).toFixed(4).replace(/\.?0+$/,''));
+  setT('cv-pct',((num/den)*100).toFixed(2).replace(/\.?0+$/,'')+' %');
+}
+
+/* ════════ HERO MATEMÁTICO ════════ */
+const hc=document.getElementById('heroCanvas'), hx=hc.getContext('2d');
+let heroSymbols=[], heroT=0;
+const SYMS=['π','∑','√','∞','Δ','ƒ','x²','÷','×','%','≠','∫'];
+function initHero(){
+  hc.width=hc.offsetWidth; hc.height=hc.offsetHeight; heroSymbols=[];
+  const n=Math.min(14,Math.floor(hc.width/60));
+  for(let i=0;i<n;i++) heroSymbols.push({ch:SYMS[Math.floor(Math.random()*SYMS.length)],x:Math.random()*hc.width,y:Math.random()*hc.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()*.25+.08,size:Math.random()*22+16});
+}
+function drawHero(){
+  const W=hc.width,H=hc.height; hx.clearRect(0,0,W,H);
+  // cuadrícula
+  hx.strokeStyle='rgba(255,255,255,.045)'; hx.lineWidth=1;
+  for(let x=0;x<W;x+=38){ hx.beginPath(); hx.moveTo(x,0); hx.lineTo(x,H); hx.stroke(); }
+  for(let y=0;y<H;y+=38){ hx.beginPath(); hx.moveTo(0,y); hx.lineTo(W,y); hx.stroke(); }
+  // ejes sutiles
+  hx.strokeStyle='rgba(255,255,255,.12)'; hx.lineWidth=1.5; const my=H*0.5; hx.beginPath(); hx.moveTo(0,my); hx.lineTo(W,my); hx.stroke();
+  // símbolos flotando
+  hx.font='400 1px serif';
+  heroSymbols.forEach(sm=>{ sm.x+=sm.vx; sm.y+=sm.vy; if(sm.x<-30)sm.x=W+30; if(sm.x>W+30)sm.x=-30; if(sm.y<-30)sm.y=H+30; if(sm.y>H+30)sm.y=-30; hx.fillStyle='rgba(201,168,76,'+sm.a+')'; hx.font=sm.size+"px 'Playfair Display', serif"; hx.fillText(sm.ch,sm.x,sm.y); });
+  // curva senoidal (dorada, animada)
+  const A=H*0.24;
+  hx.strokeStyle='rgba(201,168,76,.6)'; hx.lineWidth=2.5; hx.beginPath();
+  for(let x=0;x<=W;x+=4){ const y=my+A*Math.sin(x*0.016+heroT); if(x===0)hx.moveTo(x,y); else hx.lineTo(x,y); } hx.stroke();
+  // coseno (azul, faint)
+  hx.strokeStyle='rgba(159,192,255,.35)'; hx.lineWidth=2; hx.beginPath();
+  for(let x=0;x<=W;x+=4){ const y=my+A*0.7*Math.cos(x*0.016+heroT*0.8); if(x===0)hx.moveTo(x,y); else hx.lineTo(x,y); } hx.stroke();
+  // punto móvil sobre la senoidal
+  const px=W*0.8, py=my+A*Math.sin(px*0.016+heroT);
+  hx.beginPath(); hx.arc(px,py,5,0,Math.PI*2); hx.fillStyle='#e8c96a'; hx.fill();
+  heroT+=0.02; requestAnimationFrame(drawHero);
+}
+
+/* ════════ INIT ════════ */
+function updateAll(){ updateLineal(); updateSistema(); }
+function resizeCanvases(){ [graphCanvas,sysCanvas].forEach(c=>{ c.width=c.parentElement.clientWidth; }); updateLineal(); updateSistema(); }
+window.addEventListener('resize', ()=>{ initHero(); resizeCanvases(); });
+window.addEventListener('load', ()=>{ renderCalendario(); renderProximos(); renderFormulas(); renderVideos(); resizeCanvases(); calcMCM(); calcConv(); resolverEc(); initHero(); drawHero(); });
+if(location.hash==='#calendario') switchTab('calendario');
+if(location.hash==='#herramientas'||location.hash==='#simuladores') switchTab('herramientas');
+</script>
+</body>
+</html>

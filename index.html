@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M.C. José Luis López Saynes · Física & Matemáticas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#1B3A6B; --navy-d:#112447; --navy-l:#254d8f;
+      --gold:#C9A84C; --gold-l:#e8c96a; --white:#F8F9FC;
+      --gray:#8A95A3; --border:#e6eaf0; --text:#1e293b; --muted:#64748b;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); min-height: 100vh; }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 1px 12px rgba(17,36,71,.05); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-brand { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .nav-brand img { height: 42px; width: auto; display: block; }
+    .nav-brand .nb-divider { width: 1px; height: 32px; background: var(--border); }
+    .nav-brand .nb-text { font-size: .78rem; color: var(--gray); line-height: 1.3; }
+    .nav-brand .nb-text strong { color: var(--navy); display: block; font-size: .85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a { color: var(--gray); text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .02em; padding: .4rem 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover { color: var(--navy); border-bottom-color: var(--gold); }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, var(--navy-d) 0%, var(--navy) 60%, #2a5499 100%); padding: 5rem 2rem 4.5rem; text-align: center; position: relative; overflow: hidden; }
+    #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-badge { display: inline-block; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.4); color: var(--gold-l); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: .35rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; }
+    .hero h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; margin-bottom: .75rem; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: rgba(255,255,255,.7); font-size: 1.05rem; max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
+    .hero-cta { display: inline-flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+    .btn-hero { padding: .7rem 1.4rem; border-radius: 10px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .2s; }
+    .btn-hero-primary { background: var(--gold); color: var(--navy-d); }
+    .btn-hero-primary:hover { background: var(--gold-l); }
+    .btn-hero-ghost { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.18); }
+
+    section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9a7d2e; margin-bottom: .5rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--navy-d); margin-bottom: .5rem; }
+    .section-sub { color: var(--gray); font-size: .95rem; margin-bottom: 2.5rem; }
+
+    /* ANNOUNCEMENTS */
+    .avisos-section { background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .avisos-wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+    .avisos-head { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.5rem; }
+    .avisos-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
+    .avisos-grid { display: grid; gap: .85rem; }
+    .aviso { display: flex; gap: 1rem; align-items: flex-start; background: #f8fafc; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1rem 1.25rem; }
+    .aviso.urgente { border-left-color: #c0392b; }
+    .aviso-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .aviso-body h3 { font-size: .95rem; font-weight: 600; color: var(--navy); }
+    .aviso-body p { font-size: .85rem; color: var(--muted); margin-top: .2rem; line-height: 1.5; }
+    .aviso-date { font-size: .72rem; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-top: .35rem; }
+
+    /* COURSES */
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .course-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .course-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(27,58,107,.15); }
+    .card-header { background: var(--navy); padding: 1.5rem 1.75rem 1.25rem; position: relative; overflow: hidden; }
+    .card-header::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: var(--gold); }
+    .card-num { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(201,168,76,.85); margin-bottom: .4rem; }
+    .card-title { font-family: 'Playfair Display', serif; color: #fff; font-size: 1.35rem; }
+    .card-body { padding: 1.5rem 1.75rem; flex: 1; }
+    .units-list { list-style: none; }
+    .units-list li { display: flex; align-items: flex-start; gap: .6rem; padding: .45rem 0; border-bottom: 1px solid #f1f5f9; font-size: .88rem; color: #475569; }
+    .units-list li:last-child { border-bottom: none; }
+    .units-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: .45rem; }
+    .card-footer { padding: 1rem 1.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-footer span:first-child { font-size: .82rem; color: var(--gray); }
+    .btn-go { background: var(--navy); color: #fff; padding: .45rem 1.1rem; border-radius: 8px; font-size: .82rem; font-weight: 600; }
+
+    /* SIMULATOR GALLERY */
+    .sim-gallery-section { background: var(--navy-d); }
+    .sim-gallery-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+    .sim-gallery-wrap .section-label { color: var(--gold); }
+    .sim-gallery-wrap .section-title { color: #fff; }
+    .sim-gallery-wrap .section-sub { color: rgba(255,255,255,.55); }
+    .sim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .sim-tile { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 1.5rem; text-decoration: none; transition: all .2s; }
+    .sim-tile:hover { background: rgba(255,255,255,.09); border-color: rgba(201,168,76,.4); transform: translateY(-3px); }
+    .sim-tile .st-icon { width: 46px; height: 46px; background: rgba(201,168,76,.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1rem; }
+    .sim-tile h3 { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: .3rem; }
+    .sim-tile p { color: rgba(255,255,255,.5); font-size: .8rem; line-height: 1.5; }
+    .sim-tile .st-tag { display: inline-block; margin-top: .75rem; font-size: .72rem; font-weight: 600; color: var(--gold-l); }
+
+    /* CONTACT */
+    .contact-card { background: linear-gradient(135deg, var(--navy-d), var(--navy)); border-radius: 16px; padding: 2.5rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+    .contact-avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(201,168,76,.2); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; }
+    .contact-info { flex: 1; min-width: 240px; }
+    .contact-info .ci-role { color: var(--gold); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .contact-info h3 { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin: .25rem 0 .5rem; }
+    .contact-info p { color: rgba(255,255,255,.6); font-size: .9rem; line-height: 1.6; }
+    .contact-actions { display: flex; flex-direction: column; gap: .6rem; }
+    .contact-btn { display: inline-flex; align-items: center; gap: .5rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #fff; padding: .6rem 1.1rem; border-radius: 9px; text-decoration: none; font-size: .85rem; font-weight: 500; transition: background .2s; }
+    .contact-btn:hover { background: var(--gold); color: var(--navy-d); border-color: var(--gold); }
+
+    footer { background: var(--navy-d); border-top: 1px solid rgba(201,168,76,.3); padding: 2rem; text-align: center; }
+    footer p { color: rgba(255,255,255,.35); font-size: .8rem; }
+    footer p span { color: var(--gold); }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; height: 64px; }
+      .nav-brand .nb-text { display: none; }
+      .nav-links { gap: 1rem; }
+      .hero { padding: 3.5rem 1.25rem 3rem; }
+      section { padding: 3rem 1.25rem; }
+      .contact-card { padding: 1.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
+    <div class="nb-divider"></div>
+    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+  </a>
+  <div class="nav-links">
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">Ciclo escolar 2026-2027-1</div>
+    <h1>Física &amp; <span>Matemáticas</span><br/>Universidad Descartes</h1>
+    <p>Material didáctico, simuladores interactivos y calendarios de exámenes para los cursos del semestre.</p>
+    <div class="hero-cta">
+      <a class="btn-hero btn-hero-primary" href="#materias">Ver mis materias</a>
+      <a class="btn-hero btn-hero-ghost" href="#simuladores">Explorar simuladores</a>
+    </div>
+  </div>
+</div>
+
+<!-- AVISOS -->
+<div class="avisos-section">
+  <div class="avisos-wrap">
+    <div class="avisos-head">
+      <span style="font-size:1.4rem;">📣</span>
+      <h2>Anuncios</h2>
+    </div>
+    <div class="avisos-grid" id="avisos-grid"></div>
+  </div>
+</div>
+
+<!-- COURSES -->
+<section id="materias">
+  <p class="section-label">Semestre actual</p>
+  <h2 class="section-title">Mis materias</h2>
+  <p class="section-sub">Selecciona una materia para ver el programa, el calendario de exámenes y los recursos del curso.</p>
+  <div class="courses-grid">
+    <a class="course-card" href="fisica1.html">
+      <div class="card-header"><div class="card-num">Clave 1302 · Obligatoria</div><div class="card-title">Física I</div></div>
+      <div class="card-body"><ul class="units-list">
+        <li>Unidad 1 · Introducción a la Física</li>
+        <li>Unidad 2 · Mecánica de la partícula</li>
+        <li>Unidad 3 · Energía y fenómenos térmicos</li>
+      </ul></div>
+      <div class="card-footer"><span>Grupos: 3010 · 3040 · 3050 · 3080</span><span class="btn-go">Ver curso →</span></div>
+    </a>
+    <a class="course-card" href="fisica3.html">
+      <div class="card-header"><div class="card-num">Clave 1506 · Optativa</div><div class="card-title">Física III</div></div>
+      <div class="card-body"><ul class="units-list">
+        <li>Unidad 1 · Sistemas de cuerpos rígidos</li>
+        <li>Unidad 2 · Sistema de fluidos</li>
+      </ul></div>
+      <div class="card-footer"><span>Grupos: 5010 · 5060</span><span class="btn-go">Ver curso →</span></div>
+    </a>
+    <a class="course-card" href="mates1.html">
+      <div class="card-header"><div class="card-num">Obligatoria</div><div class="card-title">Matemáticas I</div></div>
+      <div class="card-body"><ul class="units-list">
+        <li>Álgebra y funciones</li>
+        <li>Geometría analítica</li>
+        <li>Trigonometría</li>
+      </ul></div>
+      <div class="card-footer"><span>Grupo: 1010</span><span class="btn-go">Ver curso →</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- SIMULATOR GALLERY -->
+<div class="sim-gallery-section" id="simuladores">
+  <div class="sim-gallery-wrap">
+    <p class="section-label">Aprende visualizando</p>
+    <h2 class="section-title">Simuladores interactivos</h2>
+    <p class="section-sub">Modifica las variables, observa el fenómeno y exporta las gráficas. Funcionan en celular, tablet y computadora.</p>
+    <div class="sim-grid">
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">📈</div>
+        <h3>MRU / MRUA</h3>
+        <p>Movimiento rectilíneo con gráficas posición-tiempo y velocidad-tiempo.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🌍</div>
+        <h3>Caída libre</h3>
+        <p>Caída vertical con g = 9.8 m/s², tiempo y velocidad de impacto.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🎯</div>
+        <h3>Tiro parabólico</h3>
+        <p>Trayectoria, alcance, altura máxima y tiempo de vuelo.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🧮</div>
+        <h3>Solver de cinemática</h3>
+        <p>Ingresa los datos que conozcas y resuelve cualquier variable de MRUA.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🧱</div>
+        <h3>2.ª Ley de Newton</h3>
+        <p>Fuerza, masa y fricción: comprueba que a = F<sub>neta</sub>/m.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🔄</div>
+        <h3>Movimiento circular</h3>
+        <p>Fuerza centrípeta, periodo y frecuencia del giro.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+      <a class="sim-tile" href="fisica1.html#simuladores">
+        <div class="st-icon">🪐</div>
+        <h3>Órbitas de Kepler</h3>
+        <p>Movimiento planetario y ley de áreas en una elipse.</p>
+        <span class="st-tag">Física I →</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section>
+  <p class="section-label">Contacto</p>
+  <h2 class="section-title">Sobre el profesor</h2>
+  <p class="section-sub">Cualquier duda sobre las clases, materiales o evaluaciones, estoy para apoyarte.</p>
+  <div class="contact-card">
+    <div class="contact-avatar">👨‍🏫</div>
+    <div class="contact-info">
+      <div class="ci-role">Maestro en Ciencias</div>
+      <h3>José Luis López Saynes</h3>
+      <p>Profesor de Física y Matemáticas · Universidad de Ciencia y Tecnología Descartes (incorporada a la UNAM). Imparto Física I, III y Matemáticas I este semestre.</p>
+    </div>
+    <div class="contact-actions">
+      <a class="contact-btn" href="mailto:jose.lopsay@gmail.com">✉️ jose.lopsay@gmail.com</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>M.C. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · UNAM clave 7948 · Ciclo 2026-2027-1</p>
+</footer>
+
+<script>
+/* ════════ AVISOS (edita este arreglo para cambiar los anuncios) ════════ */
+const AVISOS = [
+  { tipo:'normal',  icon:'🎓', fecha:'18 ago 2026', titulo:'Inicio de clases', texto:'Comenzamos el semestre 2026-2027-1. Revisa el programa y el calendario de exámenes de tu grupo.' },
+  { tipo:'urgente', icon:'📝', fecha:'8 sep 2026',  titulo:'Primer examen interparcial', texto:'Grupos 3010 y 3040 presentan el 8 de septiembre. Consulta tu fecha exacta en el calendario de Física I.' },
+  { tipo:'normal',  icon:'📁', fecha:'Permanente',  titulo:'Material disponible en Drive', texto:'El material de cada unidad se publica en su carpeta de Google Drive. Entra a tu materia y abre la carpeta correspondiente.' },
+];
+function renderAvisos(){
+  document.getElementById('avisos-grid').innerHTML = AVISOS.map(a=>`
+    <div class="aviso ${a.tipo==='urgente'?'urgente':''}">
+      <div class="aviso-icon">${a.icon}</div>
+      <div class="aviso-body">
+        <h3>${a.titulo}</h3>
+        <p>${a.texto}</p>
+        <div class="aviso-date">${a.fecha}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ════════ HERO: átomo con electrones orbitando ════════ */
+const hc = document.getElementById('heroCanvas'), hx = hc.getContext('2d');
+let particles = [];
+function initHero(){
+  hc.width = hc.offsetWidth; hc.height = hc.offsetHeight;
+  // partículas flotantes de fondo
+  particles = [];
+  const n = Math.min(40, Math.floor(hc.width/28));
+  for(let i=0;i<n;i++) particles.push({ x:Math.random()*hc.width, y:Math.random()*hc.height, r:Math.random()*1.8+.4, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, a:Math.random()*.4+.1 });
+}
+let heroT = 0;
+function drawHero(){
+  const W = hc.width, H = hc.height;
+  hx.clearRect(0,0,W,H);
+  // partículas flotantes
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    hx.beginPath(); hx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    hx.fillStyle='rgba(201,168,76,'+p.a+')'; hx.fill();
+  });
+  // átomo a la derecha
+  const cx = W*0.80, cy = H*0.5, R = Math.min(W,H)*0.26;
+  // núcleo
+  const glow = hx.createRadialGradient(cx,cy,0,cx,cy,R*0.5);
+  glow.addColorStop(0,'rgba(201,168,76,.5)'); glow.addColorStop(1,'rgba(201,168,76,0)');
+  hx.fillStyle=glow; hx.beginPath(); hx.arc(cx,cy,R*0.5,0,Math.PI*2); hx.fill();
+  hx.beginPath(); hx.arc(cx,cy,6,0,Math.PI*2); hx.fillStyle='#e8c96a'; hx.fill();
+  // 3 órbitas elípticas rotadas
+  const orbits = [0, Math.PI/3, -Math.PI/3];
+  orbits.forEach((rot,i)=>{
+    hx.save(); hx.translate(cx,cy); hx.rotate(rot);
+    hx.strokeStyle='rgba(255,255,255,.12)'; hx.lineWidth=1;
+    hx.beginPath(); hx.ellipse(0,0,R,R*0.42,0,0,Math.PI*2); hx.stroke();
+    // electrón
+    const speed = 0.6 + i*0.25;
+    const ang = heroT*speed + i*2;
+    const ex = R*Math.cos(ang), ey = R*0.42*Math.sin(ang);
+    hx.beginPath(); hx.arc(ex,ey,4,0,Math.PI*2);
+    hx.fillStyle = i===1 ? '#C9A84C' : '#9fc0ff'; hx.fill();
+    hx.restore();
+  });
+  heroT += 0.012;
+  requestAnimationFrame(drawHero);
+}
+window.addEventListener('resize', initHero);
+window.addEventListener('load', ()=>{ renderAvisos(); initHero(); drawHero(); });
+</script>
+</body>
+</html>

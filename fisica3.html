@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Física III · Prof. López Saynes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy:#1B3A6B; --navy-d:#112447; --navy-l:#254d8f; --gold:#C9A84C; --gold-l:#e8c96a; --white:#F8F9FC; --gray:#8A95A3; --border:#e6eaf0; --text:#1e293b; --muted:#64748b; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 1px 12px rgba(17,36,71,.05); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-brand { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .nav-brand img { height: 42px; width: auto; display: block; }
+    .nav-brand .nb-divider { width: 1px; height: 32px; background: var(--border); }
+    .nav-brand .nb-text { font-size: .78rem; color: var(--muted); line-height: 1.3; }
+    .nav-brand .nb-text strong { color: var(--navy); display: block; font-size: .85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .02em; padding: .4rem 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover { color: var(--navy); }
+    .nav-links a.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .page-header { background: linear-gradient(135deg, var(--navy-d) 0%, var(--navy) 70%, #2a5499 100%); padding: 3.25rem 2rem 2.75rem; position: relative; overflow: hidden; }
+    #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .page-header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .breadcrumb { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+    .breadcrumb a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .8rem; }
+    .breadcrumb a:hover { color: var(--gold); }
+    .breadcrumb span { color: rgba(255,255,255,.25); font-size: .8rem; }
+    .breadcrumb em { color: rgba(255,255,255,.75); font-style: normal; font-size: .8rem; }
+    .ph-tag { display: inline-flex; align-items: center; gap: .4rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.35); color: var(--gold-l); font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .9rem; border-radius: 2rem; margin-bottom: 1rem; }
+    .ph-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-l); }
+    .page-header h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: clamp(1.9rem, 4vw, 2.7rem); margin-bottom: .5rem; }
+    .page-header p { color: rgba(255,255,255,.6); font-size: .95rem; max-width: 580px; line-height: 1.6; }
+    .group-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+    .group-chip { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.9); border-radius: 8px; padding: .4rem .9rem; font-size: .85rem; font-weight: 600; }
+    .group-chip .gc-label { color: rgba(255,255,255,.45); font-weight: 400; font-size: .72rem; display: block; }
+    .layout { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 2rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; cursor: pointer; white-space: nowrap; padding: .75rem 1.25rem; font-size: .88rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .2s, border-color .2s; }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+    .tab-btn:hover:not(.active) { color: var(--navy-l); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .welcome-box { background: linear-gradient(135deg, var(--navy-d), var(--navy)); border-radius: 14px; padding: 2rem; margin-bottom: 1.75rem; color: #fff; }
+    .welcome-box h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: .75rem; }
+    .welcome-box p { color: rgba(255,255,255,.72); font-size: .92rem; line-height: 1.7; margin-bottom: .75rem; }
+    .welcome-box p:last-child { margin-bottom: 0; }
+    .section-h { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+    .next-event { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: .85rem 1rem; margin-bottom: .7rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .ne-info .ne-label { font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #9a7d2e; }
+    .ne-info .ne-title { font-size: .9rem; font-weight: 600; color: var(--navy); margin-top: .15rem; }
+    .ne-date { text-align: right; flex-shrink: 0; }
+    .ne-date .ned-day { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+    .ne-date .ned-rest { font-size: .75rem; color: var(--muted); }
+    .ne-countdown { font-size: .7rem; color: var(--gold); font-weight: 600; }
+    .unit-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
+    .unit-header { background: var(--navy); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .unit-header h3 { font-size: .95rem; font-weight: 600; }
+    .unit-header .arrow { transition: transform .3s; font-size: .8rem; }
+    .unit-card.open .unit-header .arrow { transform: rotate(90deg); }
+    .unit-body { padding: .5rem 1.25rem 1rem; display: none; }
+    .unit-card.open .unit-body { display: block; }
+    .topic { padding: .9rem 0; border-bottom: 1px solid #f1f5f9; }
+    .topic:last-child { border-bottom: none; }
+    .topic-title { display: flex; align-items: baseline; gap: .55rem; font-size: .92rem; font-weight: 600; color: var(--navy); }
+    .topic-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .subchips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; padding-left: 1.25rem; }
+    .subchip { background: #f1f5f9; color: #475569; font-size: .76rem; padding: .25rem .6rem; border-radius: 6px; }
+    .topic-simple { display: flex; align-items: baseline; gap: .55rem; font-size: .88rem; color: var(--muted); padding: .45rem 0; }
+    .topic-simple::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .cal-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .cal-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .cal-table { width: 100%; border-collapse: collapse; min-width: 460px; }
+    .cal-table th { background: var(--navy); color: #fff; font-size: .8rem; font-weight: 600; padding: .75rem 1rem; text-align: center; white-space: nowrap; }
+    .cal-table th.period-col { text-align: left; }
+    .cal-table td { padding: .7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: .82rem; text-align: center; color: var(--text); }
+    .cal-table td.period-cell { text-align: left; font-weight: 600; color: var(--navy); background: #f8fafc; white-space: nowrap; }
+    .cal-table tr:last-child td { border-bottom: none; }
+    .cal-table tr.next-exam td { background: rgba(201,168,76,.1); }
+    .exam-date { font-weight: 600; color: var(--navy); display: block; }
+    .exam-time { font-size: .72rem; color: var(--gray); }
+    .exam-all { color: #9a7d2e; font-weight: 600; }
+    .formula-search { width: 100%; padding: .8rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: .95rem; font-family: 'Inter'; margin-bottom: 1.5rem; }
+    .formula-search:focus { outline: 2px solid rgba(27,58,107,.2); border-color: var(--navy); }
+    .formula-unit { margin-bottom: 1.75rem; }
+    .formula-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .formula-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .85rem; }
+    .formula-card { border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; background: #fff; transition: box-shadow .2s, border-color .2s; }
+    .formula-card:hover { border-color: var(--gold); box-shadow: 0 4px 14px rgba(27,58,107,.08); }
+    .formula-card .fc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray); }
+    .formula-card .fc-nombre { font-size: .9rem; font-weight: 600; color: var(--navy); margin: .15rem 0 .6rem; }
+    .formula-card .fc-eq { background: var(--navy-d); color: #fff; border-radius: 8px; padding: .6rem .75rem; font-size: 1.05rem; text-align: center; font-weight: 600; letter-spacing: .02em; }
+    .formula-card .fc-vars { font-size: .76rem; color: var(--muted); margin-top: .6rem; line-height: 1.5; }
+    .formula-empty { color: var(--gray); font-size: .9rem; padding: 2rem; text-align: center; }
+    .video-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin: 1.5rem 0 .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; }
+    .video-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+    .video-thumb { position: relative; cursor: pointer; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .92; transition: opacity .2s; }
+    .video-thumb:hover img { opacity: 1; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .video-play span { width: 54px; height: 54px; background: rgba(27,58,107,.88); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; padding-left: 4px; }
+    .video-thumb:hover .video-play span { background: var(--gold); color: var(--navy-d); }
+    .video-card .vc-body { padding: .85rem 1rem; }
+    .video-card .vc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gold); }
+    .video-card .vc-title { font-size: .88rem; font-weight: 600; color: var(--navy); margin-top: .2rem; line-height: 1.35; }
+    .video-card iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+    .sim-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; box-shadow: 0 2px 10px rgba(17,36,71,.04); }
+    .sim-header { background: var(--navy-d); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; gap: .75rem; }
+    .sim-icon { width: 38px; height: 38px; background: rgba(201,168,76,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .sim-header h3 { font-size: 1rem; font-weight: 600; }
+    .sim-header p { color: rgba(255,255,255,.5); font-size: .78rem; margin-top: .15rem; }
+    .sim-body { padding: 1.25rem; background: #fff; }
+    .sim-instructions { background: #f8fafc; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+    .sim-instructions h4 { font-size: .8rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .6rem; }
+    .ins-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .9rem; }
+    .ins-item .ins-label { font-size: .72rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+    .ins-item p { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+    .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; margin-bottom: 1.1rem; }
+    .ctrl-group label { display: block; font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .ctrl-row { display: flex; align-items: center; gap: .6rem; }
+    .ctrl-row input[type=range] { flex: 1; accent-color: var(--navy); }
+    .num-input { width: 74px; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 7px; font-size: .85rem; font-weight: 600; color: var(--navy); font-family: 'Inter'; text-align: right; }
+    .num-input:focus { outline: 2px solid rgba(27,58,107,.25); border-color: var(--navy); }
+    .num-unit { font-size: .78rem; color: var(--gray); min-width: 28px; }
+    .solver-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .9rem; margin-bottom: 1rem; }
+    .solver-in.computed { background: rgba(201,168,76,.15); border-color: var(--gold); }
+    .solver-msg { font-size: .85rem; color: #c0392b; margin-bottom: .75rem; min-height: 1px; }
+    .solver-msg.ok { color: #1a7a4c; }
+    .sim-canvas-wrap { background: #f8fafc; border-radius: 8px; overflow: hidden; margin-bottom: .75rem; border: 1px solid var(--border); }
+    canvas { display: block; width: 100%; }
+    .sim-btns { display: flex; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
+    .btn-sim { padding: .55rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-size: .85rem; font-weight: 600; transition: background .2s; display: inline-flex; align-items: center; gap: .4rem; }
+    .btn-primary { background: var(--navy); color: #fff; flex: 1; justify-content: center; }
+    .btn-primary:hover { background: var(--navy-l); }
+    .btn-secondary { background: #f1f5f9; color: var(--navy); flex: 1; justify-content: center; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-export { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+    .btn-export:hover { background: var(--navy); color: #fff; }
+    .sim-readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1rem; }
+    .readout-item { background: #f8fafc; border-radius: 8px; padding: .6rem .75rem; text-align: center; }
+    .readout-item .rval { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+    .readout-item .rlbl { font-size: .68rem; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; margin-top: .1rem; }
+    .formula-box { background: var(--navy-d); border-radius: 10px; padding: 1rem 1.25rem; color: #fff; }
+    .formula-box .fb-label { font-size: .7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .formula-box .fb-eq { font-size: .92rem; line-height: 1.9; }
+    .formula-box .fb-eq .gold { color: var(--gold-l); font-weight: 700; }
+    .formula-box .fb-eq .dim { color: rgba(255,255,255,.5); }
+    .mat-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .mat-unit { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .mat-unit-header { background: var(--navy); color: #fff; padding: .85rem 1.25rem; font-size: .9rem; font-weight: 600; border-bottom: 2px solid var(--gold); }
+    .mat-unit-body { padding: 1rem 1.25rem; }
+    .mat-folder-btn { display: flex; align-items: center; gap: .75rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.1rem; text-decoration: none; color: var(--text); transition: all .15s; }
+    .mat-folder-btn:hover { background: #fff; border-color: var(--gold); box-shadow: 0 2px 10px rgba(27,58,107,.08); }
+    .mat-folder-btn .mf-icon { font-size: 1.5rem; }
+    .mat-folder-btn .mf-title { font-weight: 600; font-size: .9rem; }
+    .mat-folder-btn .mf-sub { font-size: .78rem; color: var(--gray); }
+    .mat-folder-btn .mf-arrow { margin-left: auto; color: var(--gold); font-weight: 700; }
+    footer { background: var(--navy-d); border-top: 1px solid rgba(201,168,76,.3); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: rgba(255,255,255,.35); font-size: .8rem; }
+    footer p span { color: var(--gold); }
+    @media (max-width: 720px){ .solver-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px) { nav { padding: 0 1rem; height: 64px; } .nav-brand .nb-text { display: none; } .nav-links { gap: 1rem; } .page-header { padding: 2.5rem 1.25rem 2rem; } .layout { padding: 2rem 1.25rem 3rem; } .sim-controls, .ins-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
+    <div class="nb-divider"></div>
+    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+  </a>
+  <div class="nav-links">
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html" class="active">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <canvas id="heroCanvas"></canvas>
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">Inicio</a><span>/</span><em>Física III</em></div>
+    <div class="ph-tag"><span class="ph-dot"></span>Clave 1506 · Optativa</div>
+    <h1>Física III</h1>
+    <p>Sistemas de cuerpos rígidos y sistemas de fluidos. Ciclo escolar 2026-2027-1.</p>
+    <div class="group-chips"><span class="group-chip"><span class="gc-label">Grupos</span>5010 · 5060</span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('bienvenida')">Bienvenida</button>
+    <button class="tab-btn" onclick="switchTab('programa')">Programa</button>
+    <button class="tab-btn" onclick="switchTab('formulas')">Fórmulas</button>
+    <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
+    <button class="tab-btn" onclick="switchTab('simuladores')">Simuladores</button>
+    <button class="tab-btn" onclick="switchTab('calendario')">Calendario de exámenes</button>
+    <button class="tab-btn" onclick="switchTab('material')">Material</button>
+  </div>
+
+  <!-- BIENVENIDA -->
+  <div class="tab-panel active" id="tab-bienvenida">
+    <div class="welcome-box">
+      <h2>Bienvenidos a Física III</h2>
+      <p>En este curso optativo profundizamos en la mecánica de los <strong>cuerpos rígidos</strong> (rotación, torca, equilibrio y momento angular) y en el comportamiento de los <strong>fluidos</strong> (presión, flotación y dinámica), apoyándonos siempre en la herramienta vectorial.</p>
+      <p>Aquí encontrarás el programa, el calendario de exámenes de tu grupo, simuladores interactivos con sus calculadoras, fórmulas y videos de apoyo.</p>
+    </div>
+    <div class="section-h">📅 Próximos exámenes</div>
+    <div id="proximos-examenes"></div>
+  </div>
+
+  <!-- PROGRAMA -->
+  <div class="tab-panel" id="tab-programa">
+    <div class="unit-card open">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Herramienta · Vectores</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic-simple">Magnitudes escalares y vectoriales</div>
+        <div class="topic-simple">Representación gráfica de un vector (magnitud, dirección y sentido)</div>
+        <div class="topic-simple">Suma de vectores: método del polígono (cola-punta)</div>
+        <div class="topic-simple">Componentes rectangulares y método analítico</div>
+      </div>
+    </div>
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 1 · Sistemas de cuerpos rígidos</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic">
+          <div class="topic-title">Cuerpo rígido y rotación</div>
+          <div class="subchips"><span class="subchip">Traslación y rotación</span><span class="subchip">Centro de masa y de gravedad</span><span class="subchip">Desplazamiento, velocidad y aceleración angular</span></div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Torca y equilibrio</div>
+          <div class="subchips"><span class="subchip">Momento de una fuerza (torca)</span><span class="subchip">Equilibrio traslacional (ΣF = 0)</span><span class="subchip">Equilibrio rotacional (Στ = 0)</span></div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Dinámica de la rotación</div>
+          <div class="subchips"><span class="subchip">Momento de inercia</span><span class="subchip">2.ª ley de Newton rotacional (τ = Iα)</span><span class="subchip">Energía cinética rotacional</span></div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Momento angular</div>
+          <div class="subchips"><span class="subchip">L = I·ω</span><span class="subchip">Conservación del momento angular</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 2 · Sistemas de fluidos</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic">
+          <div class="topic-title">Hidrostática</div>
+          <div class="subchips"><span class="subchip">Densidad y peso específico</span><span class="subchip">Presión</span><span class="subchip">Presión hidrostática</span><span class="subchip">Presión atmosférica</span></div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Principios fundamentales</div>
+          <div class="subchips"><span class="subchip">Principio de Pascal</span><span class="subchip">Prensa hidráulica</span><span class="subchip">Principio de Arquímedes</span><span class="subchip">Flotación</span></div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Hidrodinámica</div>
+          <div class="subchips"><span class="subchip">Gasto y caudal</span><span class="subchip">Ecuación de continuidad</span><span class="subchip">Ecuación de Bernoulli</span><span class="subchip">Viscosidad</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FÓRMULAS -->
+  <div class="tab-panel" id="tab-formulas">
+    <p class="cal-intro">Formulario del curso. Usa el buscador para encontrar una fórmula por nombre, tema o variable.</p>
+    <input type="text" id="formula-search" class="formula-search" placeholder="🔍 Buscar fórmula… (ej: torca, presión, empuje, vector)" oninput="renderFormulas()" />
+    <div id="formulas-container"></div>
+  </div>
+
+  <!-- VIDEOS -->
+  <div class="tab-panel" id="tab-videos">
+    <p class="cal-intro">Videos seleccionados para reforzar cada tema. Da clic en uno para reproducirlo aquí mismo.</p>
+    <div id="videos-container"></div>
+  </div>
+
+  <!-- SIMULADORES -->
+  <div class="tab-panel" id="tab-simuladores">
+
+    <!-- VECTORES -->
+    <div class="sim-card" id="sim-vec">
+      <div class="sim-header"><div class="sim-icon">➗</div><div><h3>Simulador de Suma de Vectores</h3><p>Herramienta · Método cola-punta y resultante</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>magnitud</strong> y el <strong>ángulo</strong> de los vectores A y B.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>La construcción <strong>cola-punta</strong> (B se dibuja desde la punta de A) y la <strong>resultante R</strong> en rojo.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Verifica gráficamente la suma y obtén la magnitud, ángulo y componentes de R.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Vector A · magnitud</label><div class="ctrl-row"><input type="range" id="vam" min="0" max="10" value="5" step="0.5" oninput="syncFrom('vam','range')"><input type="number" class="num-input" id="vamn" value="5" step="0.5" oninput="syncFrom('vam','num')"><span class="num-unit">u</span></div></div>
+          <div class="ctrl-group"><label>Vector A · ángulo</label><div class="ctrl-row"><input type="range" id="vaa" min="0" max="360" value="30" step="5" oninput="syncFrom('vaa','range')"><input type="number" class="num-input" id="vaan" value="30" step="5" oninput="syncFrom('vaa','num')"><span class="num-unit">°</span></div></div>
+          <div class="ctrl-group"><label>Vector B · magnitud</label><div class="ctrl-row"><input type="range" id="vbm" min="0" max="10" value="4" step="0.5" oninput="syncFrom('vbm','range')"><input type="number" class="num-input" id="vbmn" value="4" step="0.5" oninput="syncFrom('vbm','num')"><span class="num-unit">u</span></div></div>
+          <div class="ctrl-group"><label>Vector B · ángulo</label><div class="ctrl-row"><input type="range" id="vba" min="0" max="360" value="110" step="5" oninput="syncFrom('vba','range')"><input type="number" class="num-input" id="vban" value="110" step="5" oninput="syncFrom('vba','num')"><span class="num-unit">°</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="vecCanvas" height="280"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(vecCanvas,'suma_vectores')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="vec-mag">—</div><div class="rlbl">|R|</div></div>
+          <div class="readout-item"><div class="rval" id="vec-ang">—</div><div class="rlbl">Ángulo R</div></div>
+          <div class="readout-item"><div class="rval" id="vec-comp">—</div><div class="rlbl">Componentes (Rx, Ry)</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Resultante (valores en vivo)</div><div class="fb-eq">Rx = Ax + Bx, Ry = Ay + By <span class="dim">→</span> <span id="fb-vec"></span></div></div>
+      </div>
+    </div>
+
+    <!-- TORCA -->
+    <div class="sim-card" id="sim-torca">
+      <div class="sim-header"><div class="sim-icon">⚖️</div><div><h3>Simulador de Torca y Equilibrio</h3><p>Unidad 1 · Στ = 0 (balancín)</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>El <strong>peso</strong> y la <strong>distancia al pivote</strong> de cada lado del balancín.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>El balancín se inclina hacia el lado de mayor torca, o queda <strong>en equilibrio</strong> si Στ = 0.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Compara τ = F·d de cada lado y encuentra la condición de equilibrio.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Peso izquierdo F₁</label><div class="ctrl-row"><input type="range" id="tF1" min="0" max="100" value="40" step="1" oninput="syncFrom('tF1','range')"><input type="number" class="num-input" id="tF1n" value="40" oninput="syncFrom('tF1','num')"><span class="num-unit">N</span></div></div>
+          <div class="ctrl-group"><label>Distancia izquierda d₁</label><div class="ctrl-row"><input type="range" id="td1" min="0.5" max="4" value="2" step="0.1" oninput="syncFrom('td1','range')"><input type="number" class="num-input" id="td1n" value="2" step="0.1" oninput="syncFrom('td1','num')"><span class="num-unit">m</span></div></div>
+          <div class="ctrl-group"><label>Peso derecho F₂</label><div class="ctrl-row"><input type="range" id="tF2" min="0" max="100" value="40" step="1" oninput="syncFrom('tF2','range')"><input type="number" class="num-input" id="tF2n" value="40" oninput="syncFrom('tF2','num')"><span class="num-unit">N</span></div></div>
+          <div class="ctrl-group"><label>Distancia derecha d₂</label><div class="ctrl-row"><input type="range" id="td2" min="0.5" max="4" value="2" step="0.1" oninput="syncFrom('td2','range')"><input type="number" class="num-input" id="td2n" value="2" step="0.1" oninput="syncFrom('td2','num')"><span class="num-unit">m</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="torcaCanvas" height="220"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(torcaCanvas,'torca_equilibrio')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="t-t1">—</div><div class="rlbl">τ izquierda</div></div>
+          <div class="readout-item"><div class="rval" id="t-t2">—</div><div class="rlbl">τ derecha</div></div>
+          <div class="readout-item"><div class="rval" id="t-estado">—</div><div class="rlbl">Estado</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Equilibrio rotacional</div><div class="fb-eq">τ = F·d <span class="dim">→</span> <span id="fb-torca"></span></div></div>
+      </div>
+    </div>
+
+    <!-- ROTACIÓN -->
+    <div class="sim-card" id="sim-rot">
+      <div class="sim-header"><div class="sim-icon">🔁</div><div><h3>Simulador de Rotación (τ = I·α)</h3><p>Unidad 1 · 2.ª ley de Newton rotacional</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>torca aplicada (τ)</strong> y el <strong>momento de inercia (I)</strong> del disco.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>El disco acelera su giro; mayor τ o menor I dan más <strong>aceleración angular</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Comprueba que α = τ / I y observa cómo crece ω con el tiempo.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Torca τ</label><div class="ctrl-row"><input type="range" id="rTau" min="1" max="50" value="10" step="1" oninput="syncFrom('rTau','range')"><input type="number" class="num-input" id="rTaun" value="10" oninput="syncFrom('rTau','num')"><span class="num-unit">N·m</span></div></div>
+          <div class="ctrl-group"><label>Momento de inercia I</label><div class="ctrl-row"><input type="range" id="rI" min="0.5" max="20" value="5" step="0.5" oninput="syncFrom('rI','range')"><input type="number" class="num-input" id="rIn" value="5" step="0.5" oninput="syncFrom('rI','num')"><span class="num-unit">kg·m²</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="rotCanvas" height="240"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-primary" id="rotPlayBtn" onclick="toggleRot()">▶ Aplicar torca</button><button class="btn-sim btn-secondary" onclick="resetRot()">↺ Reiniciar</button><button class="btn-sim btn-export" onclick="exportJPG(rotCanvas,'rotacion')">⬇ JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="r-alpha">—</div><div class="rlbl">Aceleración α</div></div>
+          <div class="readout-item"><div class="rval" id="r-omega">0.0</div><div class="rlbl">Velocidad ω</div></div>
+          <div class="readout-item"><div class="rval" id="r-time">0.0 s</div><div class="rlbl">Tiempo</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">2.ª ley de Newton rotacional</div><div class="fb-eq">α = τ / I <span class="dim">→</span> <span id="fb-rot"></span></div></div>
+      </div>
+    </div>
+
+    <!-- MOMENTO ANGULAR -->
+    <div class="sim-card" id="sim-angular">
+      <div class="sim-header"><div class="sim-icon">💫</div><div><h3>Simulador de Momento Angular</h3><p>Unidad 1 · L = I·ω y su conservación</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>El <strong>momento de inercia (I)</strong> y la <strong>velocidad angular (ω)</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>La masa girando con momento angular L = I·ω. Si activas <strong>conservar L</strong>, al cambiar I la ω se ajusta sola.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Es el efecto del patinador: al juntar los brazos (menor I) gira más rápido (mayor ω).</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Momento de inercia I</label><div class="ctrl-row"><input type="range" id="aI" min="0.5" max="10" value="4" step="0.5" oninput="syncFrom('aI','range')"><input type="number" class="num-input" id="aIn" value="4" step="0.5" oninput="syncFrom('aI','num')"><span class="num-unit">kg·m²</span></div></div>
+          <div class="ctrl-group"><label>Velocidad angular ω</label><div class="ctrl-row"><input type="range" id="aW" min="0" max="10" value="3" step="0.5" oninput="syncFrom('aW','range')"><input type="number" class="num-input" id="aWn" value="3" step="0.5" oninput="syncFrom('aW','num')"><span class="num-unit">rad/s</span></div></div>
+        </div>
+        <div class="sim-btns" style="margin-bottom:.8rem;"><label style="font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.45rem;cursor:pointer;"><input type="checkbox" id="aConserva" onchange="updateAll()"> Conservar L (efecto patinador)</label></div>
+        <div class="sim-canvas-wrap"><canvas id="angularCanvas" height="240"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-primary" id="angPlayBtn" onclick="toggleAng()">▶ Girar</button><button class="btn-sim btn-secondary" onclick="resetAng()">↺ Reiniciar</button><button class="btn-sim btn-export" onclick="exportJPG(angularCanvas,'momento_angular')">⬇ JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="a-L">—</div><div class="rlbl">Momento angular L</div></div>
+          <div class="readout-item"><div class="rval" id="a-I">—</div><div class="rlbl">Inercia I</div></div>
+          <div class="readout-item"><div class="rval" id="a-W">—</div><div class="rlbl">Velocidad ω</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Momento angular</div><div class="fb-eq">L = I·ω <span class="dim">→</span> <span id="fb-ang"></span></div></div>
+      </div>
+    </div>
+
+    <!-- PRESIÓN HIDROSTÁTICA -->
+    <div class="sim-card" id="sim-presion">
+      <div class="sim-header"><div class="sim-icon">🌊</div><div><h3>Simulador de Presión Hidrostática</h3><p>Unidad 2 · P = ρ·g·h</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>densidad del fluido (ρ)</strong> y la <strong>profundidad (h)</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>El punto de medición a la profundidad h y la <strong>presión</strong> que ejerce el fluido sobre él.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>La presión crece con la profundidad y con la densidad del fluido.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Densidad ρ</label><div class="ctrl-row"><input type="range" id="pRho" min="500" max="14000" value="1000" step="50" oninput="syncFrom('pRho','range')"><input type="number" class="num-input" id="pRhon" value="1000" step="50" oninput="syncFrom('pRho','num')"><span class="num-unit">kg/m³</span></div></div>
+          <div class="ctrl-group"><label>Profundidad h</label><div class="ctrl-row"><input type="range" id="pH" min="0" max="20" value="5" step="0.5" oninput="syncFrom('pH','range')"><input type="number" class="num-input" id="pHn" value="5" step="0.5" oninput="syncFrom('pH','num')"><span class="num-unit">m</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="presionCanvas" height="240"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(presionCanvas,'presion_hidrostatica')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="pr-P">—</div><div class="rlbl">Presión (Pa)</div></div>
+          <div class="readout-item"><div class="rval" id="pr-kPa">—</div><div class="rlbl">Presión (kPa)</div></div>
+          <div class="readout-item"><div class="rval" id="pr-atm">—</div><div class="rlbl">≈ atmósferas</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Presión hidrostática</div><div class="fb-eq">P = ρ·g·h <span class="dim">→</span> <span id="fb-presion"></span></div></div>
+      </div>
+    </div>
+
+    <!-- ARQUÍMEDES -->
+    <div class="sim-card" id="sim-arqui">
+      <div class="sim-header"><div class="sim-icon">🛟</div><div><h3>Simulador de Arquímedes / Flotación</h3><p>Unidad 2 · Empuje E = ρ·g·V</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>densidad del objeto</strong>, la <strong>densidad del fluido</strong> y el <strong>volumen</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>El objeto flota o se hunde según las densidades; la fracción sumergida = ρ_obj/ρ_fluido.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Calcula el empuje sobre la parte sumergida y compáralo con el peso.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Densidad del objeto</label><div class="ctrl-row"><input type="range" id="aoRho" min="100" max="3000" value="600" step="50" oninput="syncFrom('aoRho','range')"><input type="number" class="num-input" id="aoRhon" value="600" step="50" oninput="syncFrom('aoRho','num')"><span class="num-unit">kg/m³</span></div></div>
+          <div class="ctrl-group"><label>Densidad del fluido</label><div class="ctrl-row"><input type="range" id="afRho" min="500" max="2000" value="1000" step="50" oninput="syncFrom('afRho','range')"><input type="number" class="num-input" id="afRhon" value="1000" step="50" oninput="syncFrom('afRho','num')"><span class="num-unit">kg/m³</span></div></div>
+          <div class="ctrl-group"><label>Volumen del objeto</label><div class="ctrl-row"><input type="range" id="aVol" min="0.001" max="1" value="0.1" step="0.001" oninput="syncFrom('aVol','range')"><input type="number" class="num-input" id="aVoln" value="0.1" step="0.001" oninput="syncFrom('aVol','num')"><span class="num-unit">m³</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="arquiCanvas" height="240"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(arquiCanvas,'arquimedes')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="ar-E">—</div><div class="rlbl">Empuje (N)</div></div>
+          <div class="readout-item"><div class="rval" id="ar-frac">—</div><div class="rlbl">% sumergido</div></div>
+          <div class="readout-item"><div class="rval" id="ar-estado">—</div><div class="rlbl">Resultado</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Principio de Arquímedes</div><div class="fb-eq">E = ρ_fluido·g·V_sumergido <span class="dim">→</span> <span id="fb-arqui"></span></div></div>
+      </div>
+    </div>
+
+    <!-- PRENSA HIDRÁULICA -->
+    <div class="sim-card" id="sim-pascal">
+      <div class="sim-header"><div class="sim-icon">🔧</div><div><h3>Simulador de Prensa Hidráulica</h3><p>Unidad 2 · Principio de Pascal</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>fuerza F₁</strong> sobre el pistón chico y las <strong>áreas A₁ y A₂</strong>.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>El pistón grande levanta una fuerza F₂ mucho mayor: ventaja mecánica A₂/A₁.</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Comprueba que F₁/A₁ = F₂/A₂.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Fuerza F₁ (pistón chico)</label><div class="ctrl-row"><input type="range" id="kF1" min="1" max="200" value="50" step="1" oninput="syncFrom('kF1','range')"><input type="number" class="num-input" id="kF1n" value="50" oninput="syncFrom('kF1','num')"><span class="num-unit">N</span></div></div>
+          <div class="ctrl-group"><label>Área A₁ (chico)</label><div class="ctrl-row"><input type="range" id="kA1" min="0.001" max="0.05" value="0.01" step="0.001" oninput="syncFrom('kA1','range')"><input type="number" class="num-input" id="kA1n" value="0.01" step="0.001" oninput="syncFrom('kA1','num')"><span class="num-unit">m²</span></div></div>
+          <div class="ctrl-group"><label>Área A₂ (grande)</label><div class="ctrl-row"><input type="range" id="kA2" min="0.01" max="0.5" value="0.1" step="0.01" oninput="syncFrom('kA2','range')"><input type="number" class="num-input" id="kA2n" value="0.1" step="0.01" oninput="syncFrom('kA2','num')"><span class="num-unit">m²</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="pascalCanvas" height="220"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(pascalCanvas,'prensa_hidraulica')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="k-F2">—</div><div class="rlbl">Fuerza F₂ (N)</div></div>
+          <div class="readout-item"><div class="rval" id="k-vent">—</div><div class="rlbl">Ventaja mecánica</div></div>
+          <div class="readout-item"><div class="rval" id="k-P">—</div><div class="rlbl">Presión (Pa)</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Principio de Pascal</div><div class="fb-eq">F₂ = F₁·(A₂/A₁) <span class="dim">→</span> <span id="fb-pascal"></span></div></div>
+      </div>
+    </div>
+
+    <!-- BERNOULLI / CONTINUIDAD -->
+    <div class="sim-card" id="sim-bern">
+      <div class="sim-header"><div class="sim-icon">🚰</div><div><h3>Simulador de Continuidad y Bernoulli</h3><p>Unidad 2 · A₁v₁ = A₂v₂</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions"><h4>🛈 Cómo usar</h4><div class="ins-grid">
+          <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>Las <strong>áreas A₁ y A₂</strong> del tubo y la <strong>rapidez v₁</strong> en la sección ancha.</p></div>
+          <div class="ins-item"><div class="ins-label">Qué observas</div><p>Donde el tubo se estrecha, el fluido va <strong>más rápido</strong> (y la presión baja).</p></div>
+          <div class="ins-item"><div class="ins-label">Para tareas</div><p>Comprueba la ecuación de continuidad A₁v₁ = A₂v₂ y el gasto Q.</p></div>
+        </div></div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Área A₁ (ancha)</label><div class="ctrl-row"><input type="range" id="bA1" min="0.01" max="0.5" value="0.2" step="0.01" oninput="syncFrom('bA1','range')"><input type="number" class="num-input" id="bA1n" value="0.2" step="0.01" oninput="syncFrom('bA1','num')"><span class="num-unit">m²</span></div></div>
+          <div class="ctrl-group"><label>Rapidez v₁</label><div class="ctrl-row"><input type="range" id="bV1" min="0.5" max="10" value="2" step="0.5" oninput="syncFrom('bV1','range')"><input type="number" class="num-input" id="bV1n" value="2" step="0.5" oninput="syncFrom('bV1','num')"><span class="num-unit">m/s</span></div></div>
+          <div class="ctrl-group"><label>Área A₂ (estrecha)</label><div class="ctrl-row"><input type="range" id="bA2" min="0.01" max="0.5" value="0.08" step="0.01" oninput="syncFrom('bA2','range')"><input type="number" class="num-input" id="bA2n" value="0.08" step="0.01" oninput="syncFrom('bA2','num')"><span class="num-unit">m²</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="bernCanvas" height="220"></canvas></div>
+        <div class="sim-btns"><button class="btn-sim btn-export" onclick="exportJPG(bernCanvas,'bernoulli_continuidad')">⬇ Exportar JPG</button></div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="b-v2">—</div><div class="rlbl">Rapidez v₂</div></div>
+          <div class="readout-item"><div class="rval" id="b-Q">—</div><div class="rlbl">Gasto Q (m³/s)</div></div>
+          <div class="readout-item"><div class="rval" id="b-rel">—</div><div class="rlbl">v₂ / v₁</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Ecuación de continuidad</div><div class="fb-eq">v₂ = A₁·v₁ / A₂ <span class="dim">→</span> <span id="fb-bern"></span></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="tab-panel" id="tab-calendario">
+    <p class="cal-intro">Fechas de exámenes del ciclo 2026-2027-1. Ubica la columna de tu grupo. El horario indicado es la hora de inicio. La fila resaltada es el próximo examen.</p>
+    <div class="cal-wrap">
+      <table class="cal-table" id="cal-table">
+        <thead><tr><th class="period-col">Periodo</th><th>5010</th><th>5060</th></tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+    <p style="font-size:.8rem;color:var(--gray);margin-top:1rem;">* Fechas sujetas a cambios según indicaciones institucionales.</p>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="tab-panel" id="tab-material">
+    <p class="mat-intro">Cada unidad tiene una carpeta de Google Drive con su material. Da clic para abrir la carpeta y descargar lo que necesites.</p>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 1 · Sistemas de cuerpos rígidos</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 1</div><div class="mf-sub">Vectores, torca, rotación y momento angular</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 2 · Sistemas de fluidos</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 2</div><div class="mf-sub">Hidrostática, Pascal, Arquímedes y Bernoulli</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+  </div>
+</div>
+
+<footer><p>Prof. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · Ciclo 2026-2027-1</p></footer>
+
+<script>
+/* ════════ DATOS DE EXÁMENES (Física III) ════════ */
+const GRUPOS=['5010','5060'];
+const PERIODOS=['1.er Interparcial','1.er Parcial','2.º Interparcial','2.º Parcial','Final · 1.ª vuelta','Final · 2.ª vuelta','Extraordinario'];
+const EXAMENES={
+  '1.er Interparcial':{ '5010':['2026-09-07','07:00'], '5060':['2026-09-11','07:00'] },
+  '1.er Parcial':      { '5010':['2026-10-05','07:00'], '5060':['2026-10-09','07:00'] },
+  '2.º Interparcial':  { '5010':['2026-11-09','07:00'], '5060':['2026-11-13','07:00'] },
+  '2.º Parcial':       { '5010':['2026-12-07','07:00'], '5060':['2026-12-04','07:00'] },
+  'Final · 1.ª vuelta':{ '5010':['2026-12-14','07:00'], '5060':['2026-12-11','07:00'] },
+  'Final · 2.ª vuelta':{ '5010':['2027-01-06','08:00'], '5060':['2027-01-06','10:00'] },
+  'Extraordinario':    { 'todos':['2027-01-22','11:00'] }
+};
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESES_L=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function fmtCorto(iso){ const d=new Date(iso+'T00:00:00'); return d.getDate()+' '+MESES[d.getMonth()]; }
+function fmtLargo(iso){ const d=new Date(iso+'T00:00:00'); return d.getDate()+' de '+MESES_L[d.getMonth()]+' de '+d.getFullYear(); }
+const HOY=new Date(); HOY.setHours(0,0,0,0);
+function renderCalendario(){
+  const tb=document.getElementById('cal-body');
+  let nextP=null,nextD=Infinity;
+  PERIODOS.forEach(p=>{ Object.values(EXAMENES[p]).forEach(([iso])=>{ const t=new Date(iso+'T00:00:00').getTime(); if(t>=HOY.getTime()&&t<nextD){ nextD=t; nextP=p; } }); });
+  tb.innerHTML=PERIODOS.map(p=>{
+    const reg=EXAMENES[p], hl=(p===nextP)?' class="next-exam"':'';
+    if(reg['todos']){ const [iso,hora]=reg['todos']; return `<tr${hl}><td class="period-cell">${p}</td><td colspan="2"><span class="exam-all">${fmtLargo(iso)} · ${hora} — ambos grupos</span></td></tr>`; }
+    return `<tr${hl}><td class="period-cell">${p}</td>`+GRUPOS.map(g=>{ const [iso,hora]=reg[g]; return `<td><span class="exam-date">${fmtCorto(iso)}</span><span class="exam-time">${hora}</span></td>`; }).join('')+'</tr>';
+  }).join('');
+}
+function renderProximos(){
+  const cont=document.getElementById('proximos-examenes'); let ev=[];
+  PERIODOS.forEach(p=>{ const reg=EXAMENES[p];
+    if(reg['todos']){ const [iso,hora]=reg['todos']; ev.push({periodo:p,iso,hora,grupos:['ambos grupos']}); }
+    else { const pf={}; GRUPOS.forEach(g=>{ const [iso,hora]=reg[g]; (pf[iso]=pf[iso]||{h:new Set(),g:[]}); pf[iso].g.push(g); pf[iso].h.add(hora); });
+      Object.entries(pf).forEach(([iso,info])=>{ ev.push({periodo:p,iso,hora:[...info.h].sort()[0],grupos:info.g}); }); }
+  });
+  ev=ev.filter(e=>new Date(e.iso+'T00:00:00').getTime()>=HOY.getTime()).sort((a,b)=>new Date(a.iso)-new Date(b.iso)).slice(0,4);
+  if(!ev.length){ cont.innerHTML='<p style="color:var(--muted);font-size:.9rem;">No hay exámenes próximos programados.</p>'; return; }
+  cont.innerHTML=ev.map(e=>{ const d=new Date(e.iso+'T00:00:00'), dias=Math.round((d-HOY)/86400000), cd=dias===0?'Hoy':dias===1?'Mañana':'En '+dias+' días';
+    const grupos=e.grupos[0]==='ambos grupos'?'Ambos grupos':'Grupo'+(e.grupos.length>1?'s':'')+' '+e.grupos.join(', ');
+    return `<div class="next-event"><div class="ne-info"><div class="ne-label">${e.periodo}</div><div class="ne-title">${grupos}</div></div><div class="ne-date"><div class="ned-day">${d.getDate()} ${MESES[d.getMonth()]}</div><div class="ned-rest">${e.hora} h</div><div class="ne-countdown">${cd}</div></div></div>`;
+  }).join('');
+}
+
+/* ════════ TABS ════════ */
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  const map={bienvenida:0,programa:1,formulas:2,videos:3,simuladores:4,calendario:5,material:6};
+  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+  if(id==='simuladores') resizeCanvases();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleUnit(h){ h.closest('.unit-card').classList.toggle('open'); }
+
+/* ════════ FÓRMULAS ════════ */
+const FORMULAS=[
+  {unidad:'Herramienta · Vectores', tema:'Vectores', nombre:'Componentes rectangulares', eq:'Vx = V·cosθ ; Vy = V·senθ', vars:'V: magnitud · θ: ángulo'},
+  {unidad:'Herramienta · Vectores', tema:'Vectores', nombre:'Magnitud de la resultante', eq:'|V| = √(Vx² + Vy²)', vars:'Vx, Vy: componentes'},
+  {unidad:'Herramienta · Vectores', tema:'Vectores', nombre:'Dirección', eq:'θ = tan⁻¹(Vy / Vx)', vars:'θ: ángulo respecto al eje x'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Torca', nombre:'Momento de una fuerza (torca)', eq:'τ = F·d·senθ', vars:'F: fuerza · d: distancia al pivote · θ: ángulo'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Equilibrio', nombre:'Equilibrio traslacional', eq:'ΣF = 0', vars:'Suma de fuerzas igual a cero'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Equilibrio', nombre:'Equilibrio rotacional', eq:'Στ = 0', vars:'Suma de torcas igual a cero'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Rotación', nombre:'Momento de inercia (partícula)', eq:'I = m·r²', vars:'m: masa · r: distancia al eje'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Rotación', nombre:'2.ª ley de Newton rotacional', eq:'τ = I·α', vars:'I: momento de inercia · α: aceleración angular'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Rotación', nombre:'Velocidad angular', eq:'ω = ω₀ + α·t', vars:'ω₀: inicial · α: aceleración angular · t: tiempo'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Rotación', nombre:'Energía cinética rotacional', eq:'Ec = ½·I·ω²', vars:'I: inercia · ω: velocidad angular'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Momento angular', nombre:'Momento angular', eq:'L = I·ω', vars:'I: inercia · ω: velocidad angular'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrostática', nombre:'Densidad', eq:'ρ = m / V', vars:'m: masa · V: volumen'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrostática', nombre:'Peso específico', eq:'Pe = ρ·g', vars:'ρ: densidad · g: gravedad'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrostática', nombre:'Presión', eq:'P = F / A', vars:'F: fuerza · A: área'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrostática', nombre:'Presión hidrostática', eq:'P = ρ·g·h', vars:'ρ: densidad · g: gravedad · h: profundidad'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Pascal', nombre:'Principio de Pascal', eq:'F₁/A₁ = F₂/A₂', vars:'F: fuerza · A: área de cada pistón'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Arquímedes', nombre:'Principio de Arquímedes', eq:'E = ρ·g·V', vars:'ρ: densidad del fluido · V: volumen sumergido'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrodinámica', nombre:'Gasto o caudal', eq:'Q = A·v', vars:'A: área · v: rapidez'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrodinámica', nombre:'Ecuación de continuidad', eq:'A₁·v₁ = A₂·v₂', vars:'A: área · v: rapidez de cada sección'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrodinámica', nombre:'Ecuación de Bernoulli', eq:'P + ½ρv² + ρgh = cte', vars:'P: presión · ρ: densidad · v: rapidez · h: altura'},
+];
+function quitarAcentos(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+function renderFormulas(){
+  const q=quitarAcentos(document.getElementById('formula-search').value.trim());
+  const cont=document.getElementById('formulas-container');
+  const f=FORMULAS.filter(x=>!q||quitarAcentos(x.nombre+' '+x.tema+' '+x.eq+' '+x.vars+' '+x.unidad).includes(q));
+  if(!f.length){ cont.innerHTML='<div class="formula-empty">No se encontraron fórmulas.</div>'; return; }
+  const us=[...new Set(f.map(x=>x.unidad))];
+  cont.innerHTML=us.map(u=>`<div class="formula-unit"><div class="formula-unit-title">${u}</div><div class="formula-cards">${f.filter(x=>x.unidad===u).map(x=>`<div class="formula-card"><div class="fc-tema">${x.tema}</div><div class="fc-nombre">${x.nombre}</div><div class="fc-eq">${x.eq}</div><div class="fc-vars">${x.vars}</div></div>`).join('')}</div></div>`).join('');
+}
+
+/* ════════ VIDEOS ════════ */
+const VIDEOS=[
+  {unidad:'Herramienta · Vectores', tema:'Suma de vectores', title:'Suma de vectores: método del polígono (cabeza-cola)', id:'Lv5hJzw19n4'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Torca y equilibrio', title:'Equilibrio rotacional (torque o momento de una fuerza)', id:'wl4EoASQb3s'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Rotación', title:'2.ª ley de Newton rotacional: torca y aceleración angular', id:'1mtZnQ6Q_48'},
+  {unidad:'Unidad 1 · Cuerpos rígidos', tema:'Momento angular', title:'Momento angular de un cuerpo rígido', id:'z4OwJYw89WM'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Hidrostática', title:'Hidrostática: densidad, presión y principio de Pascal', id:'AxC6JjkH2XA'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Prensa hidráulica', title:'Principio de Pascal y la prensa hidráulica', id:'cGE6mdP2QyM'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Arquímedes', title:'¿Qué es el principio de Arquímedes? ejemplos y ejercicios', id:'L-SzEhhZCDk'},
+  {unidad:'Unidad 2 · Fluidos', tema:'Bernoulli', title:'Ecuación de continuidad y de Bernoulli: conceptos básicos', id:'epQFWPzSeCY'},
+];
+function renderVideos(){
+  const cont=document.getElementById('videos-container'); const us=[...new Set(VIDEOS.map(v=>v.unidad))];
+  cont.innerHTML=us.map(u=>`<div class="video-unit-title">${u}</div><div class="video-grid">${VIDEOS.filter(v=>v.unidad===u).map(v=>`<div class="video-card"><div class="video-thumb" onclick="playVideo(this,'${v.id}')"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" loading="lazy" /><div class="video-play"><span>▶</span></div></div><div class="vc-body"><div class="vc-tema">${v.tema}</div><div class="vc-title">${v.title}</div></div></div>`).join('')}</div>`).join('');
+}
+function playVideo(thumb,id){ thumb.outerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>'; }
+
+/* ════════ HELPERS ════════ */
+function isK(x){ return x!==null&&x!==undefined&&!isNaN(x)&&isFinite(x); }
+function val(id){ return parseFloat(document.getElementById(id).value); }
+function setT(id,t){ document.getElementById(id).textContent=t; }
+function syncFrom(id,src){ const r=document.getElementById(id),n=document.getElementById(id+'n'); if(src==='range')n.value=r.value; else r.value=n.value; updateAll(); }
+function exportJPG(src,name){ const t=document.createElement('canvas'); t.width=src.width; t.height=src.height; const c=t.getContext('2d'); c.fillStyle='#fff'; c.fillRect(0,0,t.width,t.height); c.drawImage(src,0,0); const a=document.createElement('a'); a.download=name+'.jpg'; a.href=t.toDataURL('image/jpeg',0.95); a.click(); }
+function drawArrow(c,x1,y1,x2,y2,color,label){ c.strokeStyle=color; c.fillStyle=color; c.lineWidth=3; c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke(); const a=Math.atan2(y2-y1,x2-x1); c.beginPath(); c.moveTo(x2,y2); c.lineTo(x2-10*Math.cos(a-0.4),y2-10*Math.sin(a-0.4)); c.lineTo(x2-10*Math.cos(a+0.4),y2-10*Math.sin(a+0.4)); c.closePath(); c.fill(); if(label){ c.font='bold 12px Inter'; c.fillText(label,(x1+x2)/2+6,(y1+y2)/2-6); } }
+const G=9.8, _rd=x=>Math.round(x*100)/100, _g=x=>'<span class="gold">'+x+'</span>';
+
+/* ════════ SIM 1: VECTORES ════════ */
+const vecCanvas=document.getElementById('vecCanvas'), vctx=vecCanvas.getContext('2d');
+function updateVec(){ drawVec(); }
+function drawVec(){
+  const W=vecCanvas.width,H=vecCanvas.height;
+  const am=val('vam'),aa=val('vaa')*Math.PI/180,bm=val('vbm'),ba=val('vba')*Math.PI/180;
+  const Ax=am*Math.cos(aa),Ay=am*Math.sin(aa),Bx=bm*Math.cos(ba),By=bm*Math.sin(ba),Rx=Ax+Bx,Ry=Ay+By;
+  let mx=1; [[Ax,Ay],[Rx,Ry],[Bx,By]].forEach(([x,y])=>{ mx=Math.max(mx,Math.abs(x),Math.abs(y)); });
+  const ox=W/2,oy=H/2,s=(Math.min(W,H)/2-34)/mx;
+  vctx.clearRect(0,0,W,H);
+  vctx.strokeStyle='#e2e8f0'; vctx.lineWidth=1; vctx.beginPath(); vctx.moveTo(0,oy); vctx.lineTo(W,oy); vctx.moveTo(ox,0); vctx.lineTo(ox,H); vctx.stroke();
+  const P=(x,y)=>[ox+x*s,oy-y*s];
+  drawArrow(vctx,...P(0,0),...P(Ax,Ay),'#1B3A6B','A');
+  drawArrow(vctx,...P(Ax,Ay),...P(Rx,Ry),'#C9A84C','B');
+  drawArrow(vctx,...P(0,0),...P(Rx,Ry),'#c0392b','R');
+  const Rm=Math.hypot(Rx,Ry),Rang=(Math.atan2(Ry,Rx)*180/Math.PI+360)%360;
+  setT('vec-mag',Rm.toFixed(2)+' u'); setT('vec-ang',Rang.toFixed(1)+'°'); setT('vec-comp','('+Rx.toFixed(1)+', '+Ry.toFixed(1)+')');
+  document.getElementById('fb-vec').innerHTML='|R| = √('+Rx.toFixed(1)+'² + '+Ry.toFixed(1)+'²) = '+_g(Rm.toFixed(2)+' u')+' a '+_g(Rang.toFixed(1)+'°');
+}
+
+/* ════════ SIM 2: TORCA ════════ */
+const torcaCanvas=document.getElementById('torcaCanvas'), tctx=torcaCanvas.getContext('2d');
+function updateTorca(){ drawTorca(); }
+function drawTorca(){
+  const W=torcaCanvas.width,H=torcaCanvas.height;
+  const F1=val('tF1'),d1=val('td1'),F2=val('tF2'),d2=val('td2');
+  const t1=F1*d1,t2=F2*d2,net=t2-t1;
+  const ang=Math.max(-0.26,Math.min(0.26,-net/400));
+  tctx.clearRect(0,0,W,H);
+  const px=W/2,py=H*0.55;
+  // pivote
+  tctx.fillStyle='#1B3A6B'; tctx.beginPath(); tctx.moveTo(px,py); tctx.lineTo(px-18,py+34); tctx.lineTo(px+18,py+34); tctx.closePath(); tctx.fill();
+  tctx.fillStyle='#cbd5e1'; tctx.fillRect(px-60,py+34,120,8);
+  // barra
+  const L=Math.min(W/2-40,200);
+  tctx.save(); tctx.translate(px,py); tctx.rotate(ang);
+  tctx.fillStyle='#254d8f'; tctx.fillRect(-L,-5,2*L,10);
+  // pesos
+  function peso(dist,F,side){ const x=side*(dist/4)*L; const sz=14+F*0.18; tctx.fillStyle='#C9A84C'; tctx.fillRect(x-sz/2,5,sz,sz); tctx.fillStyle='#112447'; tctx.font='bold 10px Inter'; tctx.textAlign='center'; tctx.fillText(F+'N',x,5+sz+11); }
+  peso(d1,F1,-1); peso(d2,F2,1);
+  tctx.restore();
+  setT('t-t1',t1.toFixed(1)+' N·m'); setT('t-t2',t2.toFixed(1)+' N·m');
+  setT('t-estado',Math.abs(net)<0.5?'Equilibrio':(net>0?'Gira →':'← Gira'));
+  document.getElementById('fb-torca').innerHTML='τ₁ = '+F1+'×'+d1+' = '+_g(t1.toFixed(1)+' N·m')+' · τ₂ = '+F2+'×'+d2+' = '+_g(t2.toFixed(1)+' N·m');
+}
+
+/* ════════ SIM 3: ROTACIÓN (τ=Iα) ════════ */
+const rotCanvas=document.getElementById('rotCanvas'), rctx=rotCanvas.getContext('2d');
+let rotAng=0, rotW=0, rotT=0, rotPlaying=false, rotRaf=null;
+function rotAlpha(){ return val('rTau')/val('rI'); }
+function updateRot(){ drawRot(); }
+function drawRot(){
+  const W=rotCanvas.width,H=rotCanvas.height,cx=W/2,cy=H/2,R=Math.min(W,H)*0.32;
+  rctx.clearRect(0,0,W,H);
+  rctx.beginPath(); rctx.arc(cx,cy,R,0,Math.PI*2); rctx.fillStyle='#eef2f7'; rctx.fill(); rctx.strokeStyle='#1B3A6B'; rctx.lineWidth=3; rctx.stroke();
+  // radios
+  for(let i=0;i<6;i++){ const a=rotAng+i*Math.PI/3; rctx.strokeStyle=i===0?'#C9A84C':'rgba(27,58,107,.3)'; rctx.lineWidth=i===0?4:2; rctx.beginPath(); rctx.moveTo(cx,cy); rctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)); rctx.stroke(); }
+  rctx.beginPath(); rctx.arc(cx,cy,7,0,Math.PI*2); rctx.fillStyle='#1B3A6B'; rctx.fill();
+  // flecha de torca
+  rctx.strokeStyle='#c0392b'; rctx.lineWidth=3; rctx.beginPath(); rctx.arc(cx,cy,R+14,-0.6,0.6); rctx.stroke();
+  const a=rotAlpha();
+  setT('r-alpha',a.toFixed(2)+' rad/s²'); setT('r-omega',rotW.toFixed(1)+' rad/s'); setT('r-time',rotT.toFixed(1)+' s');
+  document.getElementById('fb-rot').innerHTML='α = '+val('rTau')+' / '+val('rI')+' = '+_g(a.toFixed(2)+' rad/s²');
+}
+function rotLoop(){ if(!rotPlaying)return; rotT+=0.04; rotW+=rotAlpha()*0.04; rotAng+=rotW*0.04; drawRot(); rotRaf=requestAnimationFrame(rotLoop); }
+function toggleRot(){ if(rotPlaying){ rotPlaying=false; document.getElementById('rotPlayBtn').textContent='▶ Aplicar torca'; cancelAnimationFrame(rotRaf); } else { rotPlaying=true; document.getElementById('rotPlayBtn').textContent='⏸ Pausar'; rotRaf=requestAnimationFrame(rotLoop); } }
+function resetRot(){ rotPlaying=false; document.getElementById('rotPlayBtn').textContent='▶ Aplicar torca'; cancelAnimationFrame(rotRaf); rotW=0; rotT=0; rotAng=0; drawRot(); }
+
+/* ════════ SIM 4: MOMENTO ANGULAR ════════ */
+const angularCanvas=document.getElementById('angularCanvas'), actx=angularCanvas.getContext('2d');
+let angAng=0, angPlaying=false, angRaf=null, angL0=12;
+function angVals(){
+  let I=val('aI'), w=val('aW');
+  if(document.getElementById('aConserva').checked){ w=angL0/I; }
+  return {I,w,L:I*w};
+}
+function updateAng(){ if(document.getElementById('aConserva').checked){ const I=val('aI'); const w=angL0/I; document.getElementById('aW').value=Math.min(10,Math.max(0,w.toFixed(2))); document.getElementById('aWn').value=Math.min(10,Math.max(0,w.toFixed(2))); } else { angL0=val('aI')*val('aW'); } drawAng(); }
+function drawAng(){
+  const W=angularCanvas.width,H=angularCanvas.height,cx=W/2,cy=H/2;
+  const {I,w,L}=angVals();
+  const R=Math.min(W,H)*0.12+I*8;
+  actx.clearRect(0,0,W,H);
+  // eje
+  actx.strokeStyle='#e2e8f0'; actx.beginPath(); actx.moveTo(cx,18); actx.lineTo(cx,H-18); actx.stroke();
+  // plataforma giratoria con 2 masas (brazos)
+  actx.save(); actx.translate(cx,cy); actx.rotate(angAng);
+  actx.strokeStyle='#254d8f'; actx.lineWidth=4; actx.beginPath(); actx.moveTo(-R,0); actx.lineTo(R,0); actx.stroke();
+  [-R,R].forEach(x=>{ actx.beginPath(); actx.arc(x,0,12,0,Math.PI*2); actx.fillStyle='#C9A84C'; actx.fill(); actx.strokeStyle='#112447'; actx.lineWidth=2; actx.stroke(); });
+  actx.beginPath(); actx.arc(0,0,8,0,Math.PI*2); actx.fillStyle='#1B3A6B'; actx.fill();
+  actx.restore();
+  setT('a-L',L.toFixed(2)+' kg·m²/s'); setT('a-I',I.toFixed(1)+' kg·m²'); setT('a-W',w.toFixed(2)+' rad/s');
+  document.getElementById('fb-ang').innerHTML='L = '+I.toFixed(1)+' × '+w.toFixed(2)+' = '+_g(L.toFixed(2)+' kg·m²/s');
+}
+function angLoop(){ if(!angPlaying)return; angAng+=angVals().w*0.04; drawAng(); angRaf=requestAnimationFrame(angLoop); }
+function toggleAng(){ if(angPlaying){ angPlaying=false; document.getElementById('angPlayBtn').textContent='▶ Girar'; cancelAnimationFrame(angRaf); } else { angPlaying=true; document.getElementById('angPlayBtn').textContent='⏸ Pausar'; angRaf=requestAnimationFrame(angLoop); } }
+function resetAng(){ angPlaying=false; document.getElementById('angPlayBtn').textContent='▶ Girar'; cancelAnimationFrame(angRaf); angAng=0; drawAng(); }
+
+/* ════════ SIM 5: PRESIÓN HIDROSTÁTICA ════════ */
+const presionCanvas=document.getElementById('presionCanvas'), prctx=presionCanvas.getContext('2d');
+function updatePresion(){ drawPresion(); }
+function drawPresion(){
+  const W=presionCanvas.width,H=presionCanvas.height,rho=val('pRho'),h=val('pH');
+  const P=rho*G*h;
+  prctx.clearRect(0,0,W,H);
+  // recipiente con agua
+  prctx.fillStyle='#bcdcf0'; prctx.fillRect(20,20,W-40,H-40);
+  prctx.strokeStyle='#1B3A6B'; prctx.lineWidth=2; prctx.strokeRect(20,20,W-40,H-40);
+  // marca de profundidad (0 arriba, 20 abajo)
+  const top=20,bot=H-20, frac=h/20, my=top+frac*(bot-top);
+  prctx.strokeStyle='rgba(27,58,107,.35)'; prctx.setLineDash([5,4]); prctx.beginPath(); prctx.moveTo(20,my); prctx.lineTo(W-20,my); prctx.stroke(); prctx.setLineDash([]);
+  // punto
+  prctx.beginPath(); prctx.arc(W/2,my,8,0,Math.PI*2); prctx.fillStyle='#c0392b'; prctx.fill();
+  prctx.fillStyle='#112447'; prctx.font='bold 12px Inter'; prctx.textAlign='center';
+  prctx.fillText('h = '+h+' m',W/2,my-12);
+  prctx.fillText('P = '+(P/1000).toFixed(1)+' kPa',W/2,my+26);
+  setT('pr-P',P.toFixed(0)+' Pa'); setT('pr-kPa',(P/1000).toFixed(2)+' kPa'); setT('pr-atm',(P/101325).toFixed(2)+' atm');
+  document.getElementById('fb-presion').innerHTML='P = '+rho+' × 9.8 × '+h+' = '+_g(P.toFixed(0)+' Pa');
+}
+
+/* ════════ SIM 6: ARQUÍMEDES ════════ */
+const arquiCanvas=document.getElementById('arquiCanvas'), arctx=arquiCanvas.getContext('2d');
+function updateArqui(){ drawArqui(); }
+function drawArqui(){
+  const W=arquiCanvas.width,H=arquiCanvas.height,ro=val('aoRho'),rf=val('afRho'),V=val('aVol');
+  const frac=Math.min(ro/rf,1), Vsub=frac*V, E=rf*G*Vsub, hunde=ro>rf;
+  arctx.clearRect(0,0,W,H);
+  // fluido
+  const surf=H*0.32;
+  arctx.fillStyle='#bcdcf0'; arctx.fillRect(0,surf,W,H-surf);
+  arctx.strokeStyle='#7fb0d8'; arctx.beginPath(); arctx.moveTo(0,surf); arctx.lineTo(W,surf); arctx.stroke();
+  // objeto (caja). lado proporcional, centrado
+  const side=Math.min(W,H)*0.32, cx=W/2;
+  let topY;
+  if(hunde){ topY=H-30-side; } else { topY=surf-side*(1-frac); }
+  arctx.fillStyle='#C9A84C'; arctx.fillRect(cx-side/2,topY,side,side); arctx.strokeStyle='#9a7d2e'; arctx.lineWidth=2; arctx.strokeRect(cx-side/2,topY,side,side);
+  // empuje arrow up
+  drawArrow(arctx,cx,topY+side,cx,topY+side-Math.min(E*0.02+20,70),'#1B3A6B','E');
+  setT('ar-E',E.toFixed(1)+' N'); setT('ar-frac',(frac*100).toFixed(0)+' %'); setT('ar-estado',hunde?'Se hunde':'Flota');
+  document.getElementById('fb-arqui').innerHTML='E = '+rf+' × 9.8 × '+Vsub.toFixed(3)+' = '+_g(E.toFixed(1)+' N');
+}
+
+/* ════════ SIM 7: PRENSA HIDRÁULICA ════════ */
+const pascalCanvas=document.getElementById('pascalCanvas'), kctx=pascalCanvas.getContext('2d');
+function updatePascal(){ drawPascal(); }
+function drawPascal(){
+  const W=pascalCanvas.width,H=pascalCanvas.height,F1=val('kF1'),A1=val('kA1'),A2=val('kA2');
+  const P=F1/A1, F2=P*A2, vent=A2/A1;
+  kctx.clearRect(0,0,W,H);
+  // tubo en U con fluido
+  const baseY=H-30;
+  const w1=Math.max(24,Math.sqrt(A1)*260), w2=Math.max(40,Math.sqrt(A2)*260);
+  const x1=W*0.26, x2=W*0.72;
+  kctx.fillStyle='#bcdcf0';
+  kctx.fillRect(x1-w1/2,baseY-90,w1,90);
+  kctx.fillRect(x2-w2/2,baseY-90,w2,90);
+  kctx.fillRect(x1-w1/2,baseY-22,(x2-x1)+w2/2+w1/2,22);
+  // pistones
+  kctx.fillStyle='#254d8f'; kctx.fillRect(x1-w1/2,baseY-92,w1,10);
+  kctx.fillRect(x2-w2/2,baseY-130,w2,10);
+  // fuerzas
+  drawArrow(kctx,x1,baseY-100,x1,baseY-82,'#c0392b','F₁='+F1+'N');
+  drawArrow(kctx,x2,baseY-150,x2,baseY-132,'#1B3A6B','F₂');
+  kctx.fillStyle='#112447'; kctx.font='bold 11px Inter'; kctx.textAlign='center';
+  kctx.fillText('A₁',x1,baseY-4); kctx.fillText('A₂',x2,baseY-4);
+  setT('k-F2',F2.toFixed(1)+' N'); setT('k-vent','×'+vent.toFixed(1)); setT('k-P',P.toFixed(0)+' Pa');
+  document.getElementById('fb-pascal').innerHTML='F₂ = '+F1+' × ('+A2+'/'+A1+') = '+_g(F2.toFixed(1)+' N');
+}
+
+/* ════════ SIM 8: CONTINUIDAD / BERNOULLI ════════ */
+const bernCanvas=document.getElementById('bernCanvas'), bctx=bernCanvas.getContext('2d');
+function updateBern(){ drawBern(); }
+function drawBern(){
+  const W=bernCanvas.width,H=bernCanvas.height,A1=val('bA1'),v1=val('bV1'),A2=val('bA2');
+  const v2=A1*v1/A2, Q=A1*v1;
+  bctx.clearRect(0,0,W,H);
+  const cy=H/2, h1=Math.min(H*0.7,A1*260+20), h2=Math.min(H*0.7,A2*260+20);
+  // tubo: ancho a la izquierda, estrecho a la derecha (trapecio)
+  bctx.fillStyle='#bcdcf0'; bctx.strokeStyle='#1B3A6B'; bctx.lineWidth=2;
+  bctx.beginPath();
+  bctx.moveTo(10,cy-h1/2); bctx.lineTo(W*0.45,cy-h1/2); bctx.lineTo(W*0.55,cy-h2/2); bctx.lineTo(W-10,cy-h2/2);
+  bctx.lineTo(W-10,cy+h2/2); bctx.lineTo(W*0.55,cy+h2/2); bctx.lineTo(W*0.45,cy+h1/2); bctx.lineTo(10,cy+h1/2); bctx.closePath();
+  bctx.fill(); bctx.stroke();
+  // flechas de velocidad
+  drawArrow(bctx,W*0.2-Math.min(v1*8,40)/2,cy,W*0.2+Math.min(v1*8,40)/2,cy,'#C9A84C','v₁');
+  drawArrow(bctx,W*0.8-Math.min(v2*8,55)/2,cy,W*0.8+Math.min(v2*8,55)/2,cy,'#c0392b','v₂');
+  setT('b-v2',v2.toFixed(2)+' m/s'); setT('b-Q',Q.toFixed(3)+' m³/s'); setT('b-rel','×'+(v2/v1).toFixed(2));
+  document.getElementById('fb-bern').innerHTML='v₂ = ('+A1+' × '+v1+') / '+A2+' = '+_g(v2.toFixed(2)+' m/s');
+}
+
+/* ════════ SOLVERS GENÉRICOS ════════ */
+const SOLVERS=[
+  { key:'vec', icon:'➗', title:'Solver de Vectores (componentes ↔ magnitud)', sub:'Convierte entre magnitud-ángulo y componentes', minKnown:2,
+    nota:'Ingresa (|V| y θ) o (Vx y Vy).',
+    vars:[{id:'mag',label:'Magnitud |V|',unit:'u',rlbl:'|V|'},{id:'theta',label:'Ángulo θ',unit:'°',rlbl:'θ (°)'},{id:'Vx',label:'Componente Vx',unit:'u',rlbl:'Vx'},{id:'Vy',label:'Componente Vy',unit:'u',rlbl:'Vy'}],
+    solve:o=>{ let mag=o.mag, th=isK(o.theta)?o.theta*Math.PI/180:null, x=o.Vx, y=o.Vy;
+      for(let i=0;i<6;i++){ if(!isK(mag)&&isK(x)&&isK(y))mag=Math.hypot(x,y); if(!isK(th)&&isK(x)&&isK(y))th=Math.atan2(y,x); if(isK(mag)&&isK(th)){ if(!isK(x))x=mag*Math.cos(th); if(!isK(y))y=mag*Math.sin(th);} }
+      return {mag,theta:isK(th)?(th*180/Math.PI+360)%360:null,Vx:x,Vy:y}; },
+    steps:o=> isK(o.Vx)&&isK(o.Vy)?('|V| = √(Vx² + Vy²) = '+_g(_rd(o.mag)+' u')+' · θ = '+_g(_rd(o.theta)+'°')):'Vx = |V|cosθ, Vy = |V|senθ.' },
+  { key:'torca', icon:'⚖️', title:'Solver de Torca', sub:'τ = F·d·senθ', minKnown:3,
+    vars:[{id:'tau',label:'Torca τ',unit:'N·m',rlbl:'τ (N·m)'},{id:'F',label:'Fuerza F',unit:'N',rlbl:'F (N)'},{id:'d',label:'Distancia d',unit:'m',rlbl:'d (m)'},{id:'ang',label:'Ángulo θ',unit:'°',rlbl:'θ (°)'}],
+    solve:o=>{ let t=o.tau,F=o.F,d=o.d,th=isK(o.ang)?o.ang*Math.PI/180:null;
+      for(let i=0;i<6;i++){ if(!isK(t)&&isK(F)&&isK(d)&&isK(th))t=F*d*Math.sin(th); if(!isK(F)&&isK(t)&&isK(d)&&isK(th)&&Math.abs(d*Math.sin(th))>1e-9)F=t/(d*Math.sin(th)); if(!isK(d)&&isK(t)&&isK(F)&&isK(th)&&Math.abs(F*Math.sin(th))>1e-9)d=t/(F*Math.sin(th)); if(!isK(th)&&isK(t)&&isK(F)&&isK(d)&&Math.abs(F*d)>1e-9){ const v=t/(F*d); if(v>=-1&&v<=1)th=Math.asin(v);} }
+      return {tau:t,F,d,ang:isK(th)?th*180/Math.PI:null}; },
+    steps:o=>'τ = F·d·senθ = '+_rd(o.F)+'×'+_rd(o.d)+'×sen('+_rd(o.ang)+'°) = '+_g(_rd(o.tau)+' N·m') },
+  { key:'rot', icon:'🔁', title:'Solver de Rotación', sub:'τ = I·α', minKnown:2,
+    vars:[{id:'tau',label:'Torca τ',unit:'N·m',rlbl:'τ (N·m)'},{id:'I',label:'Inercia I',unit:'kg·m²',rlbl:'I (kg·m²)'},{id:'alpha',label:'Aceleración α',unit:'rad/s²',rlbl:'α (rad/s²)'}],
+    solve:o=>{ let t=o.tau,I=o.I,a=o.alpha;
+      for(let i=0;i<4;i++){ if(!isK(t)&&isK(I)&&isK(a))t=I*a; if(!isK(I)&&isK(t)&&isK(a)&&Math.abs(a)>1e-9)I=t/a; if(!isK(a)&&isK(t)&&isK(I)&&Math.abs(I)>1e-9)a=t/I; }
+      return {tau:t,I,alpha:a}; },
+    steps:o=>'α = τ / I = '+_rd(o.tau)+' / '+_rd(o.I)+' = '+_g(_rd(o.alpha)+' rad/s²') },
+  { key:'angular', icon:'💫', title:'Solver de Momento Angular', sub:'L = I·ω', minKnown:2,
+    vars:[{id:'L',label:'Momento angular L',unit:'kg·m²/s',rlbl:'L'},{id:'I',label:'Inercia I',unit:'kg·m²',rlbl:'I'},{id:'w',label:'Velocidad ω',unit:'rad/s',rlbl:'ω'}],
+    solve:o=>{ let L=o.L,I=o.I,w=o.w;
+      for(let i=0;i<4;i++){ if(!isK(L)&&isK(I)&&isK(w))L=I*w; if(!isK(I)&&isK(L)&&isK(w)&&Math.abs(w)>1e-9)I=L/w; if(!isK(w)&&isK(L)&&isK(I)&&Math.abs(I)>1e-9)w=L/I; }
+      return {L,I,w}; },
+    steps:o=>'L = I·ω = '+_rd(o.I)+' × '+_rd(o.w)+' = '+_g(_rd(o.L)+' kg·m²/s') },
+  { key:'presion', icon:'🌊', title:'Solver de Presión Hidrostática', sub:'P = ρ·g·h (g = 9.8)', minKnown:2,
+    vars:[{id:'P',label:'Presión P',unit:'Pa',rlbl:'P (Pa)'},{id:'rho',label:'Densidad ρ',unit:'kg/m³',rlbl:'ρ'},{id:'h',label:'Profundidad h',unit:'m',rlbl:'h (m)'}],
+    solve:o=>{ let P=o.P,r=o.rho,h=o.h;
+      for(let i=0;i<4;i++){ if(!isK(P)&&isK(r)&&isK(h))P=r*G*h; if(!isK(r)&&isK(P)&&isK(h)&&Math.abs(G*h)>1e-9)r=P/(G*h); if(!isK(h)&&isK(P)&&isK(r)&&Math.abs(G*r)>1e-9)h=P/(G*r); }
+      return {P,rho:r,h}; },
+    steps:o=>'P = ρ·g·h = '+_rd(o.rho)+' × 9.8 × '+_rd(o.h)+' = '+_g(_rd(o.P)+' Pa') },
+  { key:'arqui', icon:'🛟', title:'Solver de Arquímedes', sub:'E = ρ·g·V (g = 9.8)', minKnown:2,
+    vars:[{id:'E',label:'Empuje E',unit:'N',rlbl:'E (N)'},{id:'rho',label:'Densidad fluido ρ',unit:'kg/m³',rlbl:'ρ'},{id:'V',label:'Volumen sumergido V',unit:'m³',rlbl:'V (m³)'}],
+    solve:o=>{ let E=o.E,r=o.rho,V=o.V;
+      for(let i=0;i<4;i++){ if(!isK(E)&&isK(r)&&isK(V))E=r*G*V; if(!isK(r)&&isK(E)&&isK(V)&&Math.abs(G*V)>1e-9)r=E/(G*V); if(!isK(V)&&isK(E)&&isK(r)&&Math.abs(G*r)>1e-9)V=E/(G*r); }
+      return {E,rho:r,V}; },
+    steps:o=>'E = ρ·g·V = '+_rd(o.rho)+' × 9.8 × '+_rd(o.V)+' = '+_g(_rd(o.E)+' N') },
+  { key:'pascal', icon:'🔧', title:'Solver de Prensa Hidráulica', sub:'F₁/A₁ = F₂/A₂', minKnown:3,
+    vars:[{id:'F1',label:'Fuerza F₁',unit:'N',rlbl:'F₁ (N)'},{id:'A1',label:'Área A₁',unit:'m²',rlbl:'A₁ (m²)'},{id:'F2',label:'Fuerza F₂',unit:'N',rlbl:'F₂ (N)'},{id:'A2',label:'Área A₂',unit:'m²',rlbl:'A₂ (m²)'}],
+    solve:o=>{ let F1=o.F1,A1=o.A1,F2=o.F2,A2=o.A2;
+      for(let i=0;i<5;i++){ if(!isK(F2)&&isK(F1)&&isK(A1)&&isK(A2)&&Math.abs(A1)>1e-12)F2=F1*A2/A1; if(!isK(F1)&&isK(F2)&&isK(A1)&&isK(A2)&&Math.abs(A2)>1e-12)F1=F2*A1/A2; if(!isK(A2)&&isK(F1)&&isK(A1)&&isK(F2)&&Math.abs(F1)>1e-12)A2=A1*F2/F1; if(!isK(A1)&&isK(F1)&&isK(A2)&&isK(F2)&&Math.abs(F2)>1e-12)A1=A2*F1/F2; }
+      return {F1,A1,F2,A2}; },
+    steps:o=>'F₂ = F₁·A₂/A₁ = '+_rd(o.F1)+'×'+_rd(o.A2)+'/'+_rd(o.A1)+' = '+_g(_rd(o.F2)+' N') },
+  { key:'continuidad', icon:'🚰', title:'Solver de Continuidad', sub:'A₁·v₁ = A₂·v₂', minKnown:3,
+    vars:[{id:'A1',label:'Área A₁',unit:'m²',rlbl:'A₁ (m²)'},{id:'v1',label:'Rapidez v₁',unit:'m/s',rlbl:'v₁ (m/s)'},{id:'A2',label:'Área A₂',unit:'m²',rlbl:'A₂ (m²)'},{id:'v2',label:'Rapidez v₂',unit:'m/s',rlbl:'v₂ (m/s)'}],
+    solve:o=>{ let A1=o.A1,v1=o.v1,A2=o.A2,v2=o.v2;
+      for(let i=0;i<5;i++){ if(!isK(v2)&&isK(A1)&&isK(v1)&&isK(A2)&&Math.abs(A2)>1e-12)v2=A1*v1/A2; if(!isK(v1)&&isK(A1)&&isK(v2)&&isK(A2)&&Math.abs(A1)>1e-12)v1=A2*v2/A1; if(!isK(A2)&&isK(A1)&&isK(v1)&&isK(v2)&&Math.abs(v2)>1e-12)A2=A1*v1/v2; if(!isK(A1)&&isK(A2)&&isK(v2)&&isK(v1)&&Math.abs(v1)>1e-12)A1=A2*v2/v1; }
+      return {A1,v1,A2,v2}; },
+    steps:o=>'v₂ = A₁·v₁/A₂ = '+_rd(o.A1)+'×'+_rd(o.v1)+'/'+_rd(o.A2)+' = '+_g(_rd(o.v2)+' m/s') },
+];
+function solverCardHTML(cfg){
+  return '<div class="sim-card"><div class="sim-header"><div class="sim-icon">'+cfg.icon+'</div><div><h3>'+cfg.title+'</h3><p>'+cfg.sub+'</p></div></div><div class="sim-body">'
+    +'<div class="sim-instructions"><h4>🛈 Cómo usar</h4><p style="font-size:.82rem;color:var(--muted);line-height:1.5;">Escribe los valores que conozcas (mínimo '+cfg.minKnown+') y deja en blanco los que quieres encontrar. '+(cfg.nota||'')+' Las casillas doradas son los resultados.</p></div>'
+    +'<div class="solver-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">'+cfg.vars.map(v=>'<div class="ctrl-group"><label>'+v.label+'</label><div class="ctrl-row"><input type="number" step="any" class="num-input solver-in" id="'+cfg.key+'_'+v.id+'" placeholder="—"><span class="num-unit">'+(v.unit||'')+'</span></div></div>').join('')+'</div>'
+    +'<div class="sim-btns"><button class="btn-sim btn-primary" onclick="runSolver(\''+cfg.key+'\')">✓ Resolver</button><button class="btn-sim btn-secondary" onclick="clearGSolver(\''+cfg.key+'\')">↺ Limpiar</button></div>'
+    +'<div class="solver-msg" id="'+cfg.key+'_msg"></div>'
+    +'<div class="sim-readout" id="'+cfg.key+'_res" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));display:none;">'+cfg.vars.map(v=>'<div class="readout-item"><div class="rval" id="'+cfg.key+'_r_'+v.id+'">—</div><div class="rlbl">'+v.rlbl+'</div></div>').join('')+'</div>'
+    +'<div class="formula-box" id="'+cfg.key+'_stepsbox" style="display:none;"><div class="fb-label">Procedimiento</div><div class="fb-eq" id="'+cfg.key+'_steps"></div></div>'
+    +'</div></div>';
+}
+function renderSolvers(){
+  const slot={vec:'sim-vec',torca:'sim-torca',rot:'sim-rot',angular:'sim-angular',presion:'sim-presion',arqui:'sim-arqui',pascal:'sim-pascal',continuidad:'sim-bern'};
+  SOLVERS.forEach(cfg=>{ const sim=document.getElementById(slot[cfg.key]); if(sim) sim.insertAdjacentHTML('afterend', solverCardHTML(cfg)); });
+}
+function clearGSolver(key){ const cfg=SOLVERS.find(c=>c.key===key); cfg.vars.forEach(v=>{ const el=document.getElementById(key+'_'+v.id); el.value=''; el.classList.remove('computed'); }); document.getElementById(key+'_res').style.display='none'; document.getElementById(key+'_stepsbox').style.display='none'; document.getElementById(key+'_msg').textContent=''; }
+function runSolver(key){
+  const cfg=SOLVERS.find(c=>c.key===key), msg=document.getElementById(key+'_msg');
+  let vals={}; const dados={};
+  cfg.vars.forEach(v=>{ const el=document.getElementById(key+'_'+v.id); const n=el.value.trim()===''?null:parseFloat(el.value); vals[v.id]=isK(n)?n:null; dados[v.id]=vals[v.id]; });
+  if(Object.values(vals).filter(isK).length<cfg.minKnown){ msg.className='solver-msg'; msg.textContent='⚠ Ingresa al menos '+cfg.minKnown+' valores para resolver.'; document.getElementById(key+'_res').style.display='none'; document.getElementById(key+'_stepsbox').style.display='none'; return; }
+  const out=cfg.solve({...vals});
+  const solved=cfg.vars.filter(v=>isK(out[v.id])).length;
+  if(solved<cfg.vars.length){ msg.className='solver-msg'; msg.textContent='⚠ Con esos datos no se puede determinar todo. Revisa o agrega un dato.'; }
+  else { msg.className='solver-msg ok'; msg.textContent='✓ Resuelto. Las casillas doradas son los valores calculados.'; }
+  const fmt=x=>isK(x)?(Math.round(x*1000)/1000).toString():'—';
+  cfg.vars.forEach(v=>{ document.getElementById(key+'_r_'+v.id).textContent=fmt(out[v.id]); const inp=document.getElementById(key+'_'+v.id); if(isK(out[v.id])&&!isK(dados[v.id])){ inp.value=Math.round(out[v.id]*1000)/1000; inp.classList.add('computed'); } else inp.classList.remove('computed'); });
+  document.getElementById(key+'_res').style.display='grid';
+  const steps=cfg.steps?cfg.steps(out):''; if(steps){ document.getElementById(key+'_steps').innerHTML=steps; document.getElementById(key+'_stepsbox').style.display='block'; } else document.getElementById(key+'_stepsbox').style.display='none';
+}
+
+/* ════════ HERO ════════ */
+const hc=document.getElementById('heroCanvas'), hx=hc.getContext('2d');
+let heroParticles=[], heroT=0;
+function initHero(){ hc.width=hc.offsetWidth; hc.height=hc.offsetHeight; heroParticles=[]; const n=Math.min(36,Math.floor(hc.width/30)); for(let i=0;i<n;i++) heroParticles.push({x:Math.random()*hc.width,y:Math.random()*hc.height,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.1}); }
+function drawHero(){
+  const W=hc.width,H=hc.height; hx.clearRect(0,0,W,H);
+  heroParticles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0; hx.beginPath(); hx.arc(p.x,p.y,p.r,0,Math.PI*2); hx.fillStyle='rgba(201,168,76,'+p.a+')'; hx.fill(); });
+  const cx=W*0.85,cy=H*0.5,R=Math.min(W*0.9,H)*0.30;
+  const glow=hx.createRadialGradient(cx,cy,0,cx,cy,R*0.5); glow.addColorStop(0,'rgba(201,168,76,.5)'); glow.addColorStop(1,'rgba(201,168,76,0)');
+  hx.fillStyle=glow; hx.beginPath(); hx.arc(cx,cy,R*0.5,0,Math.PI*2); hx.fill();
+  hx.beginPath(); hx.arc(cx,cy,5,0,Math.PI*2); hx.fillStyle='#e8c96a'; hx.fill();
+  [0,Math.PI/3,-Math.PI/3].forEach((rot,i)=>{ hx.save(); hx.translate(cx,cy); hx.rotate(rot); hx.strokeStyle='rgba(255,255,255,.12)'; hx.lineWidth=1; hx.beginPath(); hx.ellipse(0,0,R,R*0.42,0,0,Math.PI*2); hx.stroke(); const ang=heroT*(0.6+i*0.25)+i*2,ex=R*Math.cos(ang),ey=R*0.42*Math.sin(ang); hx.beginPath(); hx.arc(ex,ey,3.5,0,Math.PI*2); hx.fillStyle=i===1?'#C9A84C':'#9fc0ff'; hx.fill(); hx.restore(); });
+  heroT+=0.012; requestAnimationFrame(drawHero);
+}
+
+/* ════════ INIT ════════ */
+function updateAll(){ updateVec(); updateTorca(); updateRot(); updateAng(); updatePresion(); updateArqui(); updatePascal(); updateBern(); }
+function resizeCanvases(){
+  [vecCanvas,torcaCanvas,rotCanvas,angularCanvas,presionCanvas,arquiCanvas,pascalCanvas,bernCanvas].forEach(c=>{ c.width=c.parentElement.clientWidth; });
+  drawVec(); drawTorca(); drawRot(); drawAng(); drawPresion(); drawArqui(); drawPascal(); drawBern();
+}
+window.addEventListener('resize', ()=>{ initHero(); resizeCanvases(); });
+window.addEventListener('load', ()=>{ renderCalendario(); renderProximos(); renderFormulas(); renderVideos(); renderSolvers(); resizeCanvases(); updateAll(); initHero(); drawHero(); });
+if(location.hash==='#calendario') switchTab('calendario');
+if(location.hash==='#simuladores') switchTab('simuladores');
+</script>
+</body>
+</html>

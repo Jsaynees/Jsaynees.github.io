@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Física I · Prof. López Saynes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #1B3A6B;
+      --navy-d: #112447;
+      --navy-l: #254d8f;
+      --gold:   #C9A84C;
+      --gold-l: #e8c96a;
+      --white:  #F8F9FC;
+      --gray:   #8A95A3;
+      --border: #e6eaf0;
+      --text:   #1e293b;
+      --muted:  #64748b;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); }
+
+    /* NAV — light, with real logo */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff; border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 12px rgba(17,36,71,.05);
+      padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 72px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .nav-brand img { height: 42px; width: auto; display: block; }
+    .nav-brand .nb-divider { width: 1px; height: 32px; background: var(--border); }
+    .nav-brand .nb-text { font-size: .78rem; color: var(--muted); line-height: 1.3; }
+    .nav-brand .nb-text strong { color: var(--navy); display: block; font-size: .85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+      padding: .4rem 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
+    }
+    .nav-links a:hover { color: var(--navy); }
+    .nav-links a.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: linear-gradient(135deg, var(--navy-d) 0%, var(--navy) 70%, #2a5499 100%);
+      padding: 3.25rem 2rem 2.75rem; position: relative; overflow: hidden;
+    }
+    #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .page-header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .breadcrumb { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+    .breadcrumb a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .8rem; }
+    .breadcrumb a:hover { color: var(--gold); }
+    .breadcrumb span { color: rgba(255,255,255,.25); font-size: .8rem; }
+    .breadcrumb em { color: rgba(255,255,255,.75); font-style: normal; font-size: .8rem; }
+    .ph-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.35);
+      color: var(--gold-l); font-size: .75rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; padding: .3rem .9rem; border-radius: 2rem; margin-bottom: 1rem;
+    }
+    .ph-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-l); }
+    .page-header h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: clamp(1.9rem, 4vw, 2.7rem); margin-bottom: .5rem; }
+    .page-header p { color: rgba(255,255,255,.6); font-size: .95rem; max-width: 580px; line-height: 1.6; }
+    .group-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+    .group-chip { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.9); border-radius: 8px; padding: .4rem .9rem; font-size: .85rem; font-weight: 600; }
+    .group-chip .gc-label { color: rgba(255,255,255,.45); font-weight: 400; font-size: .72rem; display: block; }
+
+    .layout { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+    /* TABS */
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 2rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; cursor: pointer; white-space: nowrap; padding: .75rem 1.25rem; font-size: .88rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .2s, border-color .2s; }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+    .tab-btn:hover:not(.active) { color: var(--navy-l); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* WELCOME */
+    .welcome-box { background: linear-gradient(135deg, var(--navy-d), var(--navy)); border-radius: 14px; padding: 2rem; margin-bottom: 1.75rem; color: #fff; }
+    .welcome-box h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: .75rem; }
+    .welcome-box p { color: rgba(255,255,255,.72); font-size: .92rem; line-height: 1.7; margin-bottom: .75rem; }
+    .welcome-box p:last-child { margin-bottom: 0; }
+    .section-h { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+    .next-event { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: .85rem 1rem; margin-bottom: .7rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .ne-info .ne-label { font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #9a7d2e; }
+    .ne-info .ne-title { font-size: .9rem; font-weight: 600; color: var(--navy); margin-top: .15rem; }
+    .ne-date { text-align: right; flex-shrink: 0; }
+    .ne-date .ned-day { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+    .ne-date .ned-rest { font-size: .75rem; color: var(--muted); }
+    .ne-countdown { font-size: .7rem; color: var(--gold); font-weight: 600; }
+
+    /* PROGRAMA */
+    .unit-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
+    .unit-header { background: var(--navy); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .unit-header h3 { font-size: .95rem; font-weight: 600; }
+    .unit-header .arrow { transition: transform .3s; font-size: .8rem; }
+    .unit-card.open .unit-header .arrow { transform: rotate(90deg); }
+    .unit-body { padding: .5rem 1.25rem 1rem; display: none; }
+    .unit-card.open .unit-body { display: block; }
+    .topic { padding: .9rem 0; border-bottom: 1px solid #f1f5f9; }
+    .topic:last-child { border-bottom: none; }
+    .topic-title { display: flex; align-items: baseline; gap: .55rem; font-size: .92rem; font-weight: 600; color: var(--navy); }
+    .topic-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .topic-title em { font-style: normal; font-weight: 400; color: var(--muted); font-size: .85rem; }
+    .subchips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; padding-left: 1.25rem; }
+    .subchip { background: #f1f5f9; color: #475569; font-size: .76rem; padding: .25rem .6rem; border-radius: 6px; }
+    .topic-simple { display: flex; align-items: baseline; gap: .55rem; font-size: .88rem; color: var(--muted); padding: .45rem 0; }
+    .topic-simple::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* CALENDARIO */
+    .cal-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .cal-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .cal-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+    .cal-table th { background: var(--navy); color: #fff; font-size: .8rem; font-weight: 600; padding: .75rem 1rem; text-align: center; white-space: nowrap; }
+    .cal-table th.period-col { text-align: left; }
+    .cal-table td { padding: .7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: .82rem; text-align: center; color: var(--text); }
+    .cal-table td.period-cell { text-align: left; font-weight: 600; color: var(--navy); background: #f8fafc; white-space: nowrap; }
+    .cal-table tr:last-child td { border-bottom: none; }
+    .cal-table tr.next-exam td { background: rgba(201,168,76,.1); }
+    .exam-date { font-weight: 600; color: var(--navy); display: block; }
+    .exam-time { font-size: .72rem; color: var(--gray); }
+    .exam-all { color: #9a7d2e; font-weight: 600; }
+
+    /* FÓRMULAS */
+    .formula-search { width: 100%; padding: .8rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: .95rem; font-family: 'Inter'; margin-bottom: 1.5rem; }
+    .formula-search:focus { outline: 2px solid rgba(27,58,107,.2); border-color: var(--navy); }
+    .formula-unit { margin-bottom: 1.75rem; }
+    .formula-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .formula-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .85rem; }
+    .formula-card { border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; background: #fff; transition: box-shadow .2s, border-color .2s; }
+    .formula-card:hover { border-color: var(--gold); box-shadow: 0 4px 14px rgba(27,58,107,.08); }
+    .formula-card .fc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray); }
+    .formula-card .fc-nombre { font-size: .9rem; font-weight: 600; color: var(--navy); margin: .15rem 0 .6rem; }
+    .formula-card .fc-eq { background: var(--navy-d); color: #fff; border-radius: 8px; padding: .6rem .75rem; font-size: 1.05rem; text-align: center; font-weight: 600; letter-spacing: .02em; }
+    .formula-card .fc-vars { font-size: .76rem; color: var(--muted); margin-top: .6rem; line-height: 1.5; }
+    .formula-empty { color: var(--gray); font-size: .9rem; padding: 2rem; text-align: center; }
+
+    /* VIDEOS */
+    .video-unit-title { font-size: .8rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .06em; margin: 1.5rem 0 .85rem; padding-bottom: .4rem; border-bottom: 2px solid var(--border); }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; }
+    .video-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+    .video-thumb { position: relative; cursor: pointer; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .92; transition: opacity .2s; }
+    .video-thumb:hover img { opacity: 1; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .video-play span { width: 54px; height: 54px; background: rgba(27,58,107,.88); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; padding-left: 4px; }
+    .video-thumb:hover .video-play span { background: var(--gold); color: var(--navy-d); }
+    .video-card .vc-body { padding: .85rem 1rem; }
+    .video-card .vc-tema { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gold); }
+    .video-card .vc-title { font-size: .88rem; font-weight: 600; color: var(--navy); margin-top: .2rem; line-height: 1.35; }
+    .video-card iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+
+    /* SIMULATOR */
+    .sim-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; box-shadow: 0 2px 10px rgba(17,36,71,.04); }
+    .sim-header { background: var(--navy-d); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; gap: .75rem; }
+    .sim-icon { width: 38px; height: 38px; background: rgba(201,168,76,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .sim-header h3 { font-size: 1rem; font-weight: 600; }
+    .sim-header p { color: rgba(255,255,255,.5); font-size: .78rem; margin-top: .15rem; }
+    .sim-body { padding: 1.25rem; background: #fff; }
+    .sim-instructions { background: #f8fafc; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+    .sim-instructions h4 { font-size: .8rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .6rem; }
+    .ins-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .9rem; }
+    .ins-item .ins-label { font-size: .72rem; font-weight: 700; color: #9a7d2e; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+    .ins-item p { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+    .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; margin-bottom: 1.1rem; }
+    .ctrl-group label { display: block; font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .ctrl-row { display: flex; align-items: center; gap: .6rem; }
+    .ctrl-row input[type=range] { flex: 1; accent-color: var(--navy); }
+    .num-input { width: 74px; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 7px; font-size: .85rem; font-weight: 600; color: var(--navy); font-family: 'Inter'; text-align: right; }
+    .num-input:focus { outline: 2px solid rgba(27,58,107,.25); border-color: var(--navy); }
+    .num-unit { font-size: .78rem; color: var(--gray); min-width: 32px; }
+
+    .solver-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .9rem; margin-bottom: 1rem; }
+    .solver-in.computed { background: rgba(201,168,76,.15); border-color: var(--gold); }
+    .solver-msg { font-size: .85rem; color: #c0392b; margin-bottom: .75rem; min-height: 1px; }
+    .solver-msg.ok { color: #1a7a4c; }
+    @media (max-width: 720px){ .solver-grid { grid-template-columns: repeat(2,1fr); } #solver-results .sim-readout { grid-template-columns: repeat(2,1fr)!important; } }
+    .sim-canvas-wrap { background: #f8fafc; border-radius: 8px; overflow: hidden; margin-bottom: .75rem; border: 1px solid var(--border); }
+    canvas { display: block; width: 100%; }
+    .graphs-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+    .graph-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .5rem; }
+    .graph-box .gtitle { font-size: .72rem; font-weight: 700; color: var(--navy); text-align: center; margin-bottom: .25rem; }
+
+    .sim-btns { display: flex; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
+    .btn-sim { padding: .55rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-size: .85rem; font-weight: 600; transition: background .2s; display: inline-flex; align-items: center; gap: .4rem; }
+    .btn-primary { background: var(--navy); color: #fff; flex: 1; justify-content: center; }
+    .btn-primary:hover { background: var(--navy-l); }
+    .btn-secondary { background: #f1f5f9; color: var(--navy); flex: 1; justify-content: center; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-export { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+    .btn-export:hover { background: var(--navy); color: #fff; }
+
+    .sim-readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1rem; }
+    .readout-item { background: #f8fafc; border-radius: 8px; padding: .6rem .75rem; text-align: center; }
+    .readout-item .rval { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+    .readout-item .rlbl { font-size: .68rem; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; margin-top: .1rem; }
+    .formula-box { background: var(--navy-d); border-radius: 10px; padding: 1rem 1.25rem; color: #fff; }
+    .formula-box .fb-label { font-size: .7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .formula-box .fb-eq { font-size: .92rem; line-height: 1.9; }
+    .formula-box .fb-eq .gold { color: var(--gold-l); font-weight: 700; }
+    .formula-box .fb-eq .dim { color: rgba(255,255,255,.5); }
+
+    /* MATERIAL */
+    .mat-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .mat-unit { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .mat-unit-header { background: var(--navy); color: #fff; padding: .85rem 1.25rem; font-size: .9rem; font-weight: 600; border-bottom: 2px solid var(--gold); }
+    .mat-unit-body { padding: 1rem 1.25rem; }
+    .mat-folder-btn { display: flex; align-items: center; gap: .75rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.1rem; text-decoration: none; color: var(--text); transition: all .15s; }
+    .mat-folder-btn:hover { background: #fff; border-color: var(--gold); box-shadow: 0 2px 10px rgba(27,58,107,.08); }
+    .mat-folder-btn .mf-icon { font-size: 1.5rem; }
+    .mat-folder-btn .mf-title { font-weight: 600; font-size: .9rem; }
+    .mat-folder-btn .mf-sub { font-size: .78rem; color: var(--gray); }
+    .mat-folder-btn .mf-arrow { margin-left: auto; color: var(--gold); font-weight: 700; }
+
+    footer { background: var(--navy-d); border-top: 1px solid rgba(201,168,76,.3); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: rgba(255,255,255,.35); font-size: .8rem; }
+    footer p span { color: var(--gold); }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; height: 64px; }
+      .nav-brand .nb-text { display: none; }
+      .nav-links { gap: 1rem; }
+      .page-header { padding: 2.5rem 1.25rem 2rem; }
+      .layout { padding: 2rem 1.25rem 3rem; }
+      .sim-controls, .ins-grid, .graphs-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
+    <div class="nb-divider"></div>
+    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+  </a>
+  <div class="nav-links">
+    <a href="fisica1.html" class="active">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <canvas id="heroCanvas"></canvas>
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">Inicio</a><span>/</span><em>Física I</em></div>
+    <div class="ph-tag"><span class="ph-dot"></span>Clave 1302 · Obligatoria</div>
+    <h1>Física I</h1>
+    <p>Introducción a la Física, Mecánica de la partícula y Energía. Ciclo escolar 2026-2027-1.</p>
+    <div class="group-chips">
+      <span class="group-chip"><span class="gc-label">Grupos</span>3010 · 3040 · 3050 · 3080</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('bienvenida')">Bienvenida</button>
+    <button class="tab-btn" onclick="switchTab('programa')">Programa</button>
+    <button class="tab-btn" onclick="switchTab('formulas')">Fórmulas</button>
+    <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
+    <button class="tab-btn" onclick="switchTab('simuladores')">Simuladores</button>
+    <button class="tab-btn" onclick="switchTab('calendario')">Calendario de exámenes</button>
+    <button class="tab-btn" onclick="switchTab('material')">Material</button>
+  </div>
+
+  <!-- BIENVENIDA -->
+  <div class="tab-panel active" id="tab-bienvenida">
+    <div class="welcome-box">
+      <h2>Bienvenidos a Física I</h2>
+      <p>Esta asignatura es la base de tu formación científica. A lo largo del semestre exploraremos la cinemática, las leyes del movimiento y la energía, usando tanto el razonamiento matemático como la experimentación para entender el mundo que nos rodea.</p>
+      <p>Aquí encontrarás el programa de cada unidad, el calendario de exámenes de tu grupo, simuladores interactivos para visualizar los fenómenos, y el material de apoyo del curso.</p>
+    </div>
+    <div class="section-h">📅 Próximos exámenes</div>
+    <div id="proximos-examenes"></div>
+  </div>
+
+  <!-- PROGRAMA -->
+  <div class="tab-panel" id="tab-programa">
+    <div class="unit-card open">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 1 · Introducción a la Física</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic-simple">Importancia de la Física</div>
+        <div class="topic-simple">Objeto y áreas de estudio de la Física</div>
+        <div class="topic-simple">Física, tecnología y sociedad</div>
+        <div class="topic-simple">Aportes de grupos no hegemónicos: mujeres, países del sur global, grupos étnicos</div>
+        <div class="topic-simple">Metodología científica y método experimental</div>
+        <div class="topic-simple">Magnitudes físicas y sistemas de unidades (SI)</div>
+        <div class="topic-simple">Análisis dimensional y orden de magnitud</div>
+        <div class="topic-simple">Cifras significativas y notación científica</div>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 2 · Mecánica de la partícula</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic">
+          <div class="topic-title">Movimiento Rectilíneo Uniforme (MRU) <em>y su representación gráfica</em></div>
+          <div class="subchips">
+            <span class="subchip">Partícula</span>
+            <span class="subchip">Sistema de referencia</span>
+            <span class="subchip">Desplazamiento, posición y distancia</span>
+            <span class="subchip">Velocidad y rapidez</span>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Movimiento Rectilíneo Uniformemente Acelerado (MRUA)</div>
+          <div class="subchips">
+            <span class="subchip">Aceleración</span>
+            <span class="subchip">Rapidez media y promedio</span>
+            <span class="subchip">Caída libre</span>
+            <span class="subchip">Tiro vertical</span>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Leyes de Newton</div>
+          <div class="subchips">
+            <span class="subchip">1.ª Ley: inercia y sistemas inerciales</span>
+            <span class="subchip">2.ª Ley: fuerza, masa y aceleración</span>
+            <span class="subchip">Diagrama de cuerpo libre</span>
+            <span class="subchip">3.ª Ley: pares de interacción</span>
+            <span class="subchip">Conservación del momento lineal</span>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-title">Movimiento Circular Uniforme y Movimiento Planetario</div>
+          <div class="subchips">
+            <span class="subchip">Desplazamiento y rapidez angular</span>
+            <span class="subchip">Aceleración y fuerza centrípeta</span>
+            <span class="subchip">Frecuencia y periodo</span>
+            <span class="subchip">Gravitación universal</span>
+            <span class="subchip">Leyes de Kepler</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-header" onclick="toggleUnit(this)"><h3>Unidad 3 · Energía: fenómenos térmicos</h3><span class="arrow">▶</span></div>
+      <div class="unit-body">
+        <div class="topic-simple">Trabajo y energía cinética</div>
+        <div class="topic-simple">Energía potencial gravitatoria y elástica</div>
+        <div class="topic-simple">Conservación de la energía mecánica</div>
+        <div class="topic-simple">Calor y temperatura</div>
+        <div class="topic-simple">Leyes de la termodinámica</div>
+        <div class="topic-simple">Dilatación térmica</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FÓRMULAS -->
+  <div class="tab-panel" id="tab-formulas">
+    <p class="cal-intro">Formulario del curso. Usa el buscador para encontrar una fórmula por nombre, tema o variable.</p>
+    <input type="text" id="formula-search" class="formula-search" placeholder="🔍 Buscar fórmula… (ej: velocidad, caída, Fc, energía)" oninput="renderFormulas()" />
+    <div id="formulas-container"></div>
+  </div>
+
+  <!-- VIDEOS -->
+  <div class="tab-panel" id="tab-videos">
+    <p class="cal-intro">Videos seleccionados para reforzar cada tema. Da clic en uno para reproducirlo aquí mismo.</p>
+    <div id="videos-container"></div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="tab-panel" id="tab-calendario">
+    <p class="cal-intro">Fechas de exámenes del ciclo 2026-2027-1. Ubica la columna de tu grupo. El horario indicado es la hora de inicio. La fila resaltada es el próximo examen.</p>
+    <div class="cal-wrap">
+      <table class="cal-table" id="cal-table">
+        <thead><tr><th class="period-col">Periodo</th><th>3010</th><th>3040</th><th>3050</th><th>3080</th></tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+    <p style="font-size:.8rem;color:var(--gray);margin-top:1rem;">* Fechas sujetas a cambios según indicaciones institucionales.</p>
+  </div>
+
+  <!-- SIMULADORES -->
+  <div class="tab-panel" id="tab-simuladores">
+
+    <!-- MRU / MRUA -->
+    <div class="sim-card" id="sim-mru">
+      <div class="sim-header"><div class="sim-icon">📈</div><div><h3>Simulador MRU / MRUA</h3><p>Unidad 2 · Movimiento rectilíneo y su representación gráfica</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>velocidad inicial (v₀)</strong> y la <strong>aceleración (a)</strong>, con la barra o escribiendo el valor. a = 0 es MRU; a ≠ 0 es MRUA.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>La partícula sobre la pista y las gráficas <strong>x-t</strong> y <strong>v-t</strong> dibujándose en tiempo real.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Pueden ingresar los valores del problema, generar la gráfica y <strong>exportarla en JPG</strong> para entregarla.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Velocidad inicial v₀</label><div class="ctrl-row"><input type="range" id="v0" min="0" max="20" value="5" step="0.5" oninput="syncFrom('v0','range')"><input type="number" class="num-input" id="v0n" value="5" step="0.5" oninput="syncFrom('v0','num')"><span class="num-unit">m/s</span></div></div>
+          <div class="ctrl-group"><label>Aceleración a</label><div class="ctrl-row"><input type="range" id="acc" min="-4" max="4" value="0" step="0.5" oninput="syncFrom('acc','range')"><input type="number" class="num-input" id="accn" value="0" step="0.5" oninput="syncFrom('acc','num')"><span class="num-unit">m/s²</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="simCanvas" height="150"></canvas></div>
+        <div class="graphs-row">
+          <div class="graph-box"><div class="gtitle">Posición vs. tiempo (x-t)</div><canvas id="xtCanvas" height="150"></canvas></div>
+          <div class="graph-box"><div class="gtitle">Velocidad vs. tiempo (v-t)</div><canvas id="vtCanvas" height="150"></canvas></div>
+        </div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="playBtn" onclick="togglePlay()">▶ Iniciar</button>
+          <button class="btn-sim btn-secondary" onclick="resetSim()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(xtC,'grafica_posicion_tiempo')">⬇ x-t JPG</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(vtC,'grafica_velocidad_tiempo')">⬇ v-t JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="r-pos">0.0 m</div><div class="rlbl">Posición</div></div>
+          <div class="readout-item"><div class="rval" id="r-vel">5.0 m/s</div><div class="rlbl">Velocidad</div></div>
+          <div class="readout-item"><div class="rval" id="r-time">0.0 s</div><div class="rlbl">Tiempo</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="fb-label">Ecuaciones de movimiento (valores en vivo)</div>
+          <div class="fb-eq">x = v₀·t + ½·a·t² <span class="dim">→</span> <span id="fb-x"></span><br/>v = v₀ + a·t <span class="dim">→</span> <span id="fb-v"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAÍDA LIBRE -->
+    <div class="sim-card" id="sim-caida">
+      <div class="sim-header"><div class="sim-icon">🌍</div><div><h3>Simulador de Caída Libre</h3><p>Unidad 2 · MRUA vertical con g = 9.8 m/s²</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>altura inicial (h₀)</strong> y la <strong>velocidad inicial (v₀)</strong> hacia abajo.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>La caída contra la escala de altura, cómo aumenta la <strong>velocidad</strong> y el <strong>tiempo</strong> de caída.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>El objeto se detiene al tocar el suelo y muestra el tiempo y la velocidad de impacto finales.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Altura inicial h₀</label><div class="ctrl-row"><input type="range" id="height" min="10" max="200" value="80" step="5" oninput="syncFrom('height','range')"><input type="number" class="num-input" id="heightn" value="80" step="5" oninput="syncFrom('height','num')"><span class="num-unit">m</span></div></div>
+          <div class="ctrl-group"><label>Velocidad inicial v₀ (↓)</label><div class="ctrl-row"><input type="range" id="fv0" min="0" max="20" value="0" step="1" oninput="syncFrom('fv0','range')"><input type="number" class="num-input" id="fv0n" value="0" step="1" oninput="syncFrom('fv0','num')"><span class="num-unit">m/s</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="fallCanvas" height="260"></canvas></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="fallPlayBtn" onclick="toggleFall()">▶ Soltar</button>
+          <button class="btn-sim btn-secondary" onclick="resetFall()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(fallCanvas,'caida_libre')">⬇ Exportar JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="f-height">80.0 m</div><div class="rlbl">Altura</div></div>
+          <div class="readout-item"><div class="rval" id="f-vel">0.0 m/s</div><div class="rlbl">Velocidad</div></div>
+          <div class="readout-item"><div class="rval" id="f-time">0.0 s</div><div class="rlbl">Tiempo</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="fb-label">Ecuaciones de caída libre (valores en vivo)</div>
+          <div class="fb-eq">h = h₀ − (v₀·t + ½·g·t²) <span class="dim">→</span> <span id="fb-h"></span><br/>v = v₀ + g·t <span class="dim">→</span> <span id="fb-fv"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIRO PARABÓLICO -->
+    <div class="sim-card" id="sim-para">
+      <div class="sim-header"><div class="sim-icon">🎯</div><div><h3>Simulador de Tiro Parabólico</h3><p>Unidad 2 · Combinación de MRU horizontal y caída vertical</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>rapidez inicial (v₀)</strong> y el <strong>ángulo de lanzamiento (θ)</strong>.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>La <strong>trayectoria parabólica</strong>, el alcance máximo, la altura máxima y el tiempo de vuelo.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Ingresan los datos del problema, generan la parábola y <strong>exportan el JPG</strong>.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Rapidez inicial v₀</label><div class="ctrl-row"><input type="range" id="pv0" min="5" max="50" value="25" step="1" oninput="syncFrom('pv0','range')"><input type="number" class="num-input" id="pv0n" value="25" step="1" oninput="syncFrom('pv0','num')"><span class="num-unit">m/s</span></div></div>
+          <div class="ctrl-group"><label>Ángulo θ</label><div class="ctrl-row"><input type="range" id="ang" min="5" max="85" value="45" step="1" oninput="syncFrom('ang','range')"><input type="number" class="num-input" id="angn" value="45" step="1" oninput="syncFrom('ang','num')"><span class="num-unit">°</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="paraCanvas" height="280"></canvas></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="paraPlayBtn" onclick="togglePara()">▶ Lanzar</button>
+          <button class="btn-sim btn-secondary" onclick="resetPara()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(paraCanvas,'tiro_parabolico')">⬇ Exportar JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="p-range">0 m</div><div class="rlbl">Alcance</div></div>
+          <div class="readout-item"><div class="rval" id="p-hmax">0 m</div><div class="rlbl">Altura máx.</div></div>
+          <div class="readout-item"><div class="rval" id="p-tvuelo">0 s</div><div class="rlbl">T. de vuelo</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="fb-label">Ecuaciones de tiro parabólico (valores en vivo)</div>
+          <div class="fb-eq">Alcance R = v₀²·sen(2θ)/g <span class="dim">→</span> <span id="fb-R"></span><br/>Altura máx. = v₀²·sen²(θ)/(2g) <span class="dim">→</span> <span id="fb-H"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEYES DE NEWTON (2ª ley: F = ma) -->
+    <div class="sim-card" id="sim-newton">
+      <div class="sim-header"><div class="sim-icon">🧱</div><div><h3>Simulador de la 2.ª Ley de Newton</h3><p>Unidad 2 · F = m·a, con fricción opcional</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>fuerza aplicada (F)</strong>, la <strong>masa (m)</strong> y el <strong>coeficiente de fricción (μ)</strong>.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>El bloque acelerando, su <strong>aceleración</strong> resultante y las fuerzas actuando (aplicada y de fricción).</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Comprueba cómo a = F<sub>neta</sub>/m y qué pasa cuando la fricción supera a la fuerza aplicada.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="ctrl-group"><label>Fuerza aplicada F</label><div class="ctrl-row"><input type="range" id="nF" min="0" max="100" value="40" step="1" oninput="syncFrom('nF','range')"><input type="number" class="num-input" id="nFn" value="40" step="1" oninput="syncFrom('nF','num')"><span class="num-unit">N</span></div></div>
+          <div class="ctrl-group"><label>Masa m</label><div class="ctrl-row"><input type="range" id="nM" min="1" max="50" value="10" step="1" oninput="syncFrom('nM','range')"><input type="number" class="num-input" id="nMn" value="10" step="1" oninput="syncFrom('nM','num')"><span class="num-unit">kg</span></div></div>
+          <div class="ctrl-group"><label>Fricción μ</label><div class="ctrl-row"><input type="range" id="nMu" min="0" max="1" value="0" step="0.05" oninput="syncFrom('nMu','range')"><input type="number" class="num-input" id="nMun" value="0" step="0.05" oninput="syncFrom('nMu','num')"><span class="num-unit"></span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="newtonCanvas" height="200"></canvas></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="newtonPlayBtn" onclick="toggleNewton()">▶ Aplicar fuerza</button>
+          <button class="btn-sim btn-secondary" onclick="resetNewton()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(newtonCanvas,'segunda_ley_newton')">⬇ Exportar JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="n-fneta">40 N</div><div class="rlbl">Fuerza neta</div></div>
+          <div class="readout-item"><div class="rval" id="n-acc">4.0 m/s²</div><div class="rlbl">Aceleración</div></div>
+          <div class="readout-item"><div class="rval" id="n-vel">0.0 m/s</div><div class="rlbl">Velocidad</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Segunda ley de Newton (valores en vivo)</div><div class="fb-eq">F<sub>neta</sub> = F − μ·m·g <span class="dim">→</span> <span id="fb-fneta"></span><br/>a = F<sub>neta</sub> / m <span class="dim">→</span> <span id="fb-na"></span></div></div>
+      </div>
+    </div>
+
+    <!-- MOVIMIENTO CIRCULAR UNIFORME -->
+    <div class="sim-card" id="sim-circ">
+      <div class="sim-header"><div class="sim-icon">🔄</div><div><h3>Simulador de Movimiento Circular</h3><p>Unidad 2 · Fuerza centrípeta, periodo y frecuencia</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>El <strong>radio (r)</strong>, la <strong>masa (m)</strong> y la <strong>rapidez tangencial (v)</strong>.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>El objeto girando, el vector de <strong>fuerza centrípeta</strong> apuntando al centro, el periodo y la frecuencia.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Verifica cómo Fc = m·v²/r y cómo cambian el periodo T y la frecuencia f.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="ctrl-group"><label>Radio r</label><div class="ctrl-row"><input type="range" id="cR" min="0.5" max="5" value="2" step="0.1" oninput="syncFrom('cR','range')"><input type="number" class="num-input" id="cRn" value="2" step="0.1" oninput="syncFrom('cR','num')"><span class="num-unit">m</span></div></div>
+          <div class="ctrl-group"><label>Masa m</label><div class="ctrl-row"><input type="range" id="cM" min="0.1" max="10" value="1" step="0.1" oninput="syncFrom('cM','range')"><input type="number" class="num-input" id="cMn" value="1" step="0.1" oninput="syncFrom('cM','num')"><span class="num-unit">kg</span></div></div>
+          <div class="ctrl-group"><label>Rapidez v</label><div class="ctrl-row"><input type="range" id="cV" min="1" max="20" value="6" step="0.5" oninput="syncFrom('cV','range')"><input type="number" class="num-input" id="cVn" value="6" step="0.5" oninput="syncFrom('cV','num')"><span class="num-unit">m/s</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="circCanvas" height="240"></canvas></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="circPlayBtn" onclick="toggleCirc()">▶ Iniciar giro</button>
+          <button class="btn-sim btn-secondary" onclick="resetCirc()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(circCanvas,'movimiento_circular')">⬇ Exportar JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="c-fc">18 N</div><div class="rlbl">Fuerza centrípeta</div></div>
+          <div class="readout-item"><div class="rval" id="c-T">2.1 s</div><div class="rlbl">Periodo</div></div>
+          <div class="readout-item"><div class="rval" id="c-f">0.48 Hz</div><div class="rlbl">Frecuencia</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Movimiento circular uniforme (valores en vivo)</div><div class="fb-eq">F<sub>c</sub> = m·v²/r <span class="dim">→</span> <span id="fb-fc"></span><br/>T = 2π·r/v <span class="dim">→</span> <span id="fb-T"></span></div></div>
+      </div>
+    </div>
+
+    <!-- LEYES DE KEPLER / MOVIMIENTO PLANETARIO -->
+    <div class="sim-card" id="sim-kepler">
+      <div class="sim-header"><div class="sim-icon">🪐</div><div><h3>Simulador de Órbitas (Leyes de Kepler)</h3><p>Unidad 2 · Movimiento planetario y ley de áreas</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>El <strong>semieje mayor</strong> y la <strong>excentricidad (e)</strong> de la órbita (qué tan "achatada" es).</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>El planeta orbitando al Sol: acelera cerca (perihelio) y frena lejos (afelio). 1.ª y 2.ª ley de Kepler.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Las áreas barridas en tiempos iguales son iguales (ley de áreas), visible con los sectores.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Semieje mayor a</label><div class="ctrl-row"><input type="range" id="kA" min="80" max="160" value="120" step="5" oninput="syncFrom('kA','range')"><input type="number" class="num-input" id="kAn" value="120" step="5" oninput="syncFrom('kA','num')"><span class="num-unit">u</span></div></div>
+          <div class="ctrl-group"><label>Excentricidad e</label><div class="ctrl-row"><input type="range" id="kE" min="0" max="0.8" value="0.5" step="0.05" oninput="syncFrom('kE','range')"><input type="number" class="num-input" id="kEn" value="0.5" step="0.05" oninput="syncFrom('kE','num')"><span class="num-unit"></span></div></div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="keplerCanvas" height="300"></canvas></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="keplerPlayBtn" onclick="toggleKepler()">▶ Iniciar órbita</button>
+          <button class="btn-sim btn-secondary" onclick="resetKepler()">↺ Reiniciar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(keplerCanvas,'orbita_kepler')">⬇ Exportar JPG</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="k-vel">—</div><div class="rlbl">Rapidez relativa</div></div>
+          <div class="readout-item"><div class="rval" id="k-dist">—</div><div class="rlbl">Distancia al Sol</div></div>
+          <div class="readout-item"><div class="rval" id="k-fase">Perihelio</div><div class="rlbl">Fase</div></div>
+        </div>
+        <div class="formula-box"><div class="fb-label">Leyes de Kepler</div><div class="fb-eq"><span class="gold">1.ª ley:</span> la órbita es una elipse con el Sol en un foco.<br/><span class="gold">2.ª ley:</span> el planeta barre áreas iguales en tiempos iguales (va más rápido cerca del Sol).</div></div>
+      </div>
+    </div>
+
+    <!-- SOLVER DE CINEMÁTICA (MRUA) -->
+    <div class="sim-card" id="solver-mrua">
+      <div class="sim-header"><div class="sim-icon">🧮</div><div><h3>Solver de cinemática (MRUA)</h3><p>Unidad 2 · Resuelve cualquier variable a partir de las que conozcas</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este solver</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>Escribe <strong>los valores que conoces</strong> (mínimo 3) y deja en blanco los que quieres encontrar.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué obtienes</div><p>Las <strong>variables faltantes</strong> calculadas, las <strong>gráficas x-t y v-t</strong> y el procedimiento.</p></div>
+            <div class="ins-item"><div class="ins-label">Para tareas</div><p>Sirve para <strong>cualquier problema</strong> de MRU/MRUA sin importar qué datos dé el enunciado. Exporta el JPG.</p></div>
+          </div>
+        </div>
+        <div class="solver-grid">
+          <div class="ctrl-group"><label>Velocidad inicial v₀</label><div class="ctrl-row"><input type="number" class="num-input solver-in" id="s_v0" placeholder="—" step="any"><span class="num-unit">m/s</span></div></div>
+          <div class="ctrl-group"><label>Velocidad final v_f</label><div class="ctrl-row"><input type="number" class="num-input solver-in" id="s_vf" placeholder="—" step="any"><span class="num-unit">m/s</span></div></div>
+          <div class="ctrl-group"><label>Aceleración a</label><div class="ctrl-row"><input type="number" class="num-input solver-in" id="s_a" placeholder="—" step="any"><span class="num-unit">m/s²</span></div></div>
+          <div class="ctrl-group"><label>Tiempo t</label><div class="ctrl-row"><input type="number" class="num-input solver-in" id="s_t" placeholder="—" step="any"><span class="num-unit">s</span></div></div>
+          <div class="ctrl-group"><label>Desplazamiento Δx</label><div class="ctrl-row"><input type="number" class="num-input solver-in" id="s_dx" placeholder="—" step="any"><span class="num-unit">m</span></div></div>
+        </div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" onclick="solveKinematics()">✓ Resolver</button>
+          <button class="btn-sim btn-secondary" onclick="clearSolver()">↺ Limpiar</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(sXtC,'solver_posicion_tiempo')">⬇ x-t JPG</button>
+          <button class="btn-sim btn-export" onclick="exportJPG(sVtC,'solver_velocidad_tiempo')">⬇ v-t JPG</button>
+        </div>
+        <div id="solver-msg" class="solver-msg"></div>
+        <div id="solver-results" style="display:none;">
+          <div class="sim-readout" style="grid-template-columns:repeat(5,1fr);">
+            <div class="readout-item"><div class="rval" id="res-v0">—</div><div class="rlbl">v₀ (m/s)</div></div>
+            <div class="readout-item"><div class="rval" id="res-vf">—</div><div class="rlbl">v_f (m/s)</div></div>
+            <div class="readout-item"><div class="rval" id="res-a">—</div><div class="rlbl">a (m/s²)</div></div>
+            <div class="readout-item"><div class="rval" id="res-t">—</div><div class="rlbl">t (s)</div></div>
+            <div class="readout-item"><div class="rval" id="res-dx">—</div><div class="rlbl">Δx (m)</div></div>
+          </div>
+          <div class="graphs-row">
+            <div class="graph-box"><div class="gtitle">Posición vs. tiempo (x-t)</div><canvas id="sXtCanvas" height="150"></canvas></div>
+            <div class="graph-box"><div class="gtitle">Velocidad vs. tiempo (v-t)</div><canvas id="sVtCanvas" height="150"></canvas></div>
+          </div>
+          <div class="formula-box"><div class="fb-label">Procedimiento</div><div class="fb-eq" id="solver-steps"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="extra-solvers"></div>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="tab-panel" id="tab-material">
+    <p class="mat-intro">Cada unidad tiene una carpeta de Google Drive con su material (presentaciones, ejercicios, antologías, etc.). Da clic para abrir la carpeta y descargar lo que necesites.</p>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 1 · Introducción a la Física</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 1</div><div class="mf-sub">Presentaciones, lecturas y guías de práctica</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 2 · Mecánica de la partícula</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 2</div><div class="mf-sub">Notas de clase, ejercicios resueltos y simuladores</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+    <div class="mat-unit"><div class="mat-unit-header">Unidad 3 · Energía y fenómenos térmicos</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 3</div><div class="mf-sub">Material de apoyo</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+  </div>
+</div>
+
+<footer><p>Prof. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · Ciclo 2026-2027-1</p></footer>
+
+<script>
+/* ════════ DATOS DE EXÁMENES (Física I) ════════ */
+const GRUPOS = ['3010','3040','3050','3080'];
+const PERIODOS = ['1.er Interparcial','1.er Parcial','2.º Interparcial','2.º Parcial','Final · 1.ª vuelta','Final · 2.ª vuelta','Extraordinario'];
+// fecha ISO + hora por grupo
+const EXAMENES = {
+  '1.er Interparcial': { '3010':['2026-09-08','07:00'], '3040':['2026-09-08','09:00'], '3050':['2026-09-09','07:00'], '3080':['2026-09-10','07:00'] },
+  '1.er Parcial':      { '3010':['2026-10-06','07:00'], '3040':['2026-10-06','09:00'], '3050':['2026-10-07','07:00'], '3080':['2026-10-08','07:00'] },
+  '2.º Interparcial':  { '3010':['2026-11-10','07:00'], '3040':['2026-11-10','09:00'], '3050':['2026-11-11','07:00'], '3080':['2026-11-12','07:00'] },
+  '2.º Parcial':       { '3010':['2026-12-08','07:00'], '3040':['2026-12-08','09:00'], '3050':['2026-12-02','07:00'], '3080':['2026-12-03','07:00'] },
+  'Final · 1.ª vuelta':{ '3010':['2026-12-15','07:00'], '3040':['2026-12-15','09:00'], '3050':['2026-12-16','07:00'], '3080':['2026-12-14','12:00'] },
+  'Final · 2.ª vuelta':{ '3010':['2027-01-06','08:00'], '3040':['2027-01-06','08:00'], '3050':['2027-01-08','08:00'], '3080':['2027-01-06','08:00'] },
+  'Extraordinario':    { 'todos':['2027-01-19','09:00'] }
+};
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESES_L = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function fmtCorto(iso){ const d=new Date(iso+'T00:00:00'); return d.getDate()+' '+MESES[d.getMonth()]; }
+function fmtLargo(iso){ const d=new Date(iso+'T00:00:00'); return d.getDate()+' de '+MESES_L[d.getMonth()]+' de '+d.getFullYear(); }
+const HOY = new Date(); HOY.setHours(0,0,0,0);
+
+/* Tabla de calendario */
+function renderCalendario(){
+  const tb = document.getElementById('cal-body');
+  // encontrar el periodo del próximo examen para resaltar
+  let nextPeriodo = null, nextDate = Infinity;
+  PERIODOS.forEach(p=>{
+    const reg = EXAMENES[p];
+    Object.values(reg).forEach(([iso])=>{ const t=new Date(iso+'T00:00:00').getTime(); if(t>=HOY.getTime() && t<nextDate){ nextDate=t; nextPeriodo=p; } });
+  });
+  let html='';
+  PERIODOS.forEach(p=>{
+    const reg = EXAMENES[p];
+    const hl = (p===nextPeriodo) ? ' class="next-exam"' : '';
+    if(reg['todos']){
+      const [iso,hora]=reg['todos'];
+      html += `<tr${hl}><td class="period-cell">${p}</td><td colspan="4"><span class="exam-all">${fmtLargo(iso)} · ${hora} — todos los grupos</span></td></tr>`;
+    } else {
+      html += `<tr${hl}><td class="period-cell">${p}</td>` + GRUPOS.map(g=>{
+        const [iso,hora]=reg[g]; return `<td><span class="exam-date">${fmtCorto(iso)}</span><span class="exam-time">${hora}</span></td>`;
+      }).join('') + '</tr>';
+    }
+  });
+  tb.innerHTML = html;
+}
+
+/* Próximos exámenes (se actualiza solo según la fecha de hoy) */
+function renderProximos(){
+  const cont = document.getElementById('proximos-examenes');
+  // construir lista de eventos agrupados por periodo+fecha
+  let eventos = [];
+  PERIODOS.forEach(p=>{
+    const reg = EXAMENES[p];
+    if(reg['todos']){ const [iso,hora]=reg['todos']; eventos.push({periodo:p,iso,hora,grupos:['todos los grupos']}); }
+    else {
+      const porFecha = {};
+      GRUPOS.forEach(g=>{ const [iso,hora]=reg[g]; (porFecha[iso]=porFecha[iso]||{horas:new Set(),grupos:[]}); porFecha[iso].grupos.push(g); porFecha[iso].horas.add(hora); });
+      Object.entries(porFecha).forEach(([iso,info])=>{ eventos.push({periodo:p,iso,hora:[...info.horas].sort()[0],grupos:info.grupos}); });
+    }
+  });
+  eventos = eventos.filter(e=> new Date(e.iso+'T00:00:00').getTime() >= HOY.getTime())
+                   .sort((a,b)=> new Date(a.iso)-new Date(b.iso)).slice(0,4);
+  if(eventos.length===0){ cont.innerHTML='<p style="color:var(--muted);font-size:.9rem;">No hay exámenes próximos programados.</p>'; return; }
+  cont.innerHTML = eventos.map(e=>{
+    const d = new Date(e.iso+'T00:00:00');
+    const dias = Math.round((d - HOY)/86400000);
+    const cd = dias===0 ? 'Hoy' : dias===1 ? 'Mañana' : 'En '+dias+' días';
+    const grupos = e.grupos[0]==='todos los grupos' ? 'Todos los grupos' : 'Grupo'+(e.grupos.length>1?'s':'')+' '+e.grupos.join(', ');
+    return `<div class="next-event"><div class="ne-info"><div class="ne-label">${e.periodo}</div><div class="ne-title">${grupos}</div></div><div class="ne-date"><div class="ned-day">${d.getDate()} ${MESES[d.getMonth()]}</div><div class="ned-rest">${e.hora} h</div><div class="ne-countdown">${cd}</div></div></div>`;
+  }).join('');
+}
+
+/* ════════ TABS ════════ */
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const map = { bienvenida:0, programa:1, formulas:2, videos:3, simuladores:4, calendario:5, material:6 };
+  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+  if (id === 'simuladores') resizeCanvases();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toggleUnit(h){ h.closest('.unit-card').classList.toggle('open'); }
+
+/* ════════ FÓRMULAS ════════ */
+const FORMULAS = [
+  // Unidad 2 — Cinemática
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'MRU', nombre:'Velocidad (rapidez constante)', eq:'v = Δx / t', vars:'v: velocidad · Δx: desplazamiento · t: tiempo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'MRU', nombre:'Posición', eq:'x = x₀ + v·t', vars:'x₀: posición inicial · v: velocidad · t: tiempo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'MRUA', nombre:'Velocidad final', eq:'v = v₀ + a·t', vars:'v₀: velocidad inicial · a: aceleración · t: tiempo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'MRUA', nombre:'Posición', eq:'x = x₀ + v₀t + ½at²', vars:'v₀: velocidad inicial · a: aceleración · t: tiempo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'MRUA', nombre:'Ecuación de Torricelli', eq:'v² = v₀² + 2aΔx', vars:'v: velocidad final · v₀: inicial · a: aceleración · Δx: desplazamiento'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Caída libre', nombre:'Velocidad', eq:'v = v₀ + g·t', vars:'g = 9.8 m/s² · t: tiempo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Caída libre', nombre:'Altura recorrida', eq:'h = v₀t + ½gt²', vars:'v₀: velocidad inicial · g = 9.8 m/s²'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Tiro parabólico', nombre:'Alcance máximo', eq:'R = v₀²·sen(2θ) / g', vars:'v₀: rapidez inicial · θ: ángulo · g: gravedad'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Tiro parabólico', nombre:'Altura máxima', eq:'H = v₀²·sen²θ / (2g)', vars:'v₀: rapidez inicial · θ: ángulo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Tiro parabólico', nombre:'Tiempo de vuelo', eq:'T = 2v₀·senθ / g', vars:'v₀: rapidez inicial · θ: ángulo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Leyes de Newton', nombre:'Segunda ley', eq:'F = m·a', vars:'F: fuerza neta (N) · m: masa (kg) · a: aceleración'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Leyes de Newton', nombre:'Fuerza de fricción', eq:'fr = μ·N', vars:'μ: coeficiente · N: fuerza normal'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Leyes de Newton', nombre:'Peso', eq:'w = m·g', vars:'m: masa · g = 9.8 m/s²'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Mov. circular', nombre:'Rapidez tangencial', eq:'v = 2πr / T', vars:'r: radio · T: periodo'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Mov. circular', nombre:'Aceleración centrípeta', eq:'ac = v² / r', vars:'v: rapidez · r: radio'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Mov. circular', nombre:'Fuerza centrípeta', eq:'Fc = m·v² / r', vars:'m: masa · v: rapidez · r: radio'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Mov. circular', nombre:'Periodo y frecuencia', eq:'T = 1 / f', vars:'T: periodo (s) · f: frecuencia (Hz)'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Gravitación', nombre:'Gravitación universal', eq:'F = G·m₁m₂ / r²', vars:'G: constante · m₁,m₂: masas · r: distancia'},
+  {unidad:'Unidad 2 · Cinemática y dinámica', tema:'Kepler', nombre:'Tercera ley de Kepler', eq:'T² = k·a³', vars:'T: periodo orbital · a: semieje mayor · k: constante'},
+  // Unidad 3 — Energía
+  {unidad:'Unidad 3 · Energía y calor', tema:'Trabajo', nombre:'Trabajo mecánico', eq:'W = F·d·cosθ', vars:'F: fuerza · d: distancia · θ: ángulo'},
+  {unidad:'Unidad 3 · Energía y calor', tema:'Energía', nombre:'Energía cinética', eq:'Ec = ½m·v²', vars:'m: masa · v: velocidad'},
+  {unidad:'Unidad 3 · Energía y calor', tema:'Energía', nombre:'Energía potencial gravitatoria', eq:'Ep = m·g·h', vars:'m: masa · g: gravedad · h: altura'},
+  {unidad:'Unidad 3 · Energía y calor', tema:'Energía', nombre:'Energía potencial elástica', eq:'Ee = ½k·x²', vars:'k: constante del resorte · x: deformación'},
+  {unidad:'Unidad 3 · Energía y calor', tema:'Calor', nombre:'Calor sensible', eq:'Q = m·c·ΔT', vars:'m: masa · c: calor específico · ΔT: cambio de temperatura'},
+  {unidad:'Unidad 3 · Energía y calor', tema:'Calor', nombre:'Dilatación lineal', eq:'ΔL = α·L₀·ΔT', vars:'α: coeficiente · L₀: longitud inicial · ΔT: cambio de temp.'},
+];
+function quitarAcentos(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+function renderFormulas(){
+  const q = quitarAcentos(document.getElementById('formula-search').value.trim());
+  const cont = document.getElementById('formulas-container');
+  const filtradas = FORMULAS.filter(f=> !q || quitarAcentos(f.nombre+' '+f.tema+' '+f.eq+' '+f.vars+' '+f.unidad).includes(q));
+  if(filtradas.length===0){ cont.innerHTML='<div class="formula-empty">No se encontraron fórmulas para “'+document.getElementById('formula-search').value+'”.</div>'; return; }
+  const unidades=[...new Set(filtradas.map(f=>f.unidad))];
+  cont.innerHTML = unidades.map(u=>`
+    <div class="formula-unit">
+      <div class="formula-unit-title">${u}</div>
+      <div class="formula-cards">
+        ${filtradas.filter(f=>f.unidad===u).map(f=>`
+          <div class="formula-card">
+            <div class="fc-tema">${f.tema}</div>
+            <div class="fc-nombre">${f.nombre}</div>
+            <div class="fc-eq">${f.eq}</div>
+            <div class="fc-vars">${f.vars}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ════════ VIDEOS ════════ */
+const VIDEOS = [
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'MRU', title:'MRU: características, gráficas y fórmulas', id:'r5EVrOi210M'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'MRUA', title:'MRUA: explicación, fórmulas y ejercicios', id:'USFdbyGp8w8'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'Caída libre', title:'Caída libre: clase completa con ejercicios', id:'zWESt0XmATc'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'Tiro parabólico', title:'Tiro parabólico: explicación y fórmulas', id:'DjmC8An-5oo'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'Leyes de Newton', title:'Las leyes de Newton', id:'8qnlCe0bbAI'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'2.ª ley de Newton', title:'La segunda ley de Newton', id:'9ME24MjqMrg'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'Mov. circular', title:'MCU: explicación, fórmulas y ejercicios', id:'JVGvzWgO5i4'},
+  {unidad:'Unidad 2 · Mecánica de la partícula', tema:'Leyes de Kepler', title:'Leyes de Kepler: perihelio y afelio (guía UNAM-IPN)', id:'AQXO2VW7GKE'},
+  {unidad:'Unidad 3 · Energía y fenómenos térmicos', tema:'Trabajo y energía', title:'Trabajo y energía cinética', id:'WToNSV0FN9k'},
+  {unidad:'Unidad 3 · Energía y fenómenos térmicos', tema:'Energía mecánica', title:'Principio de conservación de la energía mecánica', id:'f4IWnif1wjs'},
+  {unidad:'Unidad 3 · Energía y fenómenos térmicos', tema:'Calor y temperatura', title:'La temperatura y el calor: ¿cuál es la diferencia?', id:'tmax5lPcsM0'},
+  {unidad:'Unidad 3 · Energía y fenómenos térmicos', tema:'Termodinámica', title:'Leyes de la termodinámica: ley cero, primera y segunda', id:'5p9PQGVDCdM'},
+  {unidad:'Unidad 3 · Energía y fenómenos térmicos', tema:'Dilatación térmica', title:'Dilatación lineal: fórmulas y ejemplos', id:'2bpEnWX9jmE'},
+];
+function renderVideos(){
+  const cont=document.getElementById('videos-container');
+  const unidades=[...new Set(VIDEOS.map(v=>v.unidad))];
+  cont.innerHTML = unidades.map(u=>`
+    <div class="video-unit-title">${u}</div>
+    <div class="video-grid">
+      ${VIDEOS.filter(v=>v.unidad===u).map(v=>`
+        <div class="video-card">
+          <div class="video-thumb" onclick="playVideo(this,'${v.id}')">
+            <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" loading="lazy" />
+            <div class="video-play"><span>▶</span></div>
+          </div>
+          <div class="vc-body"><div class="vc-tema">${v.tema}</div><div class="vc-title">${v.title}</div></div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+function playVideo(thumb, id){
+  thumb.outerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+}
+
+/* sincroniza slider <-> input numérico y redibuja */
+function syncFrom(id, src){
+  const r = document.getElementById(id), n = document.getElementById(id+'n');
+  if(src==='range') n.value = r.value; else r.value = n.value;
+  updateAll();
+}
+function updateAll(){ updateSim(); updateFall(); updatePara(); updateNewton(); updateCirc(); updateKepler(); }
+
+/* exportar canvas a JPG con fondo blanco */
+function exportJPG(srcCanvas, filename){
+  const tmp = document.createElement('canvas');
+  tmp.width = srcCanvas.width; tmp.height = srcCanvas.height;
+  const t = tmp.getContext('2d');
+  t.fillStyle = '#ffffff'; t.fillRect(0,0,tmp.width,tmp.height);
+  t.drawImage(srcCanvas, 0, 0);
+  const a = document.createElement('a');
+  a.download = filename + '.jpg';
+  a.href = tmp.toDataURL('image/jpeg', 0.95);
+  a.click();
+}
+
+/* ════════ SIM 1: MRU / MRUA ════════ */
+const canvas=document.getElementById('simCanvas'), ctx=canvas.getContext('2d');
+const xtC=document.getElementById('xtCanvas'), xtCtx=xtC.getContext('2d');
+const vtC=document.getElementById('vtCanvas'), vtCtx=vtC.getContext('2d');
+let simT=0, simPlaying=false, simRaf=null;
+const MAX_X=100, MAX_T=12;
+function getSimParams(){ return { v0:parseFloat(document.getElementById('v0').value), a:parseFloat(document.getElementById('acc').value) }; }
+function posAt(t){ const{v0,a}=getSimParams(); return v0*t+0.5*a*t*t; }
+function velAt(t){ const{v0,a}=getSimParams(); return v0+a*t; }
+function updateSim(){ drawSim(simT); }
+function drawTrack(t){
+  const W=canvas.width,H=canvas.height,x=posAt(t),v=velAt(t);
+  ctx.clearRect(0,0,W,H);
+  const trackY=H*0.62;
+  ctx.fillStyle='#dbe2ea'; ctx.fillRect(20,trackY,W-40,6);
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.fillStyle='#94a3b8'; ctx.font='10px Inter'; ctx.textAlign='center';
+  for(let i=0;i<=5;i++){ const gx=20+(i/5)*(W-40); ctx.beginPath(); ctx.moveTo(gx,trackY-30); ctx.lineTo(gx,trackY+14); ctx.stroke(); ctx.fillText((i*20)+'m',gx,trackY+28); }
+  const cx=Math.max(0,Math.min(x,MAX_X)), bx=20+(cx/MAX_X)*(W-40);
+  if(Math.abs(v)>0.1){ const aL=Math.min(Math.abs(v)*4,55)*Math.sign(v); ctx.beginPath(); ctx.moveTo(bx,trackY-11); ctx.lineTo(bx+aL,trackY-11); ctx.strokeStyle='#C9A84C'; ctx.lineWidth=2.5; ctx.stroke(); const dir=Math.sign(aL); ctx.beginPath(); ctx.moveTo(bx+aL,trackY-11); ctx.lineTo(bx+aL-dir*7,trackY-16); ctx.moveTo(bx+aL,trackY-11); ctx.lineTo(bx+aL-dir*7,trackY-6); ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(bx,trackY-11,11,0,Math.PI*2); ctx.fillStyle='#1B3A6B'; ctx.fill(); ctx.strokeStyle='#C9A84C'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#1B3A6B'; ctx.font='bold 11px Inter'; ctx.fillText('x = '+x.toFixed(1)+' m',bx,trackY-28);
+}
+function drawGraph(c,cx,fn,color,unit,t){
+  const W=c.width,H=c.height,pad=26;
+  cx.clearRect(0,0,W,H);
+  cx.strokeStyle='#cbd5e1'; cx.lineWidth=1; cx.beginPath(); cx.moveTo(pad,6); cx.lineTo(pad,H-pad); cx.lineTo(W-6,H-pad); cx.stroke();
+  let vMax=0; for(let s=0;s<=MAX_T;s+=0.5) vMax=Math.max(vMax,Math.abs(fn(s))); vMax=vMax<1?1:vMax*1.1;
+  const x2=s=>pad+(s/MAX_T)*(W-pad-6), y2=val=>(H-pad)-(val/vMax)*(H-pad-6);
+  cx.strokeStyle=color; cx.lineWidth=2; cx.beginPath(); let st=false;
+  for(let s=0;s<=t+0.001&&s<=MAX_T;s+=0.1){ const px=x2(s),py=y2(fn(s)); if(!st){cx.moveTo(px,py);st=true;}else cx.lineTo(px,py); }
+  cx.stroke();
+  if(t<=MAX_T){ const px=x2(t),py=y2(fn(t)); cx.beginPath(); cx.arc(px,py,4,0,Math.PI*2); cx.fillStyle=color; cx.fill(); }
+  cx.fillStyle='#94a3b8'; cx.font='9px Inter'; cx.textAlign='right'; cx.fillText(vMax.toFixed(0)+unit,pad-3,12);
+  cx.textAlign='center'; cx.fillText('t (s)',W-18,H-8);
+}
+function drawSim(t){
+  drawTrack(t); drawGraph(xtC,xtCtx,posAt,'#1B3A6B','m',t); drawGraph(vtC,vtCtx,velAt,'#C9A84C','m/s',t);
+  const x=posAt(t),v=velAt(t),{v0,a}=getSimParams();
+  document.getElementById('r-pos').textContent=x.toFixed(1)+' m';
+  document.getElementById('r-vel').textContent=v.toFixed(1)+' m/s';
+  document.getElementById('r-time').textContent=t.toFixed(1)+' s';
+  document.getElementById('fb-x').innerHTML='x = ('+v0.toFixed(1)+')('+t.toFixed(1)+') + ½('+a.toFixed(1)+')('+t.toFixed(1)+')² = <span class="gold">'+x.toFixed(1)+' m</span>';
+  document.getElementById('fb-v').innerHTML='v = '+v0.toFixed(1)+' + ('+a.toFixed(1)+')('+t.toFixed(1)+') = <span class="gold">'+v.toFixed(1)+' m/s</span>';
+}
+function simLoop(){ if(!simPlaying)return; simT+=0.05; const x=posAt(simT); if(x>=MAX_X||x<-2||simT>=MAX_T){ simT=Math.min(simT,MAX_T); drawSim(simT); stopSim(); return; } drawSim(simT); simRaf=requestAnimationFrame(simLoop); }
+function togglePlay(){ if(simPlaying){stopSim();return;} if(posAt(simT)>=MAX_X||simT>=MAX_T)simT=0; startSim(); }
+function startSim(){ simPlaying=true; document.getElementById('playBtn').textContent='⏸ Pausar'; simRaf=requestAnimationFrame(simLoop); }
+function stopSim(){ simPlaying=false; document.getElementById('playBtn').textContent='▶ Iniciar'; cancelAnimationFrame(simRaf); }
+function resetSim(){ stopSim(); simT=0; drawSim(0); }
+
+/* ════════ SIM 2: CAÍDA LIBRE ════════ */
+const fallCanvas=document.getElementById('fallCanvas'), fctx=fallCanvas.getContext('2d');
+let fallT=0, fallPlaying=false, fallRaf=null; const G=9.8;
+function getFallParams(){ return { h0:parseFloat(document.getElementById('height').value), fv0:parseFloat(document.getElementById('fv0').value) }; }
+function updateFall(){ fallT=0; drawFall(0); }
+function drawFall(t){
+  const W=fallCanvas.width,H=fallCanvas.height,{h0,fv0}=getFallParams();
+  let y=h0-(fv0*t+0.5*G*t*t), v=fv0+G*t, landed=false; if(y<=0){y=0;landed=true;}
+  fctx.clearRect(0,0,W,H);
+  const ground=H-28,top=18,sH=ground-top;
+  fctx.fillStyle='#1B3A6B'; fctx.fillRect(0,ground,W,H-ground);
+  fctx.fillStyle='#C9A84C'; fctx.font='bold 10px Inter'; fctx.textAlign='center'; fctx.fillText('SUELO',W/2,ground+17);
+  for(let i=0;i<=4;i++){ const ly=top+(i/4)*sH,mV=h0*(1-i/4); fctx.strokeStyle='#e2e8f0'; fctx.lineWidth=1; fctx.beginPath(); fctx.moveTo(44,ly); fctx.lineTo(W-10,ly); fctx.stroke(); fctx.fillStyle='#94a3b8'; fctx.font='10px Inter'; fctx.textAlign='right'; fctx.fillText(mV.toFixed(0)+' m',40,ly+4); }
+  const by=top+(1-y/h0)*sH, aL=Math.min(v*2.2,55);
+  if(aL>2&&!landed){ fctx.beginPath(); fctx.moveTo(W/2,by+14); fctx.lineTo(W/2,by+14+aL); fctx.strokeStyle='#C9A84C'; fctx.lineWidth=2.5; fctx.stroke(); fctx.beginPath(); fctx.moveTo(W/2,by+14+aL); fctx.lineTo(W/2-6,by+4+aL); fctx.moveTo(W/2,by+14+aL); fctx.lineTo(W/2+6,by+4+aL); fctx.stroke(); }
+  fctx.beginPath(); fctx.arc(W/2,by,13,0,Math.PI*2); fctx.fillStyle=landed?'#9a7d2e':'#1B3A6B'; fctx.fill(); fctx.strokeStyle='#C9A84C'; fctx.lineWidth=2.5; fctx.stroke();
+  fctx.fillStyle='#1B3A6B'; fctx.font='bold 11px Inter'; fctx.textAlign='left'; fctx.fillText('h = '+y.toFixed(1)+' m',W/2+22,by+4);
+  document.getElementById('f-height').textContent=y.toFixed(1)+' m';
+  document.getElementById('f-vel').textContent=v.toFixed(1)+' m/s';
+  document.getElementById('f-time').textContent=t.toFixed(2)+' s';
+  document.getElementById('fb-h').innerHTML='h = '+h0+' − [('+fv0+')('+t.toFixed(2)+') + ½(9.8)('+t.toFixed(2)+')²] = <span class="gold">'+y.toFixed(1)+' m</span>';
+  document.getElementById('fb-fv').innerHTML='v = '+fv0+' + (9.8)('+t.toFixed(2)+') = <span class="gold">'+v.toFixed(1)+' m/s</span>';
+  if(landed) stopFall();
+}
+function fallLoop(){ if(!fallPlaying)return; fallT+=0.03; drawFall(fallT); if(fallPlaying)fallRaf=requestAnimationFrame(fallLoop); }
+function toggleFall(){ if(fallPlaying){stopFall();return;} const{h0,fv0}=getFallParams(); if(h0-(fv0*fallT+0.5*G*fallT*fallT)<=0)fallT=0; startFall(); }
+function startFall(){ fallPlaying=true; document.getElementById('fallPlayBtn').textContent='⏸ Pausar'; fallRaf=requestAnimationFrame(fallLoop); }
+function stopFall(){ fallPlaying=false; document.getElementById('fallPlayBtn').textContent='▶ Soltar'; cancelAnimationFrame(fallRaf); }
+function resetFall(){ stopFall(); fallT=0; drawFall(0); }
+
+/* ════════ SIM 3: TIRO PARABÓLICO ════════ */
+const paraCanvas=document.getElementById('paraCanvas'), pctx=paraCanvas.getContext('2d');
+let paraT=0, paraPlaying=false, paraRaf=null;
+function getParaParams(){ const v0=parseFloat(document.getElementById('pv0').value), ang=parseFloat(document.getElementById('ang').value)*Math.PI/180; return {v0,ang}; }
+function paraStats(){ const{v0,ang}=getParaParams(); const R=v0*v0*Math.sin(2*ang)/G, H=v0*v0*Math.sin(ang)**2/(2*G), T=2*v0*Math.sin(ang)/G; return {R,H,T}; }
+function updatePara(){ paraT=0; drawPara(0); }
+function drawPara(t){
+  const W=paraCanvas.width,Hh=paraCanvas.height,{v0,ang}=getParaParams(),{R,H,T}=paraStats();
+  pctx.clearRect(0,0,W,Hh);
+  const padL=34,padB=24, plotW=W-padL-12, plotH=Hh-padB-14;
+  const maxX=Math.max(R*1.1,1), maxY=Math.max(H*1.15,1);
+  const X=x=>padL+(x/maxX)*plotW, Y=y=>(Hh-padB)-(y/maxY)*plotH;
+  // ejes
+  pctx.strokeStyle='#cbd5e1'; pctx.lineWidth=1; pctx.beginPath(); pctx.moveTo(padL,14); pctx.lineTo(padL,Hh-padB); pctx.lineTo(W-12,Hh-padB); pctx.stroke();
+  pctx.fillStyle='#1B3A6B'; pctx.font='bold 10px Inter'; pctx.fillRect(0,Hh-padB,W,Hh-(Hh-padB));
+  pctx.fillStyle='#94a3b8'; pctx.font='9px Inter'; pctx.textAlign='center'; pctx.fillText('alcance (m)',W/2,Hh-6); pctx.save(); pctx.translate(11,Hh/2); pctx.rotate(-Math.PI/2); pctx.fillText('altura (m)',0,0); pctx.restore();
+  pctx.textAlign='right'; pctx.fillText(maxY.toFixed(0),padL-3,18); pctx.textAlign='center'; pctx.fillText(R.toFixed(0),X(R),Hh-padB+12);
+  // trayectoria completa (guía punteada)
+  pctx.strokeStyle='#dbe2ea'; pctx.setLineDash([4,4]); pctx.lineWidth=1.5; pctx.beginPath();
+  for(let s=0;s<=T;s+=T/100){ const x=v0*Math.cos(ang)*s, y=v0*Math.sin(ang)*s-0.5*G*s*s; if(s===0)pctx.moveTo(X(x),Y(Math.max(y,0))); else pctx.lineTo(X(x),Y(Math.max(y,0))); }
+  pctx.stroke(); pctx.setLineDash([]);
+  // trayectoria recorrida
+  const tc=Math.min(t,T);
+  pctx.strokeStyle='#1B3A6B'; pctx.lineWidth=2.5; pctx.beginPath();
+  for(let s=0;s<=tc;s+=T/100){ const x=v0*Math.cos(ang)*s, y=v0*Math.sin(ang)*s-0.5*G*s*s; if(s===0)pctx.moveTo(X(x),Y(y)); else pctx.lineTo(X(x),Y(y)); }
+  pctx.stroke();
+  // proyectil
+  const px=v0*Math.cos(ang)*tc, py=Math.max(v0*Math.sin(ang)*tc-0.5*G*tc*tc,0);
+  pctx.beginPath(); pctx.arc(X(px),Y(py),7,0,Math.PI*2); pctx.fillStyle='#1B3A6B'; pctx.fill(); pctx.strokeStyle='#C9A84C'; pctx.lineWidth=2; pctx.stroke();
+  // ángulo en el origen
+  pctx.strokeStyle='#C9A84C'; pctx.lineWidth=1.5; pctx.beginPath(); pctx.arc(padL,Hh-padB,18,-ang,0); pctx.stroke();
+  document.getElementById('p-range').textContent=R.toFixed(1)+' m';
+  document.getElementById('p-hmax').textContent=H.toFixed(1)+' m';
+  document.getElementById('p-tvuelo').textContent=T.toFixed(2)+' s';
+  const deg=(ang*180/Math.PI).toFixed(0);
+  document.getElementById('fb-R').innerHTML='R = '+v0.toFixed(0)+'²·sen('+(2*deg)+'°)/9.8 = <span class="gold">'+R.toFixed(1)+' m</span>';
+  document.getElementById('fb-H').innerHTML='H = '+v0.toFixed(0)+'²·sen²('+deg+'°)/(2·9.8) = <span class="gold">'+H.toFixed(1)+' m</span>';
+}
+function paraLoop(){ if(!paraPlaying)return; paraT+=0.04; const{T}=paraStats(); if(paraT>=T){ paraT=T; drawPara(T); stopPara(); return; } drawPara(paraT); paraRaf=requestAnimationFrame(paraLoop); }
+function togglePara(){ if(paraPlaying){stopPara();return;} const{T}=paraStats(); if(paraT>=T)paraT=0; startPara(); }
+function startPara(){ paraPlaying=true; document.getElementById('paraPlayBtn').textContent='⏸ Pausar'; paraRaf=requestAnimationFrame(paraLoop); }
+function stopPara(){ paraPlaying=false; document.getElementById('paraPlayBtn').textContent='▶ Lanzar'; cancelAnimationFrame(paraRaf); }
+function resetPara(){ stopPara(); paraT=0; drawPara(0); }
+
+/* ════════ SIM 4: 2ª LEY DE NEWTON ════════ */
+const newtonCanvas=document.getElementById('newtonCanvas'), nctx=newtonCanvas.getContext('2d');
+let nT=0, nPlaying=false, nRaf=null;
+function getN(){ return { F:parseFloat(document.getElementById('nF').value), m:parseFloat(document.getElementById('nM').value), mu:parseFloat(document.getElementById('nMu').value) }; }
+function nPhysics(){ const{F,m,mu}=getN(); const Ffric=mu*m*9.8; const stuck=F<=Ffric; const Fneta=stuck?0:F-Ffric; return {F,m,mu,Ffric,Fneta,a:Fneta/m,stuck}; }
+function updateNewton(){ nT=0; drawNewton(0); }
+function drawNewton(t){
+  const W=newtonCanvas.width,H=newtonCanvas.height,P=nPhysics();
+  const x=0.5*P.a*t*t, v=P.a*t;
+  nctx.clearRect(0,0,W,H);
+  const groundY=H-34;
+  nctx.fillStyle='#1B3A6B'; nctx.fillRect(0,groundY,W,H-groundY);
+  // hatch
+  nctx.strokeStyle='rgba(255,255,255,.2)'; nctx.lineWidth=1; for(let i=0;i<W;i+=16){ nctx.beginPath(); nctx.moveTo(i,groundY); nctx.lineTo(i-8,groundY+10); nctx.stroke(); }
+  const bs=24+P.m*1.2, clampX=Math.min(x,(W-bs-30)/4), bx=20+clampX*4, by=groundY-bs;
+  // bloque
+  nctx.fillStyle='#254d8f'; nctx.strokeStyle='#C9A84C'; nctx.lineWidth=2;
+  nctx.fillRect(bx,by,bs,bs); nctx.strokeRect(bx,by,bs,bs);
+  nctx.fillStyle='#fff'; nctx.font='bold 11px Inter'; nctx.textAlign='center'; nctx.fillText(P.m+' kg',bx+bs/2,by+bs/2+4);
+  const cyB=by+bs/2;
+  // flecha fuerza aplicada (derecha)
+  drawArrow(nctx,bx+bs,cyB,bx+bs+Math.min(P.F*1.4,90),cyB,'#C9A84C','F = '+P.F+' N');
+  // flecha fricción (izquierda)
+  if(P.mu>0) drawArrow(nctx,bx,cyB,bx-Math.min(P.Ffric*1.4,80),cyB,'#c0392b','fr = '+P.Ffric.toFixed(0)+' N');
+  // etiqueta aceleración
+  nctx.fillStyle='#1B3A6B'; nctx.font='bold 12px Inter'; nctx.textAlign='left';
+  nctx.fillText(P.stuck?'El bloque no se mueve (fricción ≥ fuerza)':'a = '+P.a.toFixed(2)+' m/s²', 16, 22);
+  document.getElementById('n-fneta').textContent=P.Fneta.toFixed(1)+' N';
+  document.getElementById('n-acc').textContent=P.a.toFixed(2)+' m/s²';
+  document.getElementById('n-vel').textContent=v.toFixed(1)+' m/s';
+  document.getElementById('fb-fneta').innerHTML=P.F+' − ('+P.mu+')('+P.m+')(9.8) = <span class="gold">'+P.Fneta.toFixed(1)+' N</span>';
+  document.getElementById('fb-na').innerHTML=P.Fneta.toFixed(1)+' / '+P.m+' = <span class="gold">'+P.a.toFixed(2)+' m/s²</span>';
+  if(clampX>=(W-bs-30)/4-0.01) stopNewton();
+}
+function drawArrow(c,x1,y1,x2,y2,color,label){
+  c.strokeStyle=color; c.fillStyle=color; c.lineWidth=3; c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+  const ang=Math.atan2(y2-y1,x2-x1); c.beginPath(); c.moveTo(x2,y2); c.lineTo(x2-9*Math.cos(ang-0.4),y2-9*Math.sin(ang-0.4)); c.lineTo(x2-9*Math.cos(ang+0.4),y2-9*Math.sin(ang+0.4)); c.closePath(); c.fill();
+  if(label){ c.font='bold 10px Inter'; c.textAlign='center'; c.fillText(label,(x1+x2)/2,y1-9); }
+}
+function newtonLoop(){ if(!nPlaying)return; nT+=0.05; const P=nPhysics(); if(P.stuck){ drawNewton(0); stopNewton(); return; } drawNewton(nT); nRaf=requestAnimationFrame(newtonLoop); }
+function toggleNewton(){ if(nPlaying){stopNewton();return;} nT=0; startNewton(); }
+function startNewton(){ if(nPhysics().stuck){ drawNewton(0); return; } nPlaying=true; document.getElementById('newtonPlayBtn').textContent='⏸ Pausar'; nRaf=requestAnimationFrame(newtonLoop); }
+function stopNewton(){ nPlaying=false; document.getElementById('newtonPlayBtn').textContent='▶ Aplicar fuerza'; cancelAnimationFrame(nRaf); }
+function resetNewton(){ stopNewton(); nT=0; drawNewton(0); }
+
+/* ════════ SIM 5: MOVIMIENTO CIRCULAR ════════ */
+const circCanvas=document.getElementById('circCanvas'), cctx=circCanvas.getContext('2d');
+let circAng=0, circPlaying=false, circRaf=null;
+function getC(){ return { r:parseFloat(document.getElementById('cR').value), m:parseFloat(document.getElementById('cM').value), v:parseFloat(document.getElementById('cV').value) }; }
+function cPhysics(){ const{r,m,v}=getC(); return {r,m,v,Fc:m*v*v/r, w:v/r, T:2*Math.PI*r/v, f:v/(2*Math.PI*r)}; }
+function updateCirc(){ drawCirc(); }
+function drawCirc(){
+  const W=circCanvas.width,H=circCanvas.height,P=cPhysics();
+  const cx=W/2, cy=H/2, Rpx=Math.min(W,H)*0.32;
+  cctx.clearRect(0,0,W,H);
+  // trayectoria
+  cctx.strokeStyle='#dbe2ea'; cctx.lineWidth=2; cctx.beginPath(); cctx.arc(cx,cy,Rpx,0,Math.PI*2); cctx.stroke();
+  // centro
+  cctx.beginPath(); cctx.arc(cx,cy,4,0,Math.PI*2); cctx.fillStyle='#94a3b8'; cctx.fill();
+  const ox=cx+Rpx*Math.cos(circAng), oy=cy+Rpx*Math.sin(circAng);
+  // fuerza centrípeta (hacia el centro)
+  drawArrow(cctx,ox,oy,ox+(cx-ox)*0.45,oy+(cy-oy)*0.45,'#c0392b','Fc');
+  // velocidad tangente
+  const tx=-Math.sin(circAng), ty=Math.cos(circAng);
+  drawArrow(cctx,ox,oy,ox+tx*42,oy+ty*42,'#C9A84C','v');
+  // objeto
+  cctx.beginPath(); cctx.arc(ox,oy,9+P.m,0,Math.PI*2); cctx.fillStyle='#1B3A6B'; cctx.fill(); cctx.strokeStyle='#C9A84C'; cctx.lineWidth=2; cctx.stroke();
+  // radio
+  cctx.strokeStyle='rgba(27,58,107,.25)'; cctx.lineWidth=1; cctx.beginPath(); cctx.moveTo(cx,cy); cctx.lineTo(ox,oy); cctx.stroke();
+  document.getElementById('c-fc').textContent=P.Fc.toFixed(1)+' N';
+  document.getElementById('c-T').textContent=P.T.toFixed(2)+' s';
+  document.getElementById('c-f').textContent=P.f.toFixed(2)+' Hz';
+  document.getElementById('fb-fc').innerHTML='('+P.m+')('+P.v+')²/'+P.r+' = <span class="gold">'+P.Fc.toFixed(1)+' N</span>';
+  document.getElementById('fb-T').innerHTML='2π('+P.r+')/'+P.v+' = <span class="gold">'+P.T.toFixed(2)+' s</span>';
+}
+function circLoop(){ if(!circPlaying)return; circAng+=cPhysics().w*0.04; drawCirc(); circRaf=requestAnimationFrame(circLoop); }
+function toggleCirc(){ if(circPlaying){stopCirc();return;} startCirc(); }
+function startCirc(){ circPlaying=true; document.getElementById('circPlayBtn').textContent='⏸ Pausar'; circRaf=requestAnimationFrame(circLoop); }
+function stopCirc(){ circPlaying=false; document.getElementById('circPlayBtn').textContent='▶ Iniciar giro'; cancelAnimationFrame(circRaf); }
+function resetCirc(){ stopCirc(); circAng=0; drawCirc(); }
+
+/* ════════ SIM 6: ÓRBITAS (KEPLER) ════════ */
+const keplerCanvas=document.getElementById('keplerCanvas'), kctx=keplerCanvas.getContext('2d');
+let kTheta=0, kPlaying=false, kRaf=null, kSectors=[], kAreaAcc=0;
+function getK(){ return { a:parseFloat(document.getElementById('kA').value), e:parseFloat(document.getElementById('kE').value) }; }
+function kR(theta){ const{a,e}=getK(); const p=a*(1-e*e); return p/(1+e*Math.cos(theta)); }
+function updateKepler(){ kTheta=0; kSectors=[]; kAreaAcc=0; drawKepler(); }
+function drawKepler(){
+  const W=keplerCanvas.width,H=keplerCanvas.height,{a,e}=getK();
+  const c=a*e, b=a*Math.sqrt(1-e*e);
+  // centro del lienzo = foco (Sol). Centro de elipse desplazado -c en x.
+  const sunX=W/2+c*0.0, sunY=H/2; // colocaremos el Sol en el foco; desplazamos elipse
+  const scale=Math.min(1,(W/2-30)/(a+c));
+  const SX=W/2, SY=H/2; // Sol
+  kctx.clearRect(0,0,W,H);
+  kctx.fillStyle='#0a1733'; kctx.fillRect(0,0,W,H);
+  // estrellas de fondo
+  kctx.fillStyle='rgba(255,255,255,.25)'; for(let i=0;i<30;i++){ kctx.fillRect((i*97)%W,(i*53)%H,1,1); }
+  // órbita elíptica (centro de elipse a -c del foco)
+  kctx.strokeStyle='rgba(255,255,255,.3)'; kctx.lineWidth=1.5; kctx.beginPath();
+  for(let th=0;th<=Math.PI*2+0.01;th+=0.05){ const r=kR(th)*scale; const px=SX+r*Math.cos(th), py=SY+r*Math.sin(th); if(th===0)kctx.moveTo(px,py); else kctx.lineTo(px,py); }
+  kctx.stroke();
+  // sectores de área barrida (equal time → equal area)
+  kSectors.forEach((sec,i)=>{
+    kctx.beginPath(); kctx.moveTo(SX,SY);
+    for(let th=sec.from;th<=sec.to+1e-6;th+=(sec.to-sec.from)/12||1){ const r=kR(th)*scale; kctx.lineTo(SX+r*Math.cos(th),SY+r*Math.sin(th)); }
+    kctx.closePath(); kctx.fillStyle=i%2?'rgba(201,168,76,.28)':'rgba(159,192,255,.22)'; kctx.fill();
+  });
+  // Sol
+  const g=kctx.createRadialGradient(SX,SY,0,SX,SY,16); g.addColorStop(0,'#ffe9a8'); g.addColorStop(1,'rgba(201,168,76,0)');
+  kctx.fillStyle=g; kctx.beginPath(); kctx.arc(SX,SY,16,0,Math.PI*2); kctx.fill();
+  kctx.fillStyle='#e8c96a'; kctx.beginPath(); kctx.arc(SX,SY,7,0,Math.PI*2); kctx.fill();
+  // planeta
+  const r=kR(kTheta)*scale, px=SX+r*Math.cos(kTheta), py=SY+r*Math.sin(kTheta);
+  kctx.strokeStyle='rgba(255,255,255,.4)'; kctx.lineWidth=1; kctx.beginPath(); kctx.moveTo(SX,SY); kctx.lineTo(px,py); kctx.stroke();
+  kctx.beginPath(); kctx.arc(px,py,7,0,Math.PI*2); kctx.fillStyle='#6ea8ff'; kctx.fill(); kctx.strokeStyle='#fff'; kctx.lineWidth=1.5; kctx.stroke();
+  // datos: vis-viva relativa
+  const rAU=kR(kTheta)/a; const vrel=Math.sqrt(Math.max(2/rAU-1,0.01));
+  const fase = Math.cos(kTheta)>0.7?'Perihelio (cerca)':Math.cos(kTheta)<-0.7?'Afelio (lejos)':'En tránsito';
+  document.getElementById('k-vel').textContent='×'+vrel.toFixed(2);
+  document.getElementById('k-dist').textContent=rAU.toFixed(2)+' a';
+  document.getElementById('k-fase').textContent=fase;
+}
+function keplerLoop(){
+  if(!kPlaying)return;
+  const{a}=getK(); const r=kR(kTheta);
+  const dth=(a*a)/(r*r)*0.012; // ley de áreas: dθ/dt ∝ 1/r²
+  // acumular área para sectores de tiempo igual
+  kAreaAcc+=0.012;
+  if(kAreaAcc>=0.5){ const from=kTheta; kTheta+=dth; kSectors.push({from,to:kTheta}); if(kSectors.length>12)kSectors.shift(); kAreaAcc=0; }
+  else kTheta+=dth;
+  if(kTheta>Math.PI*2){ kTheta-=Math.PI*2; kSectors=[]; }
+  drawKepler(); kRaf=requestAnimationFrame(keplerLoop);
+}
+function toggleKepler(){ if(kPlaying){stopKepler();return;} startKepler(); }
+function startKepler(){ kPlaying=true; document.getElementById('keplerPlayBtn').textContent='⏸ Pausar'; kRaf=requestAnimationFrame(keplerLoop); }
+function stopKepler(){ kPlaying=false; document.getElementById('keplerPlayBtn').textContent='▶ Iniciar órbita'; cancelAnimationFrame(kRaf); }
+function resetKepler(){ stopKepler(); kTheta=0; kSectors=[]; kAreaAcc=0; drawKepler(); }
+
+/* ════════ SOLVER DE CINEMÁTICA (MRUA) ════════ */
+const sXtC=document.getElementById('sXtCanvas'), sXtCtx=sXtC.getContext('2d');
+const sVtC=document.getElementById('sVtCanvas'), sVtCtx=sVtC.getContext('2d');
+function readNum(id){ const el=document.getElementById(id); if(el.value.trim()==='')return null; const n=parseFloat(el.value); return isNaN(n)?null:n; }
+function isK(x){ return x!==null && x!==undefined && !isNaN(x) && isFinite(x); }
+function clearSolver(){
+  ['s_v0','s_vf','s_a','s_t','s_dx'].forEach(id=>{ const el=document.getElementById(id); el.value=''; el.classList.remove('computed'); });
+  document.getElementById('solver-results').style.display='none';
+  document.getElementById('solver-msg').textContent='';
+}
+function solveKinematics(){
+  const msg=document.getElementById('solver-msg');
+  let v={ v0:readNum('s_v0'), vf:readNum('s_vf'), a:readNum('s_a'), t:readNum('s_t'), dx:readNum('s_dx') };
+  const dados={...v};
+  const conocidas=Object.values(v).filter(isK).length;
+  if(conocidas<3){ msg.className='solver-msg'; msg.textContent='⚠ Ingresa al menos 3 valores para poder resolver.'; document.getElementById('solver-results').style.display='none'; return; }
+  // propagación de restricciones
+  for(let iter=0; iter<15; iter++){
+    const before=Object.values(v).filter(isK).length;
+    // eq1: vf = v0 + a t
+    if(!isK(v.vf)&&isK(v.v0)&&isK(v.a)&&isK(v.t)) v.vf=v.v0+v.a*v.t;
+    if(!isK(v.v0)&&isK(v.vf)&&isK(v.a)&&isK(v.t)) v.v0=v.vf-v.a*v.t;
+    if(!isK(v.a)&&isK(v.vf)&&isK(v.v0)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.a=(v.vf-v.v0)/v.t;
+    if(!isK(v.t)&&isK(v.vf)&&isK(v.v0)&&isK(v.a)&&Math.abs(v.a)>1e-9) v.t=(v.vf-v.v0)/v.a;
+    // eq4: dx = (v0+vf)/2 * t
+    if(!isK(v.dx)&&isK(v.v0)&&isK(v.vf)&&isK(v.t)) v.dx=(v.v0+v.vf)/2*v.t;
+    if(!isK(v.t)&&isK(v.dx)&&isK(v.v0)&&isK(v.vf)&&Math.abs(v.v0+v.vf)>1e-9) v.t=2*v.dx/(v.v0+v.vf);
+    if(!isK(v.v0)&&isK(v.dx)&&isK(v.vf)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.v0=2*v.dx/v.t-v.vf;
+    if(!isK(v.vf)&&isK(v.dx)&&isK(v.v0)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.vf=2*v.dx/v.t-v.v0;
+    // eq2: dx = v0 t + ½ a t²
+    if(!isK(v.dx)&&isK(v.v0)&&isK(v.a)&&isK(v.t)) v.dx=v.v0*v.t+0.5*v.a*v.t*v.t;
+    if(!isK(v.v0)&&isK(v.dx)&&isK(v.a)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.v0=(v.dx-0.5*v.a*v.t*v.t)/v.t;
+    if(!isK(v.a)&&isK(v.dx)&&isK(v.v0)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.a=2*(v.dx-v.v0*v.t)/(v.t*v.t);
+    if(!isK(v.t)&&isK(v.dx)&&isK(v.v0)&&isK(v.a)){
+      if(Math.abs(v.a)<1e-9){ if(Math.abs(v.v0)>1e-9) v.t=v.dx/v.v0; }
+      else { const disc=v.v0*v.v0+2*v.a*v.dx; if(disc>=0){ const r=Math.sqrt(disc); const t1=(-v.v0+r)/v.a, t2=(-v.v0-r)/v.a; const pos=[t1,t2].filter(x=>x>=-1e-9).sort((a,b)=>a-b); if(pos.length) v.t=Math.abs(pos[0])<1e-9&&pos[1]!==undefined?pos[1]:pos[0]; } }
+    }
+    // eq3: vf² = v0² + 2 a dx
+    if(!isK(v.vf)&&isK(v.v0)&&isK(v.a)&&isK(v.dx)){ const s=v.v0*v.v0+2*v.a*v.dx; if(s>=0) v.vf=Math.sqrt(s); }
+    if(!isK(v.v0)&&isK(v.vf)&&isK(v.a)&&isK(v.dx)){ const s=v.vf*v.vf-2*v.a*v.dx; if(s>=0) v.v0=Math.sqrt(s); }
+    if(!isK(v.a)&&isK(v.vf)&&isK(v.v0)&&isK(v.dx)&&Math.abs(v.dx)>1e-9) v.a=(v.vf*v.vf-v.v0*v.v0)/(2*v.dx);
+    if(!isK(v.dx)&&isK(v.vf)&&isK(v.v0)&&isK(v.a)&&Math.abs(v.a)>1e-9) v.dx=(v.vf*v.vf-v.v0*v.v0)/(2*v.a);
+    if(Object.values(v).filter(isK).length===before) break;
+  }
+  const resueltas=Object.values(v).filter(isK).length;
+  if(resueltas<5){ msg.className='solver-msg'; msg.textContent='⚠ Con esos datos no se puede determinar todo (¿faltan datos o hay una combinación no resoluble?). Revisa los valores.'; }
+  else { msg.className='solver-msg ok'; msg.textContent='✓ Resuelto. Las casillas doradas son los valores calculados.'; }
+  // mostrar resultados
+  const fmt=x=>isK(x)?(Math.round(x*1000)/1000).toString():'—';
+  const map={v0:'res-v0',vf:'res-vf',a:'res-a',t:'res-t',dx:'res-dx'};
+  const inMap={v0:'s_v0',vf:'s_vf',a:'s_a',t:'s_t',dx:'s_dx'};
+  Object.keys(map).forEach(k=>{
+    document.getElementById(map[k]).textContent=fmt(v[k]);
+    const inp=document.getElementById(inMap[k]);
+    if(isK(v[k])&&!isK(dados[k])){ inp.value=Math.round(v[k]*1000)/1000; inp.classList.add('computed'); }
+    else inp.classList.remove('computed');
+  });
+  document.getElementById('solver-results').style.display='block';
+  // procedimiento
+  let steps='';
+  if(isK(v.v0)&&isK(v.a)&&isK(v.t)) steps+='Δx = v₀·t + ½·a·t² = ('+fmt(v.v0)+')('+fmt(v.t)+') + ½('+fmt(v.a)+')('+fmt(v.t)+')² = <span class="gold">'+fmt(v.dx)+' m</span><br/>';
+  if(isK(v.v0)&&isK(v.a)&&isK(v.t)) steps+='v_f = v₀ + a·t = '+fmt(v.v0)+' + ('+fmt(v.a)+')('+fmt(v.t)+') = <span class="gold">'+fmt(v.vf)+' m/s</span>';
+  document.getElementById('solver-steps').innerHTML=steps||'Valores obtenidos por las ecuaciones de MRUA.';
+  // gráficas (si tenemos v0,a,t)
+  if(isK(v.v0)&&isK(v.a)&&isK(v.t)){
+    const T=Math.max(Math.abs(v.t),0.1);
+    [sXtC,sVtC].forEach(c=>{ c.width=c.parentElement.clientWidth-16; });
+    drawSolverGraph(sXtC,sXtCtx, s=>v.v0*s+0.5*v.a*s*s, '#1B3A6B','m', T);
+    drawSolverGraph(sVtC,sVtCtx, s=>v.v0+v.a*s, '#C9A84C','m/s', T);
+  }
+}
+function drawSolverGraph(c,cx,fn,color,unit,T){
+  const W=c.width,H=c.height,pad=26;
+  cx.clearRect(0,0,W,H);
+  cx.strokeStyle='#cbd5e1'; cx.lineWidth=1; cx.beginPath(); cx.moveTo(pad,6); cx.lineTo(pad,H-pad); cx.lineTo(W-6,H-pad); cx.stroke();
+  let vMax=0,vMin=0; for(let s=0;s<=T;s+=T/60){ vMax=Math.max(vMax,fn(s)); vMin=Math.min(vMin,fn(s)); }
+  const rng=Math.max(vMax-Math.min(vMin,0),1)*1.1, base=Math.min(vMin,0);
+  const x2=s=>pad+(s/T)*(W-pad-6), y2=val=>(H-pad)-((val-base)/rng)*(H-pad-6);
+  cx.strokeStyle=color; cx.lineWidth=2; cx.beginPath();
+  for(let s=0,st=false;s<=T+1e-9;s+=T/120){ const px=x2(s),py=y2(fn(s)); if(!st){cx.moveTo(px,py);st=true;}else cx.lineTo(px,py); }
+  cx.stroke();
+  const ex=x2(T),ey=y2(fn(T)); cx.beginPath(); cx.arc(ex,ey,4,0,Math.PI*2); cx.fillStyle=color; cx.fill();
+  cx.fillStyle='#94a3b8'; cx.font='9px Inter'; cx.textAlign='right'; cx.fillText(vMax.toFixed(0)+unit,pad-3,12);
+  cx.textAlign='center'; cx.fillText('t = '+T.toFixed(1)+'s',W-22,H-8);
+}
+
+/* ════════ SOLVERS GENÉRICOS POR SIMULADOR ════════ */
+function kinProp(v){ // propaga {v0,vf,a,t,dx}
+  for(let i=0;i<15;i++){ const b=Object.values(v).filter(isK).length;
+    if(!isK(v.vf)&&isK(v.v0)&&isK(v.a)&&isK(v.t)) v.vf=v.v0+v.a*v.t;
+    if(!isK(v.v0)&&isK(v.vf)&&isK(v.a)&&isK(v.t)) v.v0=v.vf-v.a*v.t;
+    if(!isK(v.a)&&isK(v.vf)&&isK(v.v0)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.a=(v.vf-v.v0)/v.t;
+    if(!isK(v.t)&&isK(v.vf)&&isK(v.v0)&&isK(v.a)&&Math.abs(v.a)>1e-9) v.t=(v.vf-v.v0)/v.a;
+    if(!isK(v.dx)&&isK(v.v0)&&isK(v.vf)&&isK(v.t)) v.dx=(v.v0+v.vf)/2*v.t;
+    if(!isK(v.t)&&isK(v.dx)&&isK(v.v0)&&isK(v.vf)&&Math.abs(v.v0+v.vf)>1e-9) v.t=2*v.dx/(v.v0+v.vf);
+    if(!isK(v.dx)&&isK(v.v0)&&isK(v.a)&&isK(v.t)) v.dx=v.v0*v.t+0.5*v.a*v.t*v.t;
+    if(!isK(v.v0)&&isK(v.dx)&&isK(v.a)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.v0=(v.dx-0.5*v.a*v.t*v.t)/v.t;
+    if(!isK(v.a)&&isK(v.dx)&&isK(v.v0)&&isK(v.t)&&Math.abs(v.t)>1e-9) v.a=2*(v.dx-v.v0*v.t)/(v.t*v.t);
+    if(!isK(v.t)&&isK(v.dx)&&isK(v.v0)&&isK(v.a)){ if(Math.abs(v.a)<1e-9){ if(Math.abs(v.v0)>1e-9)v.t=v.dx/v.v0; } else { const d=v.v0*v.v0+2*v.a*v.dx; if(d>=0){ const r=Math.sqrt(d),t1=(-v.v0+r)/v.a,t2=(-v.v0-r)/v.a,p=[t1,t2].filter(x=>x>=-1e-9).sort((a,b)=>a-b); if(p.length)v.t=Math.abs(p[0])<1e-9&&p[1]!==undefined?p[1]:p[0]; } } }
+    if(!isK(v.vf)&&isK(v.v0)&&isK(v.a)&&isK(v.dx)){ const s=v.v0*v.v0+2*v.a*v.dx; if(s>=0)v.vf=Math.sqrt(s); }
+    if(!isK(v.v0)&&isK(v.vf)&&isK(v.a)&&isK(v.dx)){ const s=v.vf*v.vf-2*v.a*v.dx; if(s>=0)v.v0=Math.sqrt(s); }
+    if(!isK(v.a)&&isK(v.vf)&&isK(v.v0)&&isK(v.dx)&&Math.abs(v.dx)>1e-9) v.a=(v.vf*v.vf-v.v0*v.v0)/(2*v.dx);
+    if(!isK(v.dx)&&isK(v.vf)&&isK(v.v0)&&isK(v.a)&&Math.abs(v.a)>1e-9) v.dx=(v.vf*v.vf-v.v0*v.v0)/(2*v.a);
+    if(Object.values(v).filter(isK).length===b) break;
+  } return v;
+}
+const _rd=x=>Math.round(x*100)/100, _G=x=>'<span class="gold">'+x+'</span>';
+const SOLVERS=[
+  { key:'caida', icon:'🌍', title:'Solver de Caída Libre / Tiro Vertical', sub:'Unidad 2 · g = 9.8 m/s²', minKnown:2,
+    nota:'La gravedad g = 9.8 m/s² ya está incluida.',
+    vars:[ {id:'dx',label:'Altura recorrida h',unit:'m',rlbl:'h (m)'},{id:'v0',label:'Velocidad inicial v₀',unit:'m/s',rlbl:'v₀ (m/s)'},{id:'vf',label:'Velocidad final v_f',unit:'m/s',rlbl:'v_f (m/s)'},{id:'t',label:'Tiempo t',unit:'s',rlbl:'t (s)'} ],
+    solve:o=>{ const v=kinProp({v0:o.v0,vf:o.vf,a:9.8,t:o.t,dx:o.dx}); return {v0:v.v0,vf:v.vf,t:v.t,dx:v.dx}; },
+    steps:o=> (isK(o.v0)&&isK(o.t)?'h = v₀·t + ½·g·t² = ('+_rd(o.v0)+')('+_rd(o.t)+') + ½(9.8)('+_rd(o.t)+')² = '+_G(_rd(o.dx)+' m')+'<br/>v_f = v₀ + g·t = '+_rd(o.v0)+' + (9.8)('+_rd(o.t)+') = '+_G(_rd(o.vf)+' m/s'):'Resuelto con las ecuaciones de MRUA (a = g = 9.8 m/s²).') },
+  { key:'para', icon:'🎯', title:'Solver de Tiro Parabólico', sub:'Unidad 2 · g = 9.8 m/s²', minKnown:2,
+    nota:'Ingresa el ángulo y una variable más, o la rapidez y otra.',
+    vars:[ {id:'v0',label:'Rapidez inicial v₀',unit:'m/s',rlbl:'v₀ (m/s)'},{id:'ang',label:'Ángulo θ',unit:'°',rlbl:'θ (°)'},{id:'R',label:'Alcance R',unit:'m',rlbl:'R (m)'},{id:'H',label:'Altura máx. H',unit:'m',rlbl:'H (m)'},{id:'T',label:'Tiempo de vuelo T',unit:'s',rlbl:'T (s)'} ],
+    solve:o=>{ const g=9.8; let v0=o.v0, th=isK(o.ang)?o.ang*Math.PI/180:null, R=o.R,H=o.H,T=o.T;
+      for(let i=0;i<8;i++){
+        if(!isK(v0)&&isK(th)){ const s2=Math.sin(2*th),s=Math.sin(th); if(isK(R)&&Math.abs(s2)>1e-6)v0=Math.sqrt(R*g/s2); else if(isK(H)&&Math.abs(s)>1e-6)v0=Math.sqrt(2*g*H)/s; else if(isK(T)&&Math.abs(s)>1e-6)v0=T*g/(2*s); }
+        if(!isK(th)&&isK(v0)){ if(isK(R)){ const x=R*g/(v0*v0); if(x>=-1&&x<=1)th=0.5*Math.asin(x); } else if(isK(H)){ const x=Math.sqrt(2*g*H)/v0; if(x>=-1&&x<=1)th=Math.asin(x); } else if(isK(T)){ const x=T*g/(2*v0); if(x>=-1&&x<=1)th=Math.asin(x); } }
+        if(isK(v0)&&isK(th)){ if(!isK(R))R=v0*v0*Math.sin(2*th)/g; if(!isK(H))H=v0*v0*Math.pow(Math.sin(th),2)/(2*g); if(!isK(T))T=2*v0*Math.sin(th)/g; }
+      }
+      return {v0,ang:isK(th)?th*180/Math.PI:null,R,H,T}; },
+    steps:o=> isK(o.v0)&&isK(o.ang)?('R = v₀²·sen(2θ)/g = '+_rd(o.v0)+'²·sen('+_rd(2*o.ang)+'°)/9.8 = '+_G(_rd(o.R)+' m')+'<br/>H = v₀²·sen²(θ)/(2g) = '+_G(_rd(o.H)+' m')+' · T = '+_G(_rd(o.T)+' s')):'Resuelto con las ecuaciones de tiro parabólico.' },
+  { key:'newton', icon:'🧱', title:'Solver de la 2.ª Ley de Newton', sub:'Unidad 2 · F = μ·m·g + m·a', minKnown:3,
+    nota:'Usa g = 9.8 m/s² para la fricción.',
+    vars:[ {id:'F',label:'Fuerza aplicada F',unit:'N',rlbl:'F (N)'},{id:'m',label:'Masa m',unit:'kg',rlbl:'m (kg)'},{id:'mu',label:'Fricción μ',unit:'',rlbl:'μ'},{id:'a',label:'Aceleración a',unit:'m/s²',rlbl:'a (m/s²)'} ],
+    solve:o=>{ const g=9.8; let F=o.F,m=o.m,mu=o.mu,a=o.a;
+      for(let i=0;i<6;i++){
+        if(!isK(a)&&isK(F)&&isK(m)&&isK(mu)&&Math.abs(m)>1e-9) a=(F-mu*m*g)/m;
+        if(!isK(F)&&isK(m)&&isK(mu)&&isK(a)) F=mu*m*g+m*a;
+        if(!isK(mu)&&isK(F)&&isK(m)&&isK(a)&&Math.abs(m*g)>1e-9) mu=(F-m*a)/(m*g);
+        if(!isK(m)&&isK(F)&&isK(mu)&&isK(a)&&Math.abs(mu*g+a)>1e-9) m=F/(mu*g+a);
+      }
+      return {F,m,mu,a}; },
+    steps:o=> isK(o.F)&&isK(o.m)&&isK(o.mu)?('a = (F − μ·m·g)/m = ('+_rd(o.F)+' − '+_rd(o.mu)+'·'+_rd(o.m)+'·9.8)/'+_rd(o.m)+' = '+_G(_rd(o.a)+' m/s²')):'Resuelto con F = μ·m·g + m·a.' },
+  { key:'circ', icon:'🔄', title:'Solver de Movimiento Circular', sub:'Unidad 2 · Fc = m·v²/r', minKnown:3,
+    vars:[ {id:'r',label:'Radio r',unit:'m',rlbl:'r (m)'},{id:'m',label:'Masa m',unit:'kg',rlbl:'m (kg)'},{id:'v',label:'Rapidez v',unit:'m/s',rlbl:'v (m/s)'},{id:'Fc',label:'Fuerza centrípeta',unit:'N',rlbl:'Fc (N)'},{id:'T',label:'Periodo T',unit:'s',rlbl:'T (s)'},{id:'f',label:'Frecuencia f',unit:'Hz',rlbl:'f (Hz)'} ],
+    solve:o=>{ let r=o.r,m=o.m,v=o.v,Fc=o.Fc,T=o.T,f=o.f; const P2=2*Math.PI;
+      for(let i=0;i<8;i++){
+        if(!isK(Fc)&&isK(m)&&isK(v)&&isK(r)&&Math.abs(r)>1e-9) Fc=m*v*v/r;
+        if(!isK(v)&&isK(Fc)&&isK(m)&&isK(r)&&Fc*r/m>=0) v=Math.sqrt(Fc*r/m);
+        if(!isK(r)&&isK(Fc)&&isK(m)&&isK(v)&&Math.abs(Fc)>1e-9) r=m*v*v/Fc;
+        if(!isK(m)&&isK(Fc)&&isK(v)&&isK(r)&&Math.abs(v)>1e-9) m=Fc*r/(v*v);
+        if(!isK(T)&&isK(r)&&isK(v)&&Math.abs(v)>1e-9) T=P2*r/v;
+        if(!isK(v)&&isK(r)&&isK(T)&&Math.abs(T)>1e-9) v=P2*r/T;
+        if(!isK(r)&&isK(v)&&isK(T)) r=v*T/P2;
+        if(!isK(f)&&isK(T)&&Math.abs(T)>1e-9) f=1/T;
+        if(!isK(T)&&isK(f)&&Math.abs(f)>1e-9) T=1/f;
+      }
+      return {r,m,v,Fc,T,f}; },
+    steps:o=> isK(o.m)&&isK(o.v)&&isK(o.r)?('Fc = m·v²/r = '+_rd(o.m)+'·'+_rd(o.v)+'²/'+_rd(o.r)+' = '+_G(_rd(o.Fc)+' N')+'<br/>T = 2π·r/v = '+_G(_rd(o.T)+' s')+' · f = '+_G(_rd(o.f)+' Hz')):'Resuelto con Fc = m·v²/r, T = 2π·r/v, f = 1/T.' },
+  { key:'kepler', icon:'🪐', title:'Solver de Órbitas (Leyes de Kepler)', sub:'Unidad 2 · Sistema Solar: a en UA, T en años', minKnown:2,
+    nota:'3.ª ley con k = 1: T² = a³ (a en UA, T en años).',
+    vars:[ {id:'a',label:'Semieje mayor a',unit:'UA',rlbl:'a (UA)'},{id:'e',label:'Excentricidad e',unit:'',rlbl:'e'},{id:'rp',label:'Perihelio',unit:'UA',rlbl:'Perihelio'},{id:'ra',label:'Afelio',unit:'UA',rlbl:'Afelio'},{id:'T',label:'Periodo T',unit:'años',rlbl:'T (años)'} ],
+    solve:o=>{ let a=o.a,e=o.e,rp=o.rp,ra=o.ra,T=o.T;
+      for(let i=0;i<8;i++){
+        if(!isK(a)){ if(isK(rp)&&isK(ra))a=(rp+ra)/2; else if(isK(T)&&T>=0)a=Math.cbrt(T*T); else if(isK(rp)&&isK(e)&&Math.abs(1-e)>1e-9)a=rp/(1-e); else if(isK(ra)&&isK(e))a=ra/(1+e); }
+        if(!isK(e)){ if(isK(rp)&&isK(ra)&&Math.abs(ra+rp)>1e-9)e=(ra-rp)/(ra+rp); else if(isK(a)&&isK(rp)&&Math.abs(a)>1e-9)e=1-rp/a; else if(isK(a)&&isK(ra)&&Math.abs(a)>1e-9)e=ra/a-1; }
+        if(!isK(rp)&&isK(a)&&isK(e)) rp=a*(1-e);
+        if(!isK(ra)&&isK(a)&&isK(e)) ra=a*(1+e);
+        if(!isK(T)&&isK(a)&&a>=0) T=Math.sqrt(a*a*a);
+      }
+      return {a,e,rp,ra,T}; },
+    steps:o=> isK(o.a)&&isK(o.e)?('Perihelio = a(1−e) = '+_rd(o.a)+'(1−'+_rd(o.e)+') = '+_G(_rd(o.rp)+' UA')+'<br/>Afelio = a(1+e) = '+_G(_rd(o.ra)+' UA')+' · T = √(a³) = '+_G(_rd(o.T)+' años')):'Resuelto con las relaciones de la elipse y T² = a³.' },
+];
+function solverCardHTML(cfg){
+  return '<div class="sim-card"><div class="sim-header"><div class="sim-icon">'+cfg.icon+'</div><div><h3>'+cfg.title+'</h3><p>'+cfg.sub+'</p></div></div><div class="sim-body">'
+    +'<div class="sim-instructions"><h4>🛈 Cómo usar</h4><p style="font-size:.82rem;color:var(--muted);line-height:1.5;">Escribe los valores que conozcas (mínimo '+cfg.minKnown+') y deja en blanco los que quieres encontrar. '+(cfg.nota||'')+' Las casillas doradas son los resultados calculados.</p></div>'
+    +'<div class="solver-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">'+cfg.vars.map(v=>'<div class="ctrl-group"><label>'+v.label+'</label><div class="ctrl-row"><input type="number" step="any" class="num-input solver-in" id="'+cfg.key+'_'+v.id+'" placeholder="—"><span class="num-unit">'+(v.unit||'')+'</span></div></div>').join('')+'</div>'
+    +'<div class="sim-btns"><button class="btn-sim btn-primary" onclick="runSolver(\''+cfg.key+'\')">✓ Resolver</button><button class="btn-sim btn-secondary" onclick="clearGSolver(\''+cfg.key+'\')">↺ Limpiar</button></div>'
+    +'<div class="solver-msg" id="'+cfg.key+'_msg"></div>'
+    +'<div class="sim-readout" id="'+cfg.key+'_res" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));display:none;">'+cfg.vars.map(v=>'<div class="readout-item"><div class="rval" id="'+cfg.key+'_r_'+v.id+'">—</div><div class="rlbl">'+v.rlbl+'</div></div>').join('')+'</div>'
+    +'<div class="formula-box" id="'+cfg.key+'_stepsbox" style="display:none;"><div class="fb-label">Procedimiento</div><div class="fb-eq" id="'+cfg.key+'_steps"></div></div>'
+    +'</div></div>';
+}
+function renderSolvers(){
+  // El solver de MRU/MRUA va justo después de su simulador
+  const mru=document.getElementById('sim-mru'), sMrua=document.getElementById('solver-mrua');
+  if(mru&&sMrua) mru.after(sMrua);
+  // Cada solver genérico se inserta justo después de su simulador
+  const slot={caida:'sim-caida',para:'sim-para',newton:'sim-newton',circ:'sim-circ',kepler:'sim-kepler'};
+  SOLVERS.forEach(cfg=>{ const sim=document.getElementById(slot[cfg.key]); if(sim) sim.insertAdjacentHTML('afterend', solverCardHTML(cfg)); });
+}
+function clearGSolver(key){ const cfg=SOLVERS.find(c=>c.key===key); cfg.vars.forEach(v=>{ const el=document.getElementById(key+'_'+v.id); el.value=''; el.classList.remove('computed'); }); document.getElementById(key+'_res').style.display='none'; document.getElementById(key+'_stepsbox').style.display='none'; document.getElementById(key+'_msg').textContent=''; }
+function runSolver(key){
+  const cfg=SOLVERS.find(c=>c.key===key), msg=document.getElementById(key+'_msg');
+  let vals={}; const dados={};
+  cfg.vars.forEach(v=>{ const el=document.getElementById(key+'_'+v.id); const n=el.value.trim()===''?null:parseFloat(el.value); vals[v.id]=isK(n)?n:null; dados[v.id]=vals[v.id]; });
+  if(Object.values(vals).filter(isK).length<cfg.minKnown){ msg.className='solver-msg'; msg.textContent='⚠ Ingresa al menos '+cfg.minKnown+' valores para resolver.'; document.getElementById(key+'_res').style.display='none'; document.getElementById(key+'_stepsbox').style.display='none'; return; }
+  const out=cfg.solve({...vals});
+  const solved=cfg.vars.filter(v=>isK(out[v.id])).length;
+  if(solved<cfg.vars.length){ msg.className='solver-msg'; msg.textContent='⚠ Con esos datos no se puede determinar todo. Revisa o agrega un dato.'; }
+  else { msg.className='solver-msg ok'; msg.textContent='✓ Resuelto. Las casillas doradas son los valores calculados.'; }
+  const fmt=x=>isK(x)?(Math.round(x*1000)/1000).toString():'—';
+  cfg.vars.forEach(v=>{ document.getElementById(key+'_r_'+v.id).textContent=fmt(out[v.id]); const inp=document.getElementById(key+'_'+v.id); if(isK(out[v.id])&&!isK(dados[v.id])){ inp.value=Math.round(out[v.id]*1000)/1000; inp.classList.add('computed'); } else inp.classList.remove('computed'); });
+  document.getElementById(key+'_res').style.display='grid';
+  const steps=cfg.steps?cfg.steps(out):''; if(steps){ document.getElementById(key+'_steps').innerHTML=steps; document.getElementById(key+'_stepsbox').style.display='block'; } else document.getElementById(key+'_stepsbox').style.display='none';
+}
+
+/* ════════ HERO: átomo con electrones orbitando (igual que el inicio) ════════ */
+const hc=document.getElementById('heroCanvas'), hx=hc.getContext('2d');
+let heroParticles=[], heroT=0;
+function initHero(){
+  hc.width=hc.offsetWidth; hc.height=hc.offsetHeight;
+  heroParticles=[];
+  const n=Math.min(36,Math.floor(hc.width/30));
+  for(let i=0;i<n;i++) heroParticles.push({ x:Math.random()*hc.width, y:Math.random()*hc.height, r:Math.random()*1.8+.4, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, a:Math.random()*.4+.1 });
+}
+function drawHero(){
+  const W=hc.width,H=hc.height; hx.clearRect(0,0,W,H);
+  heroParticles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0; hx.beginPath(); hx.arc(p.x,p.y,p.r,0,Math.PI*2); hx.fillStyle='rgba(201,168,76,'+p.a+')'; hx.fill(); });
+  const cx=W*0.85, cy=H*0.5, R=Math.min(W*0.9,H)*0.30;
+  const glow=hx.createRadialGradient(cx,cy,0,cx,cy,R*0.5); glow.addColorStop(0,'rgba(201,168,76,.5)'); glow.addColorStop(1,'rgba(201,168,76,0)');
+  hx.fillStyle=glow; hx.beginPath(); hx.arc(cx,cy,R*0.5,0,Math.PI*2); hx.fill();
+  hx.beginPath(); hx.arc(cx,cy,5,0,Math.PI*2); hx.fillStyle='#e8c96a'; hx.fill();
+  [0,Math.PI/3,-Math.PI/3].forEach((rot,i)=>{
+    hx.save(); hx.translate(cx,cy); hx.rotate(rot);
+    hx.strokeStyle='rgba(255,255,255,.12)'; hx.lineWidth=1; hx.beginPath(); hx.ellipse(0,0,R,R*0.42,0,0,Math.PI*2); hx.stroke();
+    const ang=heroT*(0.6+i*0.25)+i*2, ex=R*Math.cos(ang), ey=R*0.42*Math.sin(ang);
+    hx.beginPath(); hx.arc(ex,ey,3.5,0,Math.PI*2); hx.fillStyle=i===1?'#C9A84C':'#9fc0ff'; hx.fill(); hx.restore();
+  });
+  heroT+=0.012; requestAnimationFrame(drawHero);
+}
+
+/* ════════ INIT ════════ */
+function resizeCanvases(){
+  [canvas,fallCanvas,paraCanvas,newtonCanvas,circCanvas,keplerCanvas].forEach(c=>{ c.width=c.parentElement.clientWidth; });
+  [xtC,vtC].forEach(c=>{ c.width=c.parentElement.clientWidth-16; });
+  drawSim(simT); drawFall(fallT); drawPara(paraT); drawNewton(nT); drawCirc(); drawKepler();
+}
+window.addEventListener('resize', resizeCanvases);
+window.addEventListener('resize', initHero);
+window.addEventListener('load', ()=>{ renderCalendario(); renderProximos(); renderFormulas(); renderVideos(); renderSolvers(); resizeCanvases(); updateAll(); initHero(); drawHero(); });
+if (location.hash === '#calendario') switchTab('calendario');
+if (location.hash === '#simuladores') switchTab('simuladores');
+</script>
+</body>
+</html>
