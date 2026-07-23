@@ -178,247 +178,44 @@
     return numberExercise(`En una tubería ${R.math(`A₁=${A1} cm²`)}, ${R.math(`v₁=${v1} m/s`)} y ${R.math(`A₂=${A2} cm²`)}. Calcula ${R.math('v₂')}.`,v2,'m/s','Usa A₁v₁=A₂v₂; las áreas están en la misma unidad.',`v₂=A₁v₁/A₂=(${A1})(${v1})/${A2}=${R.fmt(v2)} m/s.`,.03);
   }
 
-  // ---------- Detectives de error ----------
-  function detMathNumeros(){
-    const a=R.int(1,5),b=R.int(a+1,9),c=R.int(1,5),d=R.int(c+1,9);
-    return detective(`Un alumno suma ${R.math(`${a}/${b}+${c}/${d}`)}. Selecciona el primer paso incorrecto.`,[
-      `Busca un denominador común: ${b}·${d}=${b*d}.`,
-      `Transforma: ${a}/${b}=${a*d}/${b*d} y ${c}/${d}=${c*b}/${b*d}.`,
-      `Suma numeradores y denominadores: (${a*d}+${c*b})/(${b*d}+${b*d}).`,
-      `Simplifica el resultado.`
-    ],2,'Al sumar fracciones con el mismo denominador, el denominador se conserva; no se suma.',`El paso correcto es (${a*d}+${c*b})/${b*d}.`);
-  }
-  function detMathRectas(){
-    const x1=R.int(-4,2),x2=x1+R.int(2,5),m=R.nonzero(-5,5),y1=R.int(-5,5),y2=y1+m*(x2-x1);
-    return detective(`Se calcula la pendiente entre ${R.math(`(${x1},${y1})`)} y ${R.math(`(${x2},${y2})`)}. ¿Dónde aparece el error?`,[
-      `m=(y₂−y₁)/(x₂−x₁).`,
-      `m=(${y2}−${y1})/(${x1}−${x2}).`,
-      `m=${y2-y1}/${x1-x2}.`,
-      `m=${-m}.`
-    ],1,'Se cambió el orden del denominador, pero no el del numerador. Ambos deben conservar el mismo orden.',`m=(${y2}−${y1})/(${x2}−${x1})=${m}.`);
-  }
-  function detMathEcuaciones(){
-    const x=R.int(2,9),a=R.int(2,6),b=R.int(2,8),c=a*x-a*b;
-    return detective(`Revisa la resolución de ${R.math(`${a}(x−${b})=${c}`)}.`,[
-      `${a}(x−${b})=${c}`,
-      `${a}x−${b}=${c}`,
-      `${a}x=${c+b}`,
-      `x=${R.fmt((c+b)/a)}`
-    ],1,`Al distribuir, ${a} multiplica tanto a x como a −${b}.`,`La distribución correcta es ${a}x−${a*b}=${c}; entonces x=${x}.`);
-  }
-  function detMathSistemas(){
-    const x=R.int(1,6),y=R.int(1,6),s=x+y,d=x-y;
-    return detective(`Se resuelve ${R.math(`x+y=${s}`)} y ${R.math(`x−y=${d}`)} por suma.`,[
-      `Se alinean ambas ecuaciones.`,
-      `(x+y)+(x−y)=${s}+${d}.`,
-      `2x−2y=${s+d}.`,
-      `x=${x}.`
-    ],2,'Al sumar +y y −y se cancelan; no queda −2y.',`La suma correcta es 2x=${s+d}; por tanto x=${x} y luego y=${y}.`);
-  }
-  function detF1Medicion(){
-    const kmh=R.pick([36,54,72,90,108]);
-    return detective(`Un alumno convierte ${R.math(`${kmh} km/h`)} a m/s.`,[
-      `Usa 1 km=1000 m y 1 h=3600 s.`,
-      `${kmh}·1000/3600 m/s.`,
-      `${kmh}·3.6 m/s.`,
-      `Resultado: ${R.fmt(kmh*3.6)} m/s.`
-    ],2,'Para pasar de km/h a m/s se divide entre 3.6, no se multiplica.',`${kmh}/3.6=${R.fmt(kmh/3.6)} m/s.`);
-  }
-  function detF1Cinematica(){
-    const v0=R.int(2,8),a=R.int(1,5),t=R.int(2,6);
-    return detective(`Se calcula el desplazamiento con ${R.math(`v₀=${v0}`)}, ${R.math(`a=${a}`)} y ${R.math(`t=${t}`)}.`,[
-      `Δx=v₀t+½at².`,
-      `Δx=${v0}(${t})+½(${a})(${t}).`,
-      `Δx=${v0*t}+${R.fmt(.5*a*t)}.`,
-      `Δx=${R.fmt(v0*t+.5*a*t)} m.`
-    ],1,'En el término acelerado el tiempo debe elevarse al cuadrado.',`Δx=${v0}(${t})+½(${a})(${t}²)=${R.fmt(v0*t+.5*a*t*t)} m.`);
-  }
-  function detF1Newton(){
-    const m=R.int(2,12),a=R.int(2,8);
-    return detective(`Se busca la fuerza para ${R.math(`m=${m} kg`)} y ${R.math(`a=${a} m/s²`)}.`,[
-      `Segunda ley: F=m·a.`,
-      `Se despeja F=a/m.`,
-      `F=${a}/${m}.`,
-      `F=${R.fmt(a/m)} N.`
-    ],1,'F ya está aislada en F=m·a; no se debe dividir la aceleración entre la masa.',`F=${m}·${a}=${m*a} N.`);
-  }
-  function detF1Energia(){
-    const m=R.int(2,8),v=R.int(3,10);
-    return detective(`Se calcula la energía cinética de ${R.math(`${m} kg`)} a ${R.math(`${v} m/s`)}.`,[
-      `E_c=½mv².`,
-      `E_c=½(${m})(${v}).`,
-      `E_c=${R.fmt(.5*m*v)}.`,
-      `Resultado en joules.`
-    ],1,'La rapidez debe elevarse al cuadrado.',`E_c=½(${m})(${v}²)=${R.fmt(.5*m*v*v)} J.`);
-  }
-  function detF3Vectores(){
-    return detective(`Se obtienen las componentes de un vector de magnitud V con ángulo θ medido desde +x.`,[
-      `V_x=V cosθ.`,
-      `V_y=V sinθ.`,
-      `Para θ=0°, V_x=0 y V_y=V.`,
-      `La dirección queda sobre el eje x.`
-    ],2,'A 0°, cos0=1 y sin0=0; por tanto V_x=V y V_y=0.',`Para θ=0° el vector apunta sobre +x: (V,0).`);
-  }
-  function detF3Torca(){
-    const F=R.int(20,70),d=R.pick([.5,1,1.5]);
-    return detective(`Se calcula la torca de una fuerza perpendicular de ${R.math(`${F} N`)} aplicada a ${R.math(`${d} m`)}.`,[
-      `τ=F·d.`,
-      `τ=${F}+${d}.`,
-      `τ=${R.fmt(F+d)}.`,
-      `Unidad: N·m.`
-    ],1,'La torca es el producto de la fuerza por el brazo de palanca, no la suma.',`τ=(${F})(${d})=${R.fmt(F*d)} N·m.`);
-  }
-  function detF3Rotacion(){
-    const tau=R.int(10,40),I=R.pick([1,2,4,5]);
-    return detective(`Se calcula la aceleración angular con ${R.math(`τ=${tau} N·m`)} e ${R.math(`I=${I} kg·m²`)}.`,[
-      `τ=Iα.`,
-      `α=I/τ.`,
-      `α=${I}/${tau}.`,
-      `α=${R.fmt(I/tau)} rad/s².`
-    ],1,'Al despejar, α=τ/I.',`α=${tau}/${I}=${R.fmt(tau/I)} rad/s².`);
-  }
-  function detF3Hidro(){
-    const rho=1000,hcm=R.pick([50,80,120,150]);
-    return detective(`Se calcula presión en agua a ${R.math(`${hcm} cm`)} de profundidad.`,[
-      `P=ρgh.`,
-      `Se usa h=${hcm} directamente.`,
-      `P=(${rho})(9.8)(${hcm}).`,
-      `P=${rho*9.8*hcm} Pa.`
-    ],1,'La profundidad debe expresarse en metros antes de sustituir en el SI.',`h=${hcm/100} m; P=(${rho})(9.8)(${hcm/100})=${R.fmt(rho*9.8*hcm/100)} Pa.`);
-  }
-  function detF3Flujo(){
-    const A1=4,A2=2,v1=3;
-    return detective(`Se aplica continuidad con ${R.math(`A₁=${A1}`)}, ${R.math(`A₂=${A2}`)} y ${R.math(`v₁=${v1}`)}.`,[
-      `A₁v₁=A₂v₂.`,
-      `v₂=A₂v₁/A₁.`,
-      `v₂=(${A2})(${v1})/${A1}.`,
-      `v₂=${A2*v1/A1} m/s.`
-    ],1,'Al despejar v₂, el área A₁ queda en el numerador y A₂ en el denominador.',`v₂=A₁v₁/A₂=(${A1})(${v1})/${A2}=${A1*v1/A2} m/s.`);
-  }
-
-  // ---------- Completar procedimiento ----------
-  function procMathNumeros(){
-    const a=R.int(1,4),b=R.int(a+1,8),c=R.int(1,4),d=R.int(c+1,8),den=b*d,n=a*d+c*b,f=R.frac(n,den);
-    return procedure(`Completa la suma ${R.math(`${a}/${b}+${c}/${d}`)}.`,[
-      {before:`Denominador común: ${b}·${d}=`,answer:den,after:''},
-      {before:`Numerador: ${a}·${d}+${c}·${b}=`,answer:n,after:''},
-      {before:'Numerador simplificado:',answer:f.n,after:''},
-      {before:'Denominador simplificado:',answer:f.d,after:''}
-    ],'Construye primero una fracción equivalente para cada término.',`Resultado final: ${R.math(`${f.n}/${f.d}`)}.`);
-  }
-  function procMathRectas(){
-    const m=R.nonzero(-5,5),x1=R.int(-4,2),dx=R.int(2,5),x2=x1+dx,y1=R.int(-5,5),y2=y1+m*dx;
-    return procedure(`Completa el cálculo de la pendiente entre ${R.math(`(${x1},${y1})`)} y ${R.math(`(${x2},${y2})`)}.`,[
-      {before:'Δy=y₂−y₁=',answer:y2-y1,after:''},
-      {before:'Δx=x₂−x₁=',answer:x2-x1,after:''},
-      {before:'m=Δy/Δx=',answer:m,after:''}
-    ],'Usa el mismo orden para restar las coordenadas.',`m=(${y2}−${y1})/(${x2}−${x1})=${m}.`);
-  }
-  function procMathEcuaciones(){
-    const x=R.int(-8,9),a=R.nonzero(-6,6),b=R.int(-10,10),c=a*x+b;
-    return procedure(`Completa la resolución de ${R.math(`${a}x${b>=0?'+':''}${b}=${c}`)}.`,[
-      {before:`${a}x=${c}−(${b})=`,answer:c-b,after:''},
-      {before:`x=(${c-b})/${a}=`,answer:x,after:''}
-    ],'Primero elimina la constante y luego divide entre el coeficiente de x.',`x=${x}.`);
-  }
-  function procMathSistemas(){
-    const x=R.int(-5,7),y=R.int(-5,7),s=x+y,d=x-y;
-    return procedure(`Completa la solución de ${R.math(`x+y=${s}`)} y ${R.math(`x−y=${d}`)}.`,[
-      {before:'Al sumar las ecuaciones: 2x=',answer:s+d,after:''},
-      {before:'x=',answer:x,after:''},
-      {before:`Sustituyendo en x+y=${s}: y=`,answer:y,after:''}
-    ],'La suma elimina y.',`La solución es (x,y)=(${x},${y}).`);
-  }
-  function procF1Medicion(){
-    const kmh=R.pick([36,54,72,90,108,126]),ms=kmh/3.6;
-    return procedure(`Completa la conversión de ${R.math(`${kmh} km/h`)} a m/s.`,[
-      {before:`${kmh} km/h × (1000 m / 1 km) × (1 h /`,answer:3600,after:'s)'},
-      {before:`${kmh}×1000/3600=`,answer:ms,after:'m/s',tolerance:.02}
-    ],'Cancela km y h, dejando m/s.',`Resultado: ${R.fmt(ms)} m/s.`);
-  }
-  function procF1Cinematica(){
-    const v0=R.int(1,8),a=R.int(1,5),t=R.int(2,6),vf=v0+a*t,dx=v0*t+.5*a*t*t;
-    return procedure(`Completa el procedimiento para ${R.math(`v₀=${v0} m/s`)}, ${R.math(`a=${a} m/s²`)}, ${R.math(`t=${t} s`)}.`,[
-      {before:'v_f=v₀+at=',answer:vf,after:'m/s'},
-      {before:'t²=',answer:t*t,after:'s²'},
-      {before:'Δx=v₀t+½at²=',answer:dx,after:'m',tolerance:.02}
-    ],'Calcula por separado la velocidad final y el término t².',`v_f=${vf} m/s y Δx=${R.fmt(dx)} m.`);
-  }
-  function procF1Newton(){
-    const m=R.int(3,15),mu=R.pick([.1,.2,.25]),F=R.int(Math.ceil(mu*m*9.8)+10,Math.ceil(mu*m*9.8)+50),fr=mu*m*9.8,Fnet=F-fr,a=Fnet/m;
-    return procedure(`Completa el análisis de un bloque con ${R.math(`m=${m} kg`)}, ${R.math(`F=${F} N`)} y ${R.math(`μ=${mu}`)}.`,[
-      {before:'f=μmg=',answer:fr,after:'N',tolerance:.03},
-      {before:'F_neta=F−f=',answer:Fnet,after:'N',tolerance:.03},
-      {before:'a=F_neta/m=',answer:a,after:'m/s²',tolerance:.03}
-    ],'Calcula primero la fricción.',`f=${R.fmt(fr)} N, F_neta=${R.fmt(Fnet)} N y a=${R.fmt(a)} m/s².`);
-  }
-  function procF1Energia(){
-    const m=R.int(1,6),v=R.int(3,10),v2=v*v,E=.5*m*v2;
-    return procedure(`Completa la energía cinética para ${R.math(`m=${m} kg`)} y ${R.math(`v=${v} m/s`)}.`,[
-      {before:'v²=',answer:v2,after:'m²/s²'},
-      {before:'½m=',answer:.5*m,after:'kg',tolerance:.001},
-      {before:'E_c=½mv²=',answer:E,after:'J',tolerance:.02}
-    ],'No olvides elevar la rapidez al cuadrado.',`E_c=${R.fmt(E)} J.`);
-  }
-  function procF3Vectores(){
-    const ax=R.int(-8,8),ay=R.int(-8,8),bx=R.int(-8,8),by=R.int(-8,8),rx=ax+bx,ry=ay+by,mag=Math.sqrt(rx*rx+ry*ry);
-    return procedure(`Completa la suma ${R.math(`A=(${ax},${ay})`)} y ${R.math(`B=(${bx},${by})`)}.`,[
-      {before:'R_x=A_x+B_x=',answer:rx,after:''},
-      {before:'R_y=A_y+B_y=',answer:ry,after:''},
-      {before:'|R|=√(R_x²+R_y²)=',answer:mag,after:'u',tolerance:.03}
-    ],'Suma componentes y después aplica Pitágoras.',`R=(${rx},${ry}) y |R|=${R.fmt(mag)}.`);
-  }
-  function procF3Torca(){
-    const F1=R.int(20,80),d1=R.pick([.5,1,1.5,2]),d2=R.pick([.5,1,1.25,2,2.5]),tau=F1*d1,F2=tau/d2;
-    return procedure(`Completa el equilibrio de una barra con ${R.math(`F₁=${F1} N`)}, ${R.math(`d₁=${d1} m`)} y ${R.math(`d₂=${d2} m`)}.`,[
-      {before:'τ₁=F₁d₁=',answer:tau,after:'N·m',tolerance:.02},
-      {before:'En equilibrio τ₂=',answer:tau,after:'N·m',tolerance:.02},
-      {before:'F₂=τ₂/d₂=',answer:F2,after:'N',tolerance:.03}
-    ],'En equilibrio las torcas opuestas tienen igual magnitud.',`F₂=${R.fmt(F2)} N.`);
-  }
-  function procF3Rotacion(){
-    const I=R.pick([.5,1,1.5,2,4]),alpha=R.int(2,10),tau=I*alpha,t=R.int(2,6),w=alpha*t;
-    return procedure(`Completa para ${R.math(`I=${I} kg·m²`)}, ${R.math(`τ=${R.fmt(tau)} N·m`)} y parte del reposo durante ${R.math(`${t} s`)}.`,[
-      {before:'α=τ/I=',answer:alpha,after:'rad/s²',tolerance:.02},
-      {before:'ω=αt=',answer:w,after:'rad/s',tolerance:.02}
-    ],'Primero obtén α; después usa ω=ω₀+αt con ω₀=0.',`α=${alpha} rad/s² y ω=${w} rad/s.`);
-  }
-  function procF3Hidro(){
-    const rho=R.pick([800,1000,1200]),hcm=R.pick([50,75,120,150,250]),hm=hcm/100,P=rho*9.8*hm;
-    return procedure(`Completa la presión a ${R.math(`${hcm} cm`)} en un fluido de ${R.math(`ρ=${rho} kg/m³`)}.`,[
-      {before:'Profundidad en metros h=',answer:hm,after:'m',tolerance:.001},
-      {before:'ρg=',answer:rho*9.8,after:'N/m³',tolerance:.1},
-      {before:'P=ρgh=',answer:P,after:'Pa',tolerance:.1}
-    ],'Convierte centímetros a metros antes de sustituir.',`P=${R.fmt(P)} Pa.`);
-  }
-  function procF3Flujo(){
-    const A1=R.pick([3,4,5,6]),v1=R.int(2,6),A2=R.pick([1,1.5,2]),Q=A1*v1,v2=Q/A2;
-    return procedure(`Completa continuidad con ${R.math(`A₁=${A1} cm²`)}, ${R.math(`v₁=${v1} m/s`)} y ${R.math(`A₂=${A2} cm²`)}.`,[
-      {before:'A₁v₁=',answer:Q,after:'cm²·m/s',tolerance:.02},
-      {before:'v₂=A₁v₁/A₂=',answer:v2,after:'m/s',tolerance:.03}
-    ],'Como ambas áreas tienen la misma unidad, su razón es adimensional.',`v₂=${R.fmt(v2)} m/s.`);
-  }
 
   const generators={
     matematicas1:{numeros:genMathNumeros,rectas:genMathRectas,ecuaciones:genMathEcuaciones,sistemas:genMathSistemas},
     fisica1:{medicion:genF1Medicion,cinematica:genF1Cinematica,newton:genF1Newton,energia:genF1Energia},
     fisica3:{vectores:genF3Vectores,torca:genF3Torca,rotacion:genF3Rotacion,hidro:genF3Hidro,flujo:genF3Flujo}
   };
-  const detectives={
-    matematicas1:{numeros:detMathNumeros,rectas:detMathRectas,ecuaciones:detMathEcuaciones,sistemas:detMathSistemas},
-    fisica1:{medicion:detF1Medicion,cinematica:detF1Cinematica,newton:detF1Newton,energia:detF1Energia},
-    fisica3:{vectores:detF3Vectores,torca:detF3Torca,rotacion:detF3Rotacion,hidro:detF3Hidro,flujo:detF3Flujo}
-  };
-  const procedures={
-    matematicas1:{numeros:procMathNumeros,rectas:procMathRectas,ecuaciones:procMathEcuaciones,sistemas:procMathSistemas},
-    fisica1:{medicion:procF1Medicion,cinematica:procF1Cinematica,newton:procF1Newton,energia:procF1Energia},
-    fisica3:{vectores:procF3Vectores,torca:procF3Torca,rotacion:procF3Rotacion,hidro:procF3Hidro,flujo:procF3Flujo}
-  };
 
-  function create(course,mode,topic,level){
-    const bank=mode==='detective'?detectives:mode==='procedure'?procedures:generators;
-    if(!bank[course]||!bank[course][topic]) throw new Error('Tema no disponible');
-    return mode==='generator'?bank[course][topic](level):bank[course][topic]();
+  function create(course,topic,level){
+    if(!generators[course]||!generators[course][topic]) throw new Error('Tema no disponible');
+    return generators[course][topic](level||'easy');
   }
-  global.PracticeBank={meta:topicMeta,create,utils:R};
+
+  function seedToUint(seed){
+    const text=String(seed||'0');
+    let hash=2166136261>>>0;
+    for(let i=0;i<text.length;i++){
+      hash^=text.charCodeAt(i);
+      hash=Math.imul(hash,16777619);
+    }
+    return hash>>>0;
+  }
+
+  function withSeed(seed,callback){
+    const original=Math.random;
+    let state=seedToUint(seed);
+    Math.random=function(){
+      state=(state+0x6D2B79F5)|0;
+      let t=state;
+      t=Math.imul(t^(t>>>15),t|1);
+      t^=t+Math.imul(t^(t>>>7),t|61);
+      return ((t^(t>>>14))>>>0)/4294967296;
+    };
+    try{return callback();}finally{Math.random=original;}
+  }
+
+  function createSeeded(course,topic,level,seed){
+    return withSeed(seed,()=>create(course,topic,level));
+  }
+
+  global.PracticeBankV9={meta:topicMeta,create,createSeeded,withSeed,seedToUint,utils:R};
 })(typeof window!=='undefined'?window:globalThis);

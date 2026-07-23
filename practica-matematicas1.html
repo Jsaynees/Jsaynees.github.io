@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centro de práctica · Matemáticas I · Prof. López Saynes</title>
-  <meta name="description" content="Ejercicios infinitos, detective de errores y procedimientos guiados de Matemáticas I.">
+  <title>Generador de práctica · Matemáticas I · Prof. López Saynes</title>
+  <meta name="description" content="Generador infinito, sesiones adaptativas, repaso mixto y hojas imprimibles de Matemáticas I.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#ffffff">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
-  <link rel="stylesheet" href="assets/practica-v8.css?v=20260723-8">
+  <link rel="stylesheet" href="assets/practica-v9.css?v=20260723-9">
   <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
-  <script src="assets/practica-bank-v8.js?v=20260723-8" defer></script>
-  <script src="assets/practica-app-v8.js?v=20260723-8" defer></script>
+  <script src="assets/practica-bank-v9.js?v=20260723-9" defer></script>
+  <script src="assets/practica-app-v9.js?v=20260723-9" defer></script>
 </head>
 <body class="practice-page" data-course="matematicas1">
-<div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página">
-  <div class="portal-loader-box"><div class="portal-loader-mark" aria-hidden="true"></div><strong>Preparando la práctica</strong><small>Portal académico López Saynes</small></div>
-</div>
+<div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página"><div class="portal-loader-box"><div class="portal-loader-mark" aria-hidden="true"></div><strong>Preparando la práctica</strong><small>Portal académico López Saynes</small></div></div>
 <nav class="portal-nav" aria-label="Navegación principal">
   <a class="portal-brand" href="index.html" aria-label="Ir al inicio">
     <img src="img/logo-descartes.png" alt="Universidad Descartes">
@@ -38,38 +36,61 @@
 </nav>
 <header class="practice-hero">
   <div class="practice-hero-inner">
-    <div class="practice-breadcrumb"><a href="index.html">Inicio</a><span>/</span><a id="back-subject" href="mates1.html">Matemáticas I</a><span>/</span><em>Centro de práctica</em></div>
+    <div class="practice-breadcrumb"><a href="index.html">Inicio</a><span>/</span><a id="back-subject" href="mates1.html">Matemáticas I</a><span>/</span><em>Generador de práctica</em></div>
     <div class="practice-eyebrow">Entrenamiento interactivo</div>
-    <h1>Practica, detecta y completa</h1>
-    <p>Refuerza los contenidos de la antología con ejercicios nuevos cada vez, análisis de errores frecuentes y procedimientos paso a paso.</p>
+    <h1>Un generador, distintas formas de practicar</h1>
+    <p>Refuerza números, funciones lineales, ecuaciones y sistemas. Resuelve ejercicios nuevos, realiza sesiones, mezcla temas y prepara hojas imprimibles sin usar inteligencia artificial ni enviar datos personales.</p>
     <div class="practice-subject-chip" id="subject-chip">Matemáticas I · práctica autónoma</div>
   </div>
 </header>
 <main class="practice-shell">
   <section class="practice-dashboard">
     <div class="practice-config">
-      <div class="practice-field"><label for="topic-select">Tema</label><select id="topic-select"></select></div>
-      <div class="practice-field"><label for="level-select" id="level-label">Dificultad</label><select id="level-select"><option value="easy">Inicial</option><option value="medium">Intermedia</option><option value="challenge">Reto</option></select></div>
+      <div class="practice-field" id="topic-field"><label for="topic-select">Tema</label><select id="topic-select"></select></div>
+      <div class="practice-field"><label for="level-select">Dificultad inicial</label><select id="level-select"><option value="easy">Inicial</option><option value="medium">Intermedia</option><option value="challenge">Reto</option></select></div>
+      <div class="practice-field practice-hidden" id="count-field"><label for="count-select">Cantidad</label><select id="count-select"><option value="5">5 ejercicios</option><option value="10" selected>10 ejercicios</option><option value="15">15 ejercicios</option><option value="20">20 ejercicios</option></select></div>
+      <div class="practice-field practice-hidden" id="adaptive-field"><label>Progresión</label><label class="practice-checkbox"><input type="checkbox" id="adaptive-toggle"> Ajustar dificultad automáticamente</label></div>
+      <button class="practice-start-button practice-hidden" id="start-button" type="button">Comenzar</button>
     </div>
     <div class="practice-stats">
       <div class="practice-stat"><strong id="stat-attempts">0</strong><span>Intentos</span></div>
       <div class="practice-stat"><strong id="stat-accuracy">—</strong><span>Aciertos</span></div>
       <div class="practice-stat"><strong id="stat-streak">0</strong><span>Racha</span></div>
+      <div class="practice-stat"><strong id="stat-level">Inicial</strong><span>Nivel actual</span></div>
     </div>
   </section>
+
   <div class="practice-mode-tabs" role="tablist" aria-label="Modalidad de práctica">
-    <button class="practice-mode-button is-active" data-mode="generator" type="button">Generador infinito<span>Problemas nuevos</span></button>
-    <button class="practice-mode-button" data-mode="detective" type="button">Detective de errores<span>Encuentra el fallo</span></button>
-    <button class="practice-mode-button" data-mode="procedure" type="button">Completar procedimiento<span>Llena los pasos</span></button>
+    <button class="practice-mode-button is-active" data-mode="guided" type="button">Práctica guiada<span>Un ejercicio con pistas</span></button>
+    <button class="practice-mode-button" data-mode="session" type="button">Sesión de práctica<span>5, 10, 15 o 20</span></button>
+    <button class="practice-mode-button" data-mode="mixed" type="button">Repaso mixto<span>Combina los temas</span></button>
+    <button class="practice-mode-button" data-mode="worksheet" type="button">Hoja imprimible<span>Versión BN y clave</span></button>
   </div>
-  <section class="practice-workspace" aria-live="polite">
-    <div class="practice-work-head"><div><span class="practice-work-tag" id="work-mode">Generador infinito</span><h2 id="work-title">Tema</h2></div><button class="practice-new-button" id="new-button" type="button">Otro ejercicio ↻</button></div>
+
+  <section class="practice-load-code">
+    <div><label for="code-input">Abrir una práctica mediante código</label><input class="practice-code-input" id="code-input" placeholder="Ejemplo: M1-ECU-M-10-AB23CD" autocomplete="off"></div>
+    <button class="practice-small-button" id="load-code" type="button">Cargar código</button>
+  </section>
+
+  <section class="practice-code-card practice-hidden" id="practice-code-card">
+    <div class="practice-code-copy"><input class="practice-code-input" id="practice-code" readonly aria-label="Código de la práctica"><div class="practice-code-actions"><button class="practice-small-button" id="copy-code" type="button">Copiar código</button></div></div>
+    <small id="code-note">El código reproduce la misma selección de ejercicios.</small>
+  </section>
+
+  <section class="practice-session-progress practice-hidden" id="session-progress">
+    <div class="practice-progress-copy"><span id="progress-text">Ejercicio 1 de 10</span><span id="progress-level">Nivel Inicial</span></div>
+    <div class="practice-progress-track"><div class="practice-progress-fill" id="progress-fill"></div></div>
+  </section>
+
+  <section class="practice-workspace" id="workspace" aria-live="polite">
+    <div class="practice-work-head"><div><span class="practice-work-tag" id="work-mode">Práctica guiada</span><h2 id="work-title">Tema</h2></div><button class="practice-new-button" id="new-button" type="button">Otro ejercicio ↻</button></div>
     <p class="practice-prompt" id="practice-prompt"></p>
     <div class="practice-answer-area" id="answer-area"></div>
-    <div class="practice-actions">
+    <div class="practice-actions" id="practice-actions">
       <button class="practice-action primary" id="check-button" type="button">Comprobar respuesta</button>
       <button class="practice-action" id="hint-button" type="button">Ver pista</button>
       <button class="practice-action" id="solution-button" type="button">Ver procedimiento</button>
+      <button class="practice-action next practice-hidden" id="next-button" type="button">Siguiente →</button>
       <button class="practice-action" id="reset-stats" type="button">Borrar progreso</button>
     </div>
     <div class="practice-feedback practice-hidden" id="practice-feedback"></div>
@@ -79,7 +100,29 @@
       <div class="practice-support-box"><strong>Repasa en la antología</strong><a id="study-link" href="#" target="_blank" rel="noopener">Abrir el tema →</a></div>
       <div class="practice-support-box"><strong>Privacidad</strong>El progreso se guarda solamente en este navegador. No se envían nombres, respuestas ni calificaciones.</div>
     </div>
-    <p class="practice-local-note">Los valores cambian en cada ejercicio. Usa la pista antes de consultar el procedimiento completo.</p>
+    <p class="practice-local-note">La calificación de una sesión toma el primer intento de cada ejercicio. Después puedes corregirlo y consultar el procedimiento.</p>
+  </section>
+
+  <section class="practice-summary practice-hidden" id="session-summary">
+    <span class="practice-work-tag">Sesión finalizada</span>
+    <h2>Resumen de tu práctica</h2>
+    <p id="summary-message"></p>
+    <div class="practice-summary-grid">
+      <div class="practice-summary-stat"><strong id="summary-score">0 / 10</strong><span>Aciertos</span></div>
+      <div class="practice-summary-stat"><strong id="summary-percent">0%</strong><span>Resultado</span></div>
+      <div class="practice-summary-stat"><strong id="summary-time">0 s</strong><span>Tiempo</span></div>
+      <div class="practice-summary-stat"><strong id="summary-topic">—</strong><span>Tema por reforzar</span></div>
+    </div>
+    <div class="practice-summary-actions"><button class="practice-action primary" id="summary-repeat" type="button">Repetir con nuevos ejercicios</button><button class="practice-action" id="summary-guided" type="button">Volver a práctica guiada</button></div>
+  </section>
+
+  <section class="practice-worksheet practice-hidden" id="worksheet-panel">
+    <div class="practice-worksheet-head"><div><span class="practice-work-tag">Material imprimible</span><h2>Generador de hoja de ejercicios</h2><p>Produce una versión en blanco y negro con espacio para procedimiento y una clave separada.</p></div><div class="practice-worksheet-actions"><button class="practice-small-button" id="worksheet-generate" type="button">Nueva hoja</button><button class="practice-small-button" id="worksheet-toggle-key" type="button">Mostrar / ocultar clave</button><button class="practice-small-button" id="worksheet-print" type="button">Imprimir</button></div></div>
+    <article class="worksheet-paper" id="worksheet-paper">
+      <header class="worksheet-header"><h3 id="worksheet-title">Hoja de práctica</h3><div class="worksheet-meta"><span>Nombre: <span class="worksheet-line"></span></span><span>Grupo: <span class="worksheet-line"></span></span><span>Fecha: <span class="worksheet-line"></span></span></div><div class="worksheet-code">Código de práctica: <strong id="worksheet-code"></strong></div></header>
+      <ol class="worksheet-list" id="worksheet-list"></ol>
+      <section class="answer-key practice-hidden" id="answer-key"><h3>Clave y procedimientos</h3><ol id="answer-key-list"></ol></section>
+    </article>
   </section>
 </main>
 <footer style="margin-top:0;padding:24px 16px;text-align:center;background:#112447;color:#fff;"><p>M.C. José Luis López Saynes · Universidad de Ciencia y Tecnología Descartes</p></footer>
