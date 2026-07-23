@@ -171,6 +171,9 @@
 <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
 <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
 <!-- PORTAL-UNIFICADO:END -->
+<!-- MATERIALES-DIRECTOS-V7:START -->
+<link rel="stylesheet" href="assets/materiales-directos-v7.css?v=20260723-7">
+<!-- MATERIALES-DIRECTOS-V7:END -->
 </head>
 <body data-portal-page="fisica3">
 <!-- PORTAL-LOADER:START -->
@@ -517,13 +520,59 @@
   </div>
 
   <!-- MATERIAL -->
-  <div class="tab-panel" id="tab-material">
-    <p class="mat-intro">Cada unidad tiene una carpeta de Google Drive con su material. Da clic para abrir la carpeta y descargar lo que necesites.</p>
-    <div class="mat-unit"><div class="mat-unit-header">Unidad 1 · Sistemas de cuerpos rígidos</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 1</div><div class="mf-sub">Vectores, torca, rotación y momento angular</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
-    <div class="mat-unit"><div class="mat-unit-header">Unidad 2 · Sistemas de fluidos</div><div class="mat-unit-body"><a class="mat-folder-btn" href="#" onclick="return false;"><span class="mf-icon">📁</span><div><div class="mf-title">Carpeta de la Unidad 2</div><div class="mf-sub">Hidrostática, Pascal, Arquímedes y Bernoulli</div></div><span class="mf-arrow">Abrir →</span></a></div></div>
+<div class="tab-panel" id="tab-material">
+  <p class="mat-intro direct-material-intro">
+    Los materiales oficiales de Física III están alojados directamente en esta página.
+    Puedes consultarlos en línea o descargarlos sin entrar a carpetas externas.
+  </p>
+
+  <div class="direct-materials-v7">
+    <article class="direct-material-document">
+      <div class="direct-material-icon" aria-hidden="true">PDF</div>
+      <div>
+        <span class="direct-material-kind">Antología del curso</span>
+        <h3>Antología de Física III</h3>
+        <p class="direct-material-description">
+          63 páginas sobre vectores, cuerpos rígidos, torca, rotación,
+          equilibrio, fluidos, simulacros y laboratorio digital.
+        </p>
+
+      <div class="direct-material-versions">
+        <section class="direct-material-version">
+          <div class="direct-material-version-head">
+            <strong>Versión a color</strong>
+            <span>Recomendada para consulta digital.</span>
+          </div>
+          <div class="direct-material-actions">
+            <a class="direct-material-button primary" href="materiales/fisica3/antologia-fisica-3.pdf" target="_blank" rel="noopener">Abrir PDF</a>
+            <a class="direct-material-button" href="materiales/fisica3/antologia-fisica-3.pdf" download>Descargar</a>
+          </div>
+        </section>
+        <section class="direct-material-version bn">
+          <div class="direct-material-version-head">
+            <strong>Versión BN</strong>
+            <span>Preparada para imprimir usando menos tinta.</span>
+          </div>
+          <div class="direct-material-actions">
+            <a class="direct-material-button primary" href="materiales/fisica3/antologia-fisica-3-bn.pdf" target="_blank" rel="noopener">Abrir BN</a>
+            <a class="direct-material-button" href="materiales/fisica3/antologia-fisica-3-bn.pdf" download>Descargar</a>
+          </div>
+        </section>
+      </div>
+      </div>
+    </article>
   </div>
+
+  <p class="direct-material-print-note">
+    <strong>Para imprimir:</strong> utiliza la versión BN, diseñada para reducir
+    el consumo de tinta sin eliminar el contenido del documento.
+  </p>
+
+  <!-- FUTURO-MATERIAL-FISICA3:
+       Aquí podrán añadirse actividades, guías de repaso y material por unidad. -->
 </div>
 
+</div>
 <footer><p>Prof. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · Ciclo 2026-2027-1</p></footer>
 
 <script>
