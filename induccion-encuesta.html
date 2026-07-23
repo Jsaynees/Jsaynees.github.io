@@ -41,6 +41,45 @@
 <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
 <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
 <!-- PORTAL-UNIFICADO:END -->
+<!-- RESULTADOS-V5-STYLE:START -->
+<style>
+  .privacy-note {
+    margin: 16px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #e2e7f0;
+    border-left: 4px solid var(--gold, #C9A84C);
+    border-radius: 9px;
+    color: #5d6c80;
+    background: #f8fafc;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .privacy-note strong {
+    color: var(--navy, #1B3A6B);
+  }
+
+  .send-status {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #6e7d91;
+    font-size: 12.5px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .send-status.ok {
+    color: #237a42;
+    font-weight: 600;
+  }
+
+  .send-status.error {
+    color: #b33b2e;
+    font-weight: 600;
+  }
+</style>
+<!-- RESULTADOS-V5-STYLE:END -->
 </head>
 <body data-portal-page="induccion-encuesta">
 <!-- PORTAL-LOADER:START -->
@@ -119,8 +158,15 @@
     <div class="qh">5. Comentarios o sugerencias</div>
     <textarea id="comentarios" placeholder="Lo que quieras contarnos…" maxlength="500"></textarea>
 
-    <div style="text-align:center;margin-top:22px;">
+    <!-- PRIVACIDAD-SIMPLE-V5:START -->
+<div class="privacy-note">
+  <strong>Privacidad:</strong> tu nombre, grupo y respuestas se usarán
+  únicamente para el seguimiento académico del curso de inducción.
+</div>
+<!-- PRIVACIDAD-SIMPLE-V5:END -->
+  <div style="text-align:center;margin-top:22px;">
       <button class="btn" id="btn-enviar">Enviar encuesta</button>
+    <div class="send-status" id="enc-envio" aria-live="polite"></div>
     </div>
   </div>
 
@@ -161,18 +207,99 @@ document.querySelectorAll('[data-multi]').forEach(function(grp){
   });
 });
 
-$('btn-enviar').onclick=function(){
-  const payload={tipo:'encuesta',nombre:$('nombre').value.trim(),grupo:$('grupo').value.trim(),
-    utilidad:estado.utilidad,dificultad:estado.dificultad,temas:estado.temas,preparado:estado.preparado,
-    comentarios:$('comentarios').value.trim()};
-  enviar(payload);
-  $('form').classList.add('hidden'); $('gracias').classList.remove('hidden');
-  window.scrollTo(0,0);
+/* ENVIO-ENCUESTA-V5:START */
+$('btn-enviar').onclick=async function(){
+  const btn=$('btn-enviar');
+  const status=$('enc-envio');
+
+  if(!$('grupo').value.trim()){
+    $('grupo').focus();
+    status.className='send-status error';
+    status.textContent='Escribe tu grupo antes de enviar.';
+    return;
+  }
+
+  if(!estado.utilidad || !estado.dificultad || !estado.preparado){
+    status.className='send-status error';
+    status.textContent='Responde utilidad, dificultad y preparación antes de enviar.';
+    return;
+  }
+
+  const payload={
+    tipo:'encuesta',
+    nombre:$('nombre').value.trim(),
+    grupo:$('grupo').value.trim(),
+    utilidad:estado.utilidad,
+    dificultad:estado.dificultad,
+    temas:estado.temas,
+    preparado:estado.preparado,
+    comentarios:$('comentarios').value.trim()
+  };
+
+  btn.disabled=true;
+  btn.textContent='Enviando…';
+  status.className='send-status';
+  status.textContent='Enviando tu respuesta. No cierres esta pestaña todavía.';
+
+  try{
+    await enviar(payload);
+    $('form').classList.add('hidden');
+    $('gracias').classList.remove('hidden');
+    const message=$('gracias').querySelector('p');
+    if(message) message.textContent='Tu respuesta fue enviada al registro del curso. Ya puedes cerrar esta pestaña.';
+    window.scrollTo(0,0);
+    if(window.PortalUI) PortalUI.notify('Encuesta enviada correctamente.','success',3200);
+  }catch(error){
+    btn.disabled=false;
+    btn.textContent='Reintentar envío';
+    status.className='send-status error';
+    status.textContent=navigator.onLine
+      ? 'No se pudo completar el envío. Presiona “Reintentar envío”.'
+      : 'No hay conexión. Tu respuesta quedó guardada en este dispositivo para reintentarlo.';
+    if(window.PortalUI) PortalUI.notify(status.textContent,'error',0,'Envío pendiente');
+  }
 };
-function enviar(payload){
-  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0){ console.log('[encuesta] endpoint no configurado; respuesta:',payload); return; }
-  try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }catch(e){}
+
+async function enviar(payload){
+  if(!payload) throw new Error('No hay encuesta para enviar.');
+  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
+
+  const key='induccion_pendiente_encuesta';
+  localStorage.setItem(key,JSON.stringify(payload));
+
+  if(!navigator.onLine) throw new Error('Sin conexión.');
+
+  await fetch(ENDPOINT,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+
+  localStorage.removeItem(key);
+  return true;
 }
+
+async function reintentarEncuestaPendiente(){
+  const key='induccion_pendiente_encuesta';
+  const raw=localStorage.getItem(key);
+  if(!raw || !navigator.onLine) return;
+
+  try{
+    await enviar(JSON.parse(raw));
+    if(window.PortalUI) PortalUI.notify(
+      'Se envió una encuesta que había quedado pendiente.',
+      'success',
+      4200
+    );
+  }catch(error){
+    console.warn('[encuesta] el envío continúa pendiente',error);
+  }
+}
+
+window.addEventListener('online',reintentarEncuestaPendiente);
+setTimeout(reintentarEncuestaPendiente,900);
+/* ENVIO-ENCUESTA-V5:END */
 </script>
 </body>
 </html>

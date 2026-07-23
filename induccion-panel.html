@@ -44,6 +44,122 @@
 <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
 <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
 <!-- PORTAL-UNIFICADO:END -->
+<!-- RESULTADOS-V5-STYLE:START -->
+<style>
+  .panel-login-card {
+    border-top: 4px solid var(--gold, #C9A84C);
+  }
+
+  .panel-help {
+    margin-bottom: 16px;
+  }
+
+  .panel-help h2 {
+    margin: 0 0 5px;
+    color: var(--navy, #1B3A6B);
+    font-size: 19px;
+  }
+
+  .panel-help p {
+    margin: 0;
+    color: #6f7e91;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  .password-wrap {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .password-wrap input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .btn-show,
+  .btn-export {
+    cursor: pointer;
+    border: 1px solid #d8dfeb;
+    border-radius: 9px;
+    color: var(--navy, #1B3A6B);
+    background: #f7f9fc;
+    font-family: inherit;
+    font-weight: 700;
+  }
+
+  .btn-show {
+    padding: 0 11px;
+    font-size: 12px;
+  }
+
+  .btn-show:hover,
+  .btn-export:hover {
+    border-color: var(--gold, #C9A84C);
+    background: #fffdf7;
+  }
+
+  .panel-tech {
+    margin-top: 13px;
+    padding: 9px 11px;
+    border: 1px solid #e4e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+  }
+
+  .panel-tech summary {
+    cursor: pointer;
+    color: #6e7d91;
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .panel-tech .f {
+    margin-top: 9px;
+  }
+
+  .panel-card-head {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .panel-card-head h2 {
+    margin: 0;
+  }
+
+  .btn-export {
+    min-height: 35px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .btn-export:disabled {
+    cursor: not-allowed;
+    opacity: .48;
+  }
+
+  .panel-location-note {
+    margin-top: 9px;
+    color: #8a96a8;
+    font-size: 12px;
+  }
+
+  @media (max-width: 620px) {
+    .panel-card-head {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .btn-export {
+      width: 100%;
+    }
+  }
+</style>
+<!-- RESULTADOS-V5-STYLE:END -->
 </head>
 <body data-portal-page="induccion-panel">
 <!-- PORTAL-LOADER:START -->
@@ -85,24 +201,57 @@
   </div>
   <!-- TOOL-BREADCRUMB:END --><div class="kick">🔒 PANEL PRIVADO DEL PROFESOR</div><h1>Curso de Inducción · Resultados</h1></div>
 
-  <div class="card">
-    <div class="cfg">
-      <div class="f"><label>URL de tu Apps Script (termina en /exec)</label><input type="text" id="url" placeholder="https://script.google.com/macros/s/…/exec"></div>
-      <div class="f" style="max-width:220px;"><label>Tu TOKEN</label><input type="text" id="token" placeholder="saynes-induccion-2026"></div>
-      <button class="btn" id="btn-cargar">Cargar datos</button>
-    </div>
-    <div id="status" class="muted" style="margin-top:10px;font-size:13px;">Pega tu URL y token, guardo la config en este navegador.</div>
+  <div class="card panel-login-card">
+  <div class="panel-help">
+    <h2>Consultar resultados</h2>
+    <p>
+      Escribe la clave configurada en tu Google Apps Script. Al cargar,
+      aparecerán los resultados del diagnóstico y de la encuesta en esta misma página.
+    </p>
   </div>
 
-  <div class="card hidden" id="c-diag">
-    <h2>📝 Diagnóstico</h2>
+  <div class="cfg">
+    <div class="f" style="max-width:360px;">
+      <label for="token">Clave de acceso docente</label>
+      <div class="password-wrap">
+        <input type="password" id="token" autocomplete="current-password" placeholder="Escribe tu clave">
+        <button class="btn-show" type="button" id="toggle-token">Mostrar</button>
+      </div>
+    </div>
+    <button class="btn" id="btn-cargar">Cargar resultados</button>
+  </div>
+
+  <details class="panel-tech">
+    <summary>Configuración técnica</summary>
+    <div class="f">
+      <label for="url">URL de Google Apps Script</label>
+      <input type="text" id="url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+  </details>
+
+  <div id="status" class="muted" style="margin-top:10px;font-size:13px;">
+    La URL ya está configurada. Solo necesitas escribir la clave docente.
+  </div>
+  <div class="panel-location-note">
+    Ruta: Inducción → Panel de resultados.
+  </div>
+</div>
+
+<div class="card hidden" id="c-diag">
+    <div class="panel-card-head">
+    <h2>Diagnóstico</h2>
+    <button class="btn-export" id="btn-csv-diag" type="button" disabled>Descargar CSV</button>
+  </div>
     <div class="tiles" id="diag-tiles"></div>
     <div id="diag-blocks"></div>
     <div class="scroll" id="diag-table"></div>
   </div>
 
   <div class="card hidden" id="c-enc">
-    <h2>📊 Encuesta de satisfacción</h2>
+    <div class="panel-card-head">
+    <h2>Encuesta de satisfacción</h2>
+    <button class="btn-export" id="btn-csv-enc" type="button" disabled>Descargar CSV</button>
+  </div>
     <div class="tiles" id="enc-tiles"></div>
     <div id="enc-extra"></div>
   </div>
@@ -111,12 +260,12 @@
 <script>
 const $=id=>document.getElementById(id);
 $('url').value=localStorage.getItem('ind_url')||'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
-$('token').value=localStorage.getItem('ind_token')||'';
+$('token').value=sessionStorage.getItem('ind_token')||'';
 
 $('btn-cargar').onclick=function(){
   const url=$('url').value.trim(), token=$('token').value.trim();
   if(!url || url.indexOf('/exec')<0){ setStatus('Pon la URL de tu Apps Script que termina en /exec.',true); return; }
-  localStorage.setItem('ind_url',url); localStorage.setItem('ind_token',token);
+  localStorage.setItem('ind_url',url); sessionStorage.setItem('ind_token',token);
   setStatus('Cargando…');
   const s=document.createElement('script');
   window.__ind=function(data){ document.body.removeChild(s); render(data); };
@@ -131,7 +280,11 @@ function num(x){ const n=parseFloat(x); return isNaN(n)?0:n; }
 function avg(a){ return a.length? a.reduce((s,x)=>s+x,0)/a.length : 0; }
 
 function render(data){
-  if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps Script.',true); return; }
+  
+ datosPanel=data;
+ if($('btn-csv-diag')) $('btn-csv-diag').disabled=!(data.Diagnostico&&data.Diagnostico.length);
+ if($('btn-csv-enc')) $('btn-csv-enc').disabled=!(data.Encuesta&&data.Encuesta.length);
+if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps Script.',true); return; }
   setStatus('Datos cargados ✓');
   // ---- DIAGNÓSTICO ----
   const D=data.Diagnostico||[];
@@ -178,6 +331,51 @@ function distro(m,total){ const ks=Object.keys(m).sort((a,b)=>m[b]-m[a]);
   return ks.map(k=>{ const p=Math.round(m[k]/total*100); return '<div class="brow"><div class="nm" style="width:130px">'+esc(k)+'</div><div class="bar"><i style="width:'+p+'%;background:#274a83"></i></div><div class="pc">'+m[k]+'</div></div>'; }).join('') || '<div class="muted">Sin datos</div>'; }
 function fecha(f){ try{ return new Date(f).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit'}); }catch(e){ return ''; } }
 function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+/* PANEL-RESULTADOS-V5:START */
+let datosPanel=null;
+
+$('toggle-token').onclick=function(){
+  const input=$('token');
+  const visible=input.type==='text';
+  input.type=visible?'password':'text';
+  this.textContent=visible?'Mostrar':'Ocultar';
+};
+
+$('btn-csv-diag').onclick=function(){
+  if(!datosPanel) return;
+  descargarHojaCSV(datosPanel.Diagnostico||[],'resultados-diagnostico.csv');
+};
+
+$('btn-csv-enc').onclick=function(){
+  if(!datosPanel) return;
+  descargarHojaCSV(datosPanel.Encuesta||[],'resultados-encuesta.csv');
+};
+
+function descargarHojaCSV(rows,filename){
+  if(!Array.isArray(rows) || !rows.length){
+    setStatus('No hay datos para exportar.',true);
+    return;
+  }
+
+  const csv=rows.map(function(row){
+    return row.map(function(value){
+      const text=String(value==null?'':value).replace(/"/g,'""');
+      return '"'+text+'"';
+    }).join(',');
+  }).join('\r\n');
+
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+/* PANEL-RESULTADOS-V5:END */
 </script>
 </body>
 </html>

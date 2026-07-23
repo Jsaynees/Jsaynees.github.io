@@ -49,6 +49,45 @@
 <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
 <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
 <!-- PORTAL-UNIFICADO:END -->
+<!-- RESULTADOS-V5-STYLE:START -->
+<style>
+  .privacy-note {
+    margin: 16px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #e2e7f0;
+    border-left: 4px solid var(--gold, #C9A84C);
+    border-radius: 9px;
+    color: #5d6c80;
+    background: #f8fafc;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .privacy-note strong {
+    color: var(--navy, #1B3A6B);
+  }
+
+  .send-status {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #6e7d91;
+    font-size: 12.5px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .send-status.ok {
+    color: #237a42;
+    font-weight: 600;
+  }
+
+  .send-status.error {
+    color: #b33b2e;
+    font-weight: 600;
+  }
+</style>
+<!-- RESULTADOS-V5-STYLE:END -->
 </head>
 <body data-portal-page="induccion-diagnostico">
 <!-- PORTAL-LOADER:START -->
@@ -100,7 +139,13 @@
     <input type="text" id="nombre" placeholder="Nombre y apellidos" maxlength="60">
     <label for="grupo">Tu grupo</label>
     <input type="text" id="grupo" placeholder="Ej. 101" maxlength="20">
-    <div style="margin-top:20px;text-align:center;">
+    <!-- PRIVACIDAD-SIMPLE-V5:START -->
+<div class="privacy-note">
+  <strong>Privacidad:</strong> tu nombre, grupo y respuestas se usarán
+  únicamente para el seguimiento académico del curso de inducción.
+</div>
+<!-- PRIVACIDAD-SIMPLE-V5:END -->
+  <div style="margin-top:20px;text-align:center;">
       <button class="btn" id="btn-empezar">Comenzar el examen →</button>
     </div>
   </div>
@@ -233,16 +278,72 @@ function finalizar(){
     aciertos:ac,total:QS.length,pct:pct,b1:pctB[0],b2:pctB[1],b3:pctB[2],b4:pctB[3],b5:pctB[4],b6:pctB[5]};
 }
 
-$('btn-cerrar').onclick=function(){
-  enviar(window._payload);
-  $('btn-cerrar').disabled=true;
-  $('r-envio').textContent='¡Gracias! Tu resultado fue registrado. Ya puedes cerrar esta pestaña.';
+/* ENVIO-DIAGNOSTICO-V5:START */
+$('btn-cerrar').onclick=async function(){
+  const btn=$('btn-cerrar');
+  const status=$('r-envio');
+  btn.disabled=true;
+  btn.textContent='Enviando…';
+  status.className='foot send-status';
+  status.textContent='Enviando tu resultado. No cierres esta pestaña todavía.';
+
+  try{
+    await enviar(window._payload);
+    btn.textContent='Resultado enviado ✓';
+    status.className='foot send-status ok';
+    status.textContent='Tu resultado fue enviado al registro del curso. Ya puedes cerrar esta pestaña.';
+    if(window.PortalUI) PortalUI.notify('Resultado enviado correctamente.','success',3200);
+  }catch(error){
+    btn.disabled=false;
+    btn.textContent='Reintentar envío';
+    status.className='foot send-status error';
+    status.textContent=navigator.onLine
+      ? 'No se pudo completar el envío. Presiona “Reintentar envío”.'
+      : 'No hay conexión. Tu resultado quedó guardado en este dispositivo para reintentarlo.';
+    if(window.PortalUI) PortalUI.notify(status.textContent,'error',0,'Envío pendiente');
+  }
 };
 
-function enviar(payload){
-  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0){ console.log('[diagnóstico] endpoint no configurado; resultado:',payload); return; }
-  try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }catch(e){}
+async function enviar(payload){
+  if(!payload) throw new Error('No hay resultado para enviar.');
+  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
+
+  const key='induccion_pendiente_diagnostico';
+  localStorage.setItem(key,JSON.stringify(payload));
+
+  if(!navigator.onLine) throw new Error('Sin conexión.');
+
+  await fetch(ENDPOINT,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+
+  localStorage.removeItem(key);
+  return true;
 }
+
+async function reintentarDiagnosticoPendiente(){
+  const key='induccion_pendiente_diagnostico';
+  const raw=localStorage.getItem(key);
+  if(!raw || !navigator.onLine) return;
+
+  try{
+    await enviar(JSON.parse(raw));
+    if(window.PortalUI) PortalUI.notify(
+      'Se envió un resultado que había quedado pendiente.',
+      'success',
+      4200
+    );
+  }catch(error){
+    console.warn('[diagnóstico] el envío continúa pendiente',error);
+  }
+}
+
+window.addEventListener('online',reintentarDiagnosticoPendiente);
+setTimeout(reintentarDiagnosticoPendiente,900);
+/* ENVIO-DIAGNOSTICO-V5:END */
 </script>
 </body>
 </html>
