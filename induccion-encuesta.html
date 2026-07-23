@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta de Satisfacción · Curso de Inducción · Matemáticas</title>
+<style>
+  :root{--navy:#1B3A6B;--navy2:#274a83;--gold:#C9A84C;--ink:#22303f;--bg:#eef1f7;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;padding:16px;}
+  .app{max-width:680px;margin:0 auto;}
+  .hero{background:linear-gradient(135deg,#132749,#274a83);color:#fff;border-radius:16px;padding:26px;box-shadow:0 6px 18px rgba(27,58,107,.3);}
+  .hero .kick{color:var(--gold);font-size:13px;letter-spacing:2px;font-weight:bold;}
+  .hero h1{font-size:25px;margin:6px 0;}
+  .hero p{color:#dbe6f7;font-size:15px;line-height:1.5;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);padding:22px;margin-top:16px;}
+  .qh{font-weight:600;color:var(--navy);font-size:16px;margin:18px 0 10px;}
+  .qh:first-child{margin-top:0;}
+  input[type=text],textarea{width:100%;padding:11px 14px;border:2px solid #d5dced;border-radius:10px;font-size:16px;font-family:inherit;}
+  textarea{min-height:90px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--gold);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row .col{flex:1;min-width:180px;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{cursor:pointer;user-select:none;border:2px solid #e3e8f2;background:#f7f9fc;border-radius:999px;padding:9px 15px;font-size:15px;font-weight:600;color:var(--ink);transition:.12s;}
+  .chip:hover{border-color:var(--gold);}
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .stars{display:flex;gap:6px;font-size:34px;cursor:pointer;}
+  .star{color:#d5dced;transition:.1s;} .star.on{color:var(--gold);}
+  .btn{cursor:pointer;font-family:inherit;font-weight:bold;font-size:16px;border:none;border-radius:10px;padding:14px 26px;background:var(--gold);color:var(--navy);}
+  .btn:active{transform:translateY(1px);} .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .foot{text-align:center;color:#9aa7ba;font-size:12px;margin:18px 0 6px;}
+  .gracias{text-align:center;padding:30px 10px;}
+  .gracias .em{font-size:52px;} .gracias h2{color:var(--navy);margin:8px 0;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="kick">🎓 CURSO DE INDUCCIÓN · CCH-UNAM DESCARTES</div>
+    <h1>Encuesta de satisfacción</h1>
+    <p>Tu opinión nos ayuda a mejorar el curso. Son 2 minutos. ¡Gracias por participar! 🙌</p>
+  </div>
+
+  <div class="card" id="form">
+    <div class="row">
+      <div class="col"><div class="qh">Tu nombre (opcional)</div><input type="text" id="nombre" maxlength="60" placeholder="Nombre"></div>
+      <div class="col"><div class="qh">Tu grupo</div><input type="text" id="grupo" maxlength="20" placeholder="Ej. 101"></div>
+    </div>
+
+    <div class="qh">1. ¿Qué tan útil te pareció el curso?</div>
+    <div class="stars" id="stars">
+      <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+    </div>
+
+    <div class="qh">2. ¿Cómo sentiste el nivel de dificultad?</div>
+    <div class="chips" data-single="dificultad">
+      <div class="chip" data-v="Muy fácil">Muy fácil</div><div class="chip" data-v="Fácil">Fácil</div>
+      <div class="chip" data-v="Adecuada">Adecuada</div><div class="chip" data-v="Difícil">Difícil</div>
+      <div class="chip" data-v="Muy difícil">Muy difícil</div>
+    </div>
+
+    <div class="qh">3. ¿Qué temas te ayudaron más? (elige los que quieras)</div>
+    <div class="chips" data-multi="temas">
+      <div class="chip" data-v="Signos">➕ Signos</div><div class="chip" data-v="Fracciones">½ Fracciones</div>
+      <div class="chip" data-v="Porcentajes">% Porcentajes</div><div class="chip" data-v="Potencias">x² Potencias</div>
+      <div class="chip" data-v="Álgebra">🔤 Álgebra</div><div class="chip" data-v="Ecuaciones">⚖️ Ecuaciones</div>
+    </div>
+
+    <div class="qh">4. ¿Te sientes más preparado(a) para el semestre?</div>
+    <div class="chips" data-single="preparado">
+      <div class="chip" data-v="Sí">Sí</div><div class="chip" data-v="Más o menos">Más o menos</div><div class="chip" data-v="No">Todavía no</div>
+    </div>
+
+    <div class="qh">5. Comentarios o sugerencias</div>
+    <textarea id="comentarios" placeholder="Lo que quieras contarnos…" maxlength="500"></textarea>
+
+    <div style="text-align:center;margin-top:22px;">
+      <button class="btn" id="btn-enviar">Enviar encuesta</button>
+    </div>
+  </div>
+
+  <div class="card hidden gracias" id="gracias">
+    <div class="em">🎉</div>
+    <h2>¡Gracias por tu opinión!</h2>
+    <p style="color:#555;">Tu respuesta quedó registrada. Ya puedes cerrar esta pestaña.</p>
+  </div>
+
+  <div class="foot">M.C. José Luis López Saynes · Bachillerato UNAM-Descartes</div>
+</div>
+
+<script>
+/* ====== CONFIGURA AQUÍ TU GOOGLE APPS SCRIPT (ver INDUCCION-README) ====== */
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
+/* ======================================================================== */
+const $=id=>document.getElementById(id);
+const estado={utilidad:0,dificultad:'',temas:[],preparado:''};
+
+// estrellas
+document.querySelectorAll('#stars .star').forEach(function(s){
+  s.onclick=function(){ estado.utilidad=+s.dataset.v; pintarStars(); };
+});
+function pintarStars(){ document.querySelectorAll('#stars .star').forEach(function(s){ s.classList.toggle('on',+s.dataset.v<=estado.utilidad); }); }
+
+// chips single
+document.querySelectorAll('[data-single]').forEach(function(grp){
+  const key=grp.dataset.single;
+  grp.querySelectorAll('.chip').forEach(function(c){
+    c.onclick=function(){ grp.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); c.classList.add('on'); estado[key]=c.dataset.v; };
+  });
+});
+// chips multi
+document.querySelectorAll('[data-multi]').forEach(function(grp){
+  const key=grp.dataset.multi;
+  grp.querySelectorAll('.chip').forEach(function(c){
+    c.onclick=function(){ c.classList.toggle('on'); estado[key]=[...grp.querySelectorAll('.chip.on')].map(x=>x.dataset.v); };
+  });
+});
+
+$('btn-enviar').onclick=function(){
+  const payload={tipo:'encuesta',nombre:$('nombre').value.trim(),grupo:$('grupo').value.trim(),
+    utilidad:estado.utilidad,dificultad:estado.dificultad,temas:estado.temas,preparado:estado.preparado,
+    comentarios:$('comentarios').value.trim()};
+  enviar(payload);
+  $('form').classList.add('hidden'); $('gracias').classList.remove('hidden');
+  window.scrollTo(0,0);
+};
+function enviar(payload){
+  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0){ console.log('[encuesta] endpoint no configurado; respuesta:',payload); return; }
+  try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }catch(e){}
+}
+</script>
+</body>
+</html>

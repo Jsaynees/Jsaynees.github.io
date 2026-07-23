@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Diagnóstico · Curso de Inducción · Matemáticas</title>
+<style>
+  :root{--navy:#1B3A6B;--navy2:#274a83;--gold:#C9A84C;--ink:#22303f;--bg:#eef1f7;--ok:#2e7d32;--no:#c0392b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;padding:16px;}
+  .app{max-width:680px;margin:0 auto;}
+  .hero{background:linear-gradient(135deg,#132749,#274a83);color:#fff;border-radius:16px;padding:26px 26px 24px;box-shadow:0 6px 18px rgba(27,58,107,.3);}
+  .hero .kick{color:var(--gold);font-size:13px;letter-spacing:2px;font-weight:bold;}
+  .hero h1{font-size:26px;margin:6px 0 6px;}
+  .hero p{color:#dbe6f7;font-size:15px;line-height:1.5;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);padding:22px;margin-top:16px;}
+  label{display:block;font-weight:600;color:var(--navy);margin:12px 0 6px;font-size:15px;}
+  input[type=text]{width:100%;padding:12px 14px;border:2px solid #d5dced;border-radius:10px;font-size:16px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--gold);}
+  .btn{cursor:pointer;font-family:inherit;font-weight:bold;font-size:16px;border:none;border-radius:10px;padding:13px 22px;background:var(--navy);color:#fff;transition:transform .05s,background .15s;}
+  .btn:hover{background:var(--navy2);} .btn:active{transform:translateY(1px);}
+  .btn.gold{background:var(--gold);color:var(--navy);} .btn.ghost{background:#eef1f7;color:var(--navy);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .progress{height:10px;background:#e3e8f2;border-radius:999px;overflow:hidden;margin:4px 0 18px;}
+  .progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e0c56e);width:0;transition:width .3s;}
+  .meta{display:flex;justify-content:space-between;font-size:13px;color:#7a8aa0;margin-bottom:6px;}
+  .qtag{display:inline-block;background:#eef1f7;color:var(--navy);font-size:12px;font-weight:bold;padding:4px 10px;border-radius:999px;letter-spacing:.5px;}
+  .q{font-size:20px;font-weight:600;color:var(--ink);margin:14px 0 16px;line-height:1.35;}
+  .opts{display:grid;gap:10px;}
+  .opt{cursor:pointer;text-align:left;background:#f7f9fc;border:2px solid #e3e8f2;border-radius:12px;padding:14px 16px;font-size:17px;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s;}
+  .opt:hover{border-color:var(--gold);background:#fffdf6;}
+  .opt.sel{border-color:var(--navy);background:#eef3fb;}
+  .nav{display:flex;justify-content:space-between;margin-top:20px;gap:10px;}
+  .res .big{text-align:center;font-size:44px;font-weight:800;color:var(--navy);}
+  .res .sub{text-align:center;color:#7a8aa0;margin-bottom:14px;}
+  .blockrow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .blockrow .nm{width:120px;font-size:14px;font-weight:600;color:var(--navy);}
+  .bar{flex:1;height:14px;background:#e3e8f2;border-radius:999px;overflow:hidden;}
+  .bar>i{display:block;height:100%;border-radius:999px;}
+  .blockrow .pc{width:44px;text-align:right;font-size:13px;font-weight:700;}
+  .msg{text-align:center;font-size:15px;color:#555;margin-top:14px;line-height:1.5;}
+  .foot{text-align:center;color:#9aa7ba;font-size:12px;margin:18px 0 6px;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="kick">🎓 CURSO DE INDUCCIÓN · CCH-UNAM DESCARTES</div>
+    <h1>Examen Diagnóstico · Matemáticas</h1>
+    <p>24 preguntas de opción múltiple. No es para calificar: es para saber de dónde partimos y prepararte para tu examen final. ¡Tómalo con calma!</p>
+  </div>
+
+  <!-- INICIO -->
+  <div class="card" id="scr-inicio">
+    <label for="nombre">Tu nombre completo</label>
+    <input type="text" id="nombre" placeholder="Nombre y apellidos" maxlength="60">
+    <label for="grupo">Tu grupo</label>
+    <input type="text" id="grupo" placeholder="Ej. 101" maxlength="20">
+    <div style="margin-top:20px;text-align:center;">
+      <button class="btn" id="btn-empezar">Comenzar el examen →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card hidden" id="scr-quiz">
+    <div class="meta"><span id="q-count">Pregunta 1 de 24</span><span id="q-block">Bloque 1</span></div>
+    <div class="progress"><i id="q-prog"></i></div>
+    <span class="qtag" id="q-tag">Enteros y jerarquía</span>
+    <div class="q" id="q-text">…</div>
+    <div class="opts" id="q-opts"></div>
+    <div class="nav">
+      <button class="btn ghost" id="btn-prev">← Anterior</button>
+      <button class="btn" id="btn-next">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="card hidden res" id="scr-res">
+    <div class="big" id="r-score">0 / 24</div>
+    <div class="sub" id="r-pct">0% de aciertos</div>
+    <div id="r-blocks"></div>
+    <div class="msg" id="r-msg"></div>
+    <div style="text-align:center;margin-top:18px;">
+      <button class="btn gold" id="btn-cerrar">Enviar y terminar</button>
+    </div>
+    <div class="foot" id="r-envio"></div>
+  </div>
+
+  <div class="foot">M.C. José Luis López Saynes · Bachillerato UNAM-Descartes</div>
+</div>
+
+<script>
+/* ====== CONFIGURA AQUÍ TU GOOGLE APPS SCRIPT (ver INDUCCION-README) ====== */
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
+/* ======================================================================== */
+
+const BLOQUES = ['Enteros y jerarquía','Fracciones y decimales','Porcentajes y proporción','Potencias y raíces','Lenguaje algebraico','Ecuaciones lineales'];
+// cada pregunta: b = bloque(0-5), q, o=[correcta, ...distractores]
+const QS = [
+ {b:0,q:"¿Cuál es el número MENOR del conjunto: −5, 2, −1, 0, 3?",o:["−5","−1","0","2"]},
+ {b:0,q:"¿Cuánto es 3 + 4 × 2 ?",o:["11","14","10","24"]},
+ {b:0,q:"En un almacén había 800 cajas. Se vendieron 125 y después 85; luego llegaron 90 más. ¿Cuántas hay ahora?",o:["680","730","500","900"]},
+ {b:0,q:"¿Cuánto es (−7) + 3 − (−5) ?",o:["1","−9","−5","9"]},
+ {b:1,q:"¿Cuánto es 1/2 + 1/3 ?",o:["5/6","2/5","1/6","2/6"]},
+ {b:1,q:"¿Cuál es el resultado de 1/p + 1/q ?",o:["(p+q)/pq","1/(pq)","1/(p+q)","pq/(p+q)"]},
+ {b:1,q:"¿Cuál es el MAYOR: 3/8, 0.35 o 0.42 ?",o:["0.42","3/8","0.35","Son iguales"]},
+ {b:1,q:"Una barra de chocolate se parte en 4 partes iguales y te comes 3. ¿Qué fracción comiste?",o:["3/4","1/4","4/3","3"]},
+ {b:2,q:"Una playera de $250 tiene 20% de descuento. ¿Cuánto pagas?",o:["$200","$230","$50","$220"]},
+ {b:2,q:"Si 15 es el 25% de un número, ¿cuál es ese número?",o:["60","40","75","20"]},
+ {b:2,q:"Si 4 lápices cuestan $12, ¿cuánto cuestan 10 lápices?",o:["$30","$40","$24","$27"]},
+ {b:2,q:"En un salón hay 12 mujeres y 18 hombres. ¿Qué porcentaje son mujeres?",o:["40%","60%","30%","12%"]},
+ {b:3,q:"¿Cuánto es 2³ ?",o:["8","6","9","5"]},
+ {b:3,q:"¿Cuánto es √64 ?",o:["8","6","32","16"]},
+ {b:3,q:"El grosor de una hoja es 0.00002 m. En notación científica es…",o:["2 × 10⁻⁵","2 × 10⁵","20 × 10⁻⁴","2 × 10⁻⁴"]},
+ {b:3,q:"¿Cuánto es 5² + √9 ?",o:["28","25","34","13"]},
+ {b:4,q:"«El doble de un número más 5» se escribe como…",o:["2x + 5","x² + 5","2(x + 5)","5x + 2"]},
+ {b:4,q:"Un terreno rectangular tiene área 400 m² y su largo es 4 m mayor que el ancho x. ¿Qué ecuación lo representa?",o:["x(x + 4) = 400","4x(x) = 400","(x − 4)(x + 4) = 400","400x = 400 − x"]},
+ {b:4,q:"Si cada mes ahorras la cuarta parte de tu sueldo S, ¿cuánto ahorras en 4 meses?",o:["S","S/4","4S","3S"]},
+ {b:4,q:"Evalúa la expresión 3x − 4 cuando x = 2.",o:["2","10","−1","6"]},
+ {b:5,q:"Resuelve la ecuación 2x + 5 = 17.",o:["x = 6","x = 11","x = 8","x = 22"]},
+ {b:5,q:"Una caja de manzanas pesa 3 kg más que una de naranjas. Si 2 de manzanas y 4 de naranjas pesan 42 kg, ¿cuánto pesa la de naranjas?",o:["6 kg","9 kg","3 kg","7 kg"]},
+ {b:5,q:"Resuelve la ecuación x/2 = 7.",o:["x = 14","x = 3.5","x = 9","x = 5"]},
+ {b:5,q:"Resuelve la ecuación 5x − 3 = 12.",o:["x = 3","x = 1.8","x = 5","x = 9"]}
+];
+
+// preparar: guardar respuesta correcta y barajar opciones
+QS.forEach(function(item){
+  item.correcta = item.o[0];
+  item.opts = item.o.slice();
+  for(let i=item.opts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [item.opts[i],item.opts[j]]=[item.opts[j],item.opts[i]]; }
+});
+
+let idx=0; const respuestas=new Array(QS.length).fill(null);
+const $=id=>document.getElementById(id);
+function show(id){ ['scr-inicio','scr-quiz','scr-res'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
+
+$('btn-empezar').onclick=function(){
+  const n=$('nombre').value.trim();
+  if(!n){ $('nombre').focus(); $('nombre').style.borderColor='var(--no)'; return; }
+  show('scr-quiz'); render();
+};
+
+function render(){
+  const it=QS[idx];
+  $('q-count').textContent='Pregunta '+(idx+1)+' de '+QS.length;
+  $('q-block').textContent='Bloque '+(it.b+1);
+  $('q-tag').textContent=BLOQUES[it.b];
+  $('q-prog').style.width=((idx)/QS.length*100)+'%';
+  $('q-text').textContent=it.q;
+  const cont=$('q-opts'); cont.innerHTML='';
+  it.opts.forEach(function(op){
+    const b=document.createElement('button'); b.className='opt'+(respuestas[idx]===op?' sel':''); b.textContent=op;
+    b.onclick=function(){ respuestas[idx]=op; render(); };
+    cont.appendChild(b);
+  });
+  $('btn-prev').disabled = idx===0;
+  $('btn-next').textContent = idx===QS.length-1 ? 'Ver resultados ✓' : 'Siguiente →';
+}
+$('btn-prev').onclick=function(){ if(idx>0){ idx--; render(); } };
+$('btn-next').onclick=function(){
+  if(idx<QS.length-1){ idx++; render(); }
+  else finalizar();
+};
+
+function finalizar(){
+  let ac=0; const porBloque=[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]];
+  QS.forEach(function(it,i){
+    porBloque[it.b][1]++;
+    if(respuestas[i]===it.correcta){ ac++; porBloque[it.b][0]++; }
+  });
+  const pct=Math.round(ac/QS.length*100);
+  $('r-score').textContent=ac+' / '+QS.length;
+  $('r-pct').textContent=pct+'% de aciertos';
+  const box=$('r-blocks'); box.innerHTML='';
+  const pctB=[];
+  porBloque.forEach(function(pb,i){
+    const p=pb[1]?Math.round(pb[0]/pb[1]*100):0; pctB.push(p);
+    const col = p>=67?'#2e7d32':(p>=34?'#C9A84C':'#c0392b');
+    box.insertAdjacentHTML('beforeend',
+      '<div class="blockrow"><div class="nm">'+BLOQUES[i]+'</div>'+
+      '<div class="bar"><i style="width:'+p+'%;background:'+col+'"></i></div>'+
+      '<div class="pc" style="color:'+col+'">'+p+'%</div></div>');
+  });
+  $('r-msg').textContent = pct>=70 ? '¡Vienes con buena base! Vamos a pulir los detalles esta semana. 💪'
+    : pct>=40 ? 'Tienes cimientos que reforzaremos juntos. ¡Para eso es el curso! 🚀'
+    : 'No te preocupes por el número: justo por esto estás aquí. Vamos paso a paso. 🌱';
+  show('scr-res');
+  window._payload={tipo:'diagnostico',nombre:$('nombre').value.trim(),grupo:$('grupo').value.trim(),
+    aciertos:ac,total:QS.length,pct:pct,b1:pctB[0],b2:pctB[1],b3:pctB[2],b4:pctB[3],b5:pctB[4],b6:pctB[5]};
+}
+
+$('btn-cerrar').onclick=function(){
+  enviar(window._payload);
+  $('btn-cerrar').disabled=true;
+  $('r-envio').textContent='¡Gracias! Tu resultado fue registrado. Ya puedes cerrar esta pestaña.';
+};
+
+function enviar(payload){
+  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0){ console.log('[diagnóstico] endpoint no configurado; resultado:',payload); return; }
+  try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }catch(e){}
+}
+</script>
+</body>
+</html>
