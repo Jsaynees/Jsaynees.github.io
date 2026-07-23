@@ -295,7 +295,7 @@
 const AVISOS = [
   { tipo:'normal',  icon:'🎓', fecha:'18 ago 2026', titulo:'Inicio de clases', texto:'Comenzamos el semestre 2026-2027-1. Revisa el programa y el calendario de exámenes de tu grupo.' },
   { tipo:'urgente', icon:'📝', fecha:'8 sep 2026',  titulo:'Primer examen interparcial', texto:'Grupos 3010 y 3040 presentan el 8 de septiembre. Consulta tu fecha exacta en el calendario de Física I.' },
-  { tipo:'normal',  icon:'📁', fecha:'Permanente',  titulo:'Material disponible en Drive', texto:'El material de cada unidad se publica en su carpeta de Google Drive. Entra a tu materia y abre la carpeta correspondiente.' },
+  { tipo:'normal',  icon:'📁', fecha:'Permanente',  titulo:'Material disponible en cada materia', texto:'Descarga las antologías y cuadernillos directamente desde la página de tu materia, en la sección de materiales.' },
 ];
 function renderAvisos(){
   document.getElementById('avisos-grid').innerHTML = AVISOS.map(a=>`
