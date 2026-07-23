@@ -726,3 +726,135 @@ body::before {
     display: none !important;
   }
 }
+
+/* PORTAL-TOOLS-INTEGRATION-V4:START */
+/*
+  Diagnóstico, encuesta y panel fueron creados originalmente como páginas
+  independientes y tenían padding directamente en body. Estas reglas dejan
+  la navegación y el pie a todo el ancho, mientras mantienen la herramienta
+  centrada.
+*/
+body[data-portal-page="induccion-diagnostico"],
+body[data-portal-page="induccion-encuesta"],
+body[data-portal-page="induccion-panel"] {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+  display: block !important;
+  background: var(--portal-bg) !important;
+}
+
+body[data-portal-page="induccion-diagnostico"] > .portal-nav,
+body[data-portal-page="induccion-encuesta"] > .portal-nav,
+body[data-portal-page="induccion-panel"] > .portal-nav {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body[data-portal-page="induccion-diagnostico"] > .app,
+body[data-portal-page="induccion-encuesta"] > .app {
+  width: calc(100% - 32px) !important;
+  max-width: 680px !important;
+  margin: 24px auto 34px !important;
+  padding: 0 !important;
+}
+
+body[data-portal-page="induccion-panel"] > .app {
+  width: calc(100% - 32px) !important;
+  max-width: 960px !important;
+  margin: 24px auto 34px !important;
+  padding: 0 !important;
+}
+
+/* La ruta ahora forma parte del encabezado azul. */
+.tool-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .46rem;
+  margin: 0 0 15px;
+  color: rgba(255, 255, 255, .68);
+  font: 600 .76rem/1.4 Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.tool-breadcrumb a {
+  color: rgba(255, 255, 255, .68);
+  text-decoration: none;
+  transition: color .18s ease;
+}
+
+.tool-breadcrumb a:hover {
+  color: var(--portal-gold-light);
+}
+
+.tool-breadcrumb span[aria-hidden="true"] {
+  color: rgba(255, 255, 255, .28);
+}
+
+.tool-breadcrumb em {
+  color: rgba(255, 255, 255, .92);
+  font-style: normal;
+}
+
+body[data-portal-page="induccion-diagnostico"] .hero,
+body[data-portal-page="induccion-encuesta"] .hero,
+body[data-portal-page="induccion-panel"] .hero {
+  position: relative;
+  overflow: hidden;
+}
+
+body[data-portal-page="induccion-diagnostico"] .hero::after,
+body[data-portal-page="induccion-encuesta"] .hero::after,
+body[data-portal-page="induccion-panel"] .hero::after {
+  content: "";
+  width: 190px;
+  height: 190px;
+  position: absolute;
+  top: -105px;
+  right: -75px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 28px rgba(255, 255, 255, .025),
+    0 0 0 58px rgba(201, 168, 76, .025);
+  pointer-events: none;
+}
+
+body[data-portal-page="induccion-diagnostico"] .hero > *,
+body[data-portal-page="induccion-encuesta"] .hero > *,
+body[data-portal-page="induccion-panel"] .hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Evita el hueco que dejaba la barra de contexto anterior. */
+body[data-portal-page="induccion-diagnostico"] > .portal-context-bar,
+body[data-portal-page="induccion-encuesta"] > .portal-context-bar,
+body[data-portal-page="induccion-panel"] > .portal-context-bar {
+  display: none !important;
+}
+
+/* El pie agregado por la interfaz compartida queda unido al ancho del portal. */
+body[data-portal-page="induccion-diagnostico"] > footer,
+body[data-portal-page="induccion-encuesta"] > footer,
+body[data-portal-page="induccion-panel"] > footer {
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 640px) {
+  body[data-portal-page="induccion-diagnostico"] > .app,
+  body[data-portal-page="induccion-encuesta"] > .app,
+  body[data-portal-page="induccion-panel"] > .app {
+    width: calc(100% - 20px) !important;
+    margin-top: 12px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .tool-breadcrumb {
+    margin-bottom: 12px;
+    font-size: .71rem;
+  }
+}
+/* PORTAL-TOOLS-INTEGRATION-V4:END */
