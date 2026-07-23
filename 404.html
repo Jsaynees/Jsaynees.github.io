@@ -4,50 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Página no encontrada · Prof. López Saynes</title>
-  <meta name="description" content="La página solicitada no existe en el portal académico del profesor José Luis López Saynes.">
-  <!-- SITE-SHELL:START -->
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#112447">
-<script>
-(function () {
-  try {
-    var saved = localStorage.getItem("jsaynees-theme");
-    var preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", saved === "dark" || saved === "light" ? saved : preferred);
-  } catch (_) {
-    document.documentElement.setAttribute("data-theme", "light");
-  }
-})();
-</script>
-<link rel="stylesheet" href="assets/site-shell.css?v=20260723-1">
-<script src="assets/site-shell.js?v=20260723-1" defer></script>
-<!-- SITE-SHELL:END -->
+  <meta name="description" content="La página solicitada no existe en el portal académico.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-3">
+  <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
 </head>
-<body>
-<!-- SITE-LOADER:START -->
-<div id="site-loader" role="status" aria-live="polite" aria-label="Cargando página">
-  <div class="site-loader__box">
-    <div class="site-loader__orbit" aria-hidden="true"></div>
-    <div class="site-loader__title">Preparando el contenido</div>
-    <div class="site-loader__text">Portal académico López Saynes</div>
+<body data-portal-page="404">
+<div id="portal-loader" role="status" aria-live="polite">
+  <div class="portal-loader-box">
+    <div class="portal-loader-mark" aria-hidden="true"></div>
+    <strong>Preparando el contenido</strong>
+    <small>Portal académico López Saynes</small>
   </div>
 </div>
-<!-- SITE-LOADER:END -->
-  <main class="site-404">
-    <section class="site-404__card" aria-labelledby="not-found-title">
-      <div class="site-404__code" aria-hidden="true">404</div>
-      <div class="site-404__eyebrow">Ruta no encontrada</div>
-      <h1 id="not-found-title">Esta página se nos salió de la ecuación</h1>
-      <p>
-        El enlace puede estar incompleto, haber cambiado o ya no estar disponible.
-        Puedes regresar al portal principal o entrar directamente al curso de inducción.
-      </p>
-      <div class="site-404__actions">
-        <a class="site-404__btn site-404__btn--primary" href="index.html">Volver al inicio</a>
-        <a class="site-404__btn" href="induccion.html">Ir a Inducción</a>
-        <a class="site-404__btn" href="mailto:jose.lopsay@gmail.com?subject=Enlace%20no%20encontrado%20en%20el%20portal">Reportar enlace</a>
-      </div>
-    </section>
-  </main>
+<nav class="portal-nav" aria-label="Navegación principal">
+  <a class="portal-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes">
+    <span class="portal-brand-divider" aria-hidden="true"></span>
+    <span class="portal-brand-copy"><strong>Prof. López Saynes</strong>Física y Matemáticas</span>
+  </a>
+  <button class="portal-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="portal-nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+    <a href="induccion.html">Inducción</a>
+    <a class="portal-contact-link" href="mailto:jose.lopsay@gmail.com?subject=Consulta%20desde%20el%20portal">Contacto</a>
+  </div>
+</nav>
+<main class="portal-404">
+  <section class="portal-404-card">
+    <div class="portal-404-code" aria-hidden="true">404</div>
+    <h1>Esta página se salió de la ecuación</h1>
+    <p>El enlace puede estar incompleto, haber cambiado o ya no estar disponible.</p>
+    <div class="portal-404-actions">
+      <a class="primary" href="index.html">Volver al inicio</a>
+      <a href="induccion.html">Ir a Inducción</a>
+      <a href="mailto:jose.lopsay@gmail.com?subject=Enlace%20no%20encontrado">Reportar enlace</a>
+    </div>
+  </section>
+</main>
 </body>
 </html>

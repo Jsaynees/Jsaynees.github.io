@@ -116,46 +116,42 @@
       .contact-card { padding: 1.75rem; }
     }
   </style>
-<!-- SITE-SHELL:START -->
+
+<!-- PORTAL-UNIFICADO:START -->
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#112447">
-<script>
-(function () {
-  try {
-    var saved = localStorage.getItem("jsaynees-theme");
-    var preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", saved === "dark" || saved === "light" ? saved : preferred);
-  } catch (_) {
-    document.documentElement.setAttribute("data-theme", "light");
-  }
-})();
-</script>
-<link rel="stylesheet" href="assets/site-shell.css?v=20260723-1">
-<script src="assets/site-shell.js?v=20260723-1" defer></script>
-<!-- SITE-SHELL:END -->
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-3">
+<script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
+<!-- PORTAL-UNIFICADO:END -->
 </head>
-<body>
-<!-- SITE-LOADER:START -->
-<div id="site-loader" role="status" aria-live="polite" aria-label="Cargando página">
-  <div class="site-loader__box">
-    <div class="site-loader__orbit" aria-hidden="true"></div>
-    <div class="site-loader__title">Preparando el contenido</div>
-    <div class="site-loader__text">Portal académico López Saynes</div>
+<body data-portal-page="index">
+<!-- PORTAL-LOADER:START -->
+<div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página">
+  <div class="portal-loader-box">
+    <div class="portal-loader-mark" aria-hidden="true"></div>
+    <strong>Preparando el contenido</strong>
+    <small>Portal académico López Saynes</small>
   </div>
 </div>
-<!-- SITE-LOADER:END -->
+<!-- PORTAL-LOADER:END -->
 
-<nav>
-  <a class="nav-brand" href="index.html">
-    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
-    <div class="nb-divider"></div>
-    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+
+<nav class="portal-nav" aria-label="Navegación principal">
+  <a class="portal-brand" href="index.html" aria-label="Ir al inicio">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes">
+    <span class="portal-brand-divider" aria-hidden="true"></span>
+    <span class="portal-brand-copy"><strong>Prof. López Saynes</strong>Física y Matemáticas</span>
   </a>
-  <div class="nav-links">
+  <button class="portal-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="portal-nav-links">
+    <a href="index.html" class="active">Inicio</a>
     <a href="fisica1.html">Física I</a>
     <a href="fisica3.html">Física III</a>
     <a href="mates1.html">Matemáticas I</a>
     <a href="induccion.html">Inducción</a>
+    <a class="portal-contact-link" href="mailto:jose.lopsay@gmail.com?subject=Consulta%20desde%20el%20portal">Contacto</a>
   </div>
 </nav>
 

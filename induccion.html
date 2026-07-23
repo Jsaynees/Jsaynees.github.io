@@ -83,63 +83,67 @@
       .hero { padding: 3.5rem 1.25rem 3rem; } section { padding: 3rem 1.25rem; } .info-card { padding: 1.75rem; }
     }
   </style>
-<!-- SITE-SHELL:START -->
+
+<!-- PORTAL-UNIFICADO:START -->
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#112447">
-<script>
-(function () {
-  try {
-    var saved = localStorage.getItem("jsaynees-theme");
-    var preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", saved === "dark" || saved === "light" ? saved : preferred);
-  } catch (_) {
-    document.documentElement.setAttribute("data-theme", "light");
-  }
-})();
-</script>
-<link rel="stylesheet" href="assets/site-shell.css?v=20260723-1">
-<script src="assets/site-shell.js?v=20260723-1" defer></script>
-<!-- SITE-SHELL:END -->
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-3">
+<script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
+<!-- PORTAL-UNIFICADO:END -->
 </head>
-<body>
-<!-- SITE-LOADER:START -->
-<div id="site-loader" role="status" aria-live="polite" aria-label="Cargando página">
-  <div class="site-loader__box">
-    <div class="site-loader__orbit" aria-hidden="true"></div>
-    <div class="site-loader__title">Preparando el contenido</div>
-    <div class="site-loader__text">Portal académico López Saynes</div>
+<body data-portal-page="induccion">
+<!-- PORTAL-LOADER:START -->
+<div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página">
+  <div class="portal-loader-box">
+    <div class="portal-loader-mark" aria-hidden="true"></div>
+    <strong>Preparando el contenido</strong>
+    <small>Portal académico López Saynes</small>
   </div>
 </div>
-<!-- SITE-LOADER:END -->
+<!-- PORTAL-LOADER:END -->
 
-<nav>
-  <a class="nav-brand" href="index.html">
-    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
-    <div class="nb-divider"></div>
-    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+
+<nav class="portal-nav" aria-label="Navegación principal">
+  <a class="portal-brand" href="index.html" aria-label="Ir al inicio">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes">
+    <span class="portal-brand-divider" aria-hidden="true"></span>
+    <span class="portal-brand-copy"><strong>Prof. López Saynes</strong>Física y Matemáticas</span>
   </a>
-  <div class="nav-links">
+  <button class="portal-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="portal-nav-links">
+    <a href="index.html">Inicio</a>
     <a href="fisica1.html">Física I</a>
     <a href="fisica3.html">Física III</a>
     <a href="mates1.html">Matemáticas I</a>
     <a href="induccion.html" class="active">Inducción</a>
+    <a class="portal-contact-link" href="mailto:jose.lopsay@gmail.com?subject=Consulta%20desde%20el%20portal">Contacto</a>
   </div>
 </nav>
 
 <!-- HERO ANIMADO -->
-<div class="hero">
+<div class="page-header induction-header">
   <canvas id="heroCanvas"></canvas>
-  <div class="hero-content">
-    <div class="hero-badge">Nuevo ingreso · Ciclo 2026-2027</div>
-    <h1>Curso de Inducción<br/><span>Matemáticas</span></h1>
-    <p>Una semana para reconocer tu nivel, reforzar lo esencial y arrancar con el pie derecho tu bachillerato. ¡Bienvenido(a)!</p>
-    <div class="hero-cta">
-      <a class="btn-hero btn-hero-primary" href="induccion-diagnostico.html">📝 Presentar diagnóstico</a>
-      <a class="btn-hero btn-hero-ghost" href="#ruta">Ver la ruta de la semana</a>
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="index.html">Inicio</a><span>/</span><em>Inducción</em>
+    </div>
+    <div class="ph-tag"><span class="ph-dot"></span>Nuevo ingreso · Ciclo 2026-2027</div>
+    <h1>Curso de Inducción</h1>
+    <p>Matemáticas · Una semana para reconocer tu nivel, reforzar lo esencial y comenzar el bachillerato con una base sólida.</p>
+    <div class="group-chips">
+      <a class="group-chip" href="induccion-diagnostico.html">
+        <span class="gc-label">Actividad inicial</span>
+        Presentar diagnóstico
+      </a>
+      <a class="group-chip" href="#ruta">
+        <span class="gc-label">Plan de trabajo</span>
+        Ruta de 5 días
+      </a>
     </div>
   </div>
 </div>
-
 <!-- EMPIEZA AQUÍ -->
 <section id="empieza">
   <p class="section-label">Empieza aquí</p>
@@ -199,44 +203,116 @@
 </footer>
 
 <script>
-/* ════════ HERO: símbolos matemáticos flotando ════════ */
-const hc = document.getElementById('heroCanvas'), hx = hc.getContext('2d');
-const SYMS = ['π','∑','√','∞','×','÷','%','=','θ','Δ','∫','½','x²','a²','≈','∠'];
-let parts = [], syms = [], t = 0;
-function initHero(){
-  const W = hc.offsetWidth || hc.clientWidth || window.innerWidth || 1000;
-  const H = hc.offsetHeight || hc.clientHeight || 420;
-  hc.width = W; hc.height = H;
-  parts = [];
-  const n = Math.max(14, Math.min(40, Math.floor(W/28)));
-  for(let i=0;i<n;i++) parts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.8+.4, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, a:Math.random()*.4+.1 });
-  syms = [];
-  const m = Math.max(9, Math.min(16, Math.floor(W/70)));
-  for(let i=0;i<m;i++) syms.push({
-    x:Math.random()*W, y:Math.random()*H,
-    vy:-(Math.random()*.25+.08), vx:(Math.random()-.5)*.12,
-    size:Math.random()*26+18, rot:Math.random()*Math.PI, vrot:(Math.random()-.5)*.004,
-    a:Math.random()*.10+.05, char:SYMS[Math.floor(Math.random()*SYMS.length)],
-    gold:Math.random()<.5
-  });
-}
-function drawHero(){
-  const W=hc.width, H=hc.height; hx.clearRect(0,0,W,H);
-  // partículas
-  parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy;
-    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
-    hx.beginPath(); hx.arc(p.x,p.y,p.r,0,Math.PI*2); hx.fillStyle='rgba(201,168,76,'+p.a+')'; hx.fill(); });
-  // símbolos flotando hacia arriba
-  syms.forEach(s=>{ s.y+=s.vy; s.x+=s.vx; s.rot+=s.vrot;
-    if(s.y< -40){ s.y=H+40; s.x=Math.random()*W; s.char=SYMS[Math.floor(Math.random()*SYMS.length)]; }
-    hx.save(); hx.translate(s.x,s.y); hx.rotate(s.rot);
-    hx.font='700 '+s.size+"px 'Playfair Display', serif"; hx.textAlign='center'; hx.textBaseline='middle';
-    hx.fillStyle = s.gold ? 'rgba(201,168,76,'+s.a+')' : 'rgba(255,255,255,'+s.a+')';
-    hx.fillText(s.char,0,0); hx.restore(); });
-  t+=0.01; requestAnimationFrame(drawHero);
-}
-window.addEventListener('resize', initHero);
-window.addEventListener('load', ()=>{ initHero(); drawHero(); });
+/* PORTAL-INDUCCION-HERO-SCRIPT:START */
+(() => {
+  const canvas = document.getElementById("heroCanvas");
+  if (!canvas) return;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  let particles = [];
+  let time = 0;
+  let frame = 0;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function initialize() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = canvas.offsetWidth || window.innerWidth || 1000;
+    const height = canvas.offsetHeight || 390;
+
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    particles = [];
+    const count = Math.min(36, Math.max(18, Math.floor(width / 30)));
+    for (let index = 0; index < count; index += 1) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.8 + .4,
+        vx: (Math.random() - .5) * .25,
+        vy: (Math.random() - .5) * .25,
+        alpha: Math.random() * .4 + .1
+      });
+    }
+  }
+
+  function draw() {
+    const width = canvas.offsetWidth || 1000;
+    const height = canvas.offsetHeight || 390;
+    context.clearRect(0, 0, width, height);
+
+    particles.forEach((particle) => {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      if (particle.x < 0) particle.x = width;
+      if (particle.x > width) particle.x = 0;
+      if (particle.y < 0) particle.y = height;
+      if (particle.y > height) particle.y = 0;
+
+      context.beginPath();
+      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+      context.fillStyle = `rgba(201,168,76,${particle.alpha})`;
+      context.fill();
+    });
+
+    const centerX = width * (width < 720 ? .78 : .85);
+    const centerY = height * .5;
+    const radius = Math.min(width * .9, height) * .30;
+
+    const glow = context.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, radius * .5
+    );
+    glow.addColorStop(0, "rgba(201,168,76,.5)");
+    glow.addColorStop(1, "rgba(201,168,76,0)");
+    context.fillStyle = glow;
+    context.beginPath();
+    context.arc(centerX, centerY, radius * .5, 0, Math.PI * 2);
+    context.fill();
+
+    context.beginPath();
+    context.arc(centerX, centerY, 5, 0, Math.PI * 2);
+    context.fillStyle = "#e8c96a";
+    context.fill();
+
+    [0, Math.PI / 3, -Math.PI / 3].forEach((rotation, index) => {
+      context.save();
+      context.translate(centerX, centerY);
+      context.rotate(rotation);
+      context.strokeStyle = "rgba(255,255,255,.12)";
+      context.lineWidth = 1;
+      context.beginPath();
+      context.ellipse(0, 0, radius, radius * .42, 0, 0, Math.PI * 2);
+      context.stroke();
+
+      const angle = time * (.6 + index * .25) + index * 2;
+      const electronX = radius * Math.cos(angle);
+      const electronY = radius * .42 * Math.sin(angle);
+      context.beginPath();
+      context.arc(electronX, electronY, 3.5, 0, Math.PI * 2);
+      context.fillStyle = index === 1 ? "#C9A84C" : "#9fc0ff";
+      context.fill();
+      context.restore();
+    });
+
+    if (!reduceMotion) {
+      time += .012;
+      frame = requestAnimationFrame(draw);
+    }
+  }
+
+  function restart() {
+    if (frame) cancelAnimationFrame(frame);
+    initialize();
+    draw();
+  }
+
+  window.addEventListener("resize", restart);
+  restart();
+})();
+/* PORTAL-INDUCCION-HERO-SCRIPT:END */
 </script>
 </body>
 </html>
