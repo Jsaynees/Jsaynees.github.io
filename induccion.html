@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curso de Inducción · Matemáticas · Prof. López Saynes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#1B3A6B; --navy-d:#112447; --navy-l:#254d8f;
+      --gold:#C9A84C; --gold-l:#e8c96a; --white:#F8F9FC;
+      --gray:#8A95A3; --border:#e6eaf0; --text:#1e293b; --muted:#64748b;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); min-height: 100vh; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 1px 12px rgba(17,36,71,.05); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-brand { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .nav-brand img { height: 42px; width: auto; display: block; }
+    .nav-brand .nb-divider { width: 1px; height: 32px; background: var(--border); }
+    .nav-brand .nb-text { font-size: .78rem; color: var(--gray); line-height: 1.3; }
+    .nav-brand .nb-text strong { color: var(--navy); display: block; font-size: .85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a { color: var(--gray); text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .02em; padding: .4rem 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+    .hero { background: linear-gradient(135deg, var(--navy-d) 0%, var(--navy) 60%, #2a5499 100%); padding: 5rem 2rem 4.5rem; text-align: center; position: relative; overflow: hidden; }
+    #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-badge { display: inline-block; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.4); color: var(--gold-l); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: .35rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; }
+    .hero h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; margin-bottom: .75rem; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: rgba(255,255,255,.72); font-size: 1.05rem; max-width: 580px; margin: 0 auto 2rem; line-height: 1.7; }
+    .hero-cta { display: inline-flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+    .btn-hero { padding: .7rem 1.4rem; border-radius: 10px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .2s; }
+    .btn-hero-primary { background: var(--gold); color: var(--navy-d); }
+    .btn-hero-primary:hover { background: var(--gold-l); }
+    .btn-hero-ghost { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.18); }
+
+    section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9a7d2e; margin-bottom: .5rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--navy-d); margin-bottom: .5rem; }
+    .section-sub { color: var(--gray); font-size: .95rem; margin-bottom: 2.5rem; }
+
+    /* EMPIEZA AQUÍ */
+    .start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .start-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.9rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); display: flex; flex-direction: column; }
+    .start-card .sc-icon { width: 54px; height: 54px; border-radius: 12px; background: rgba(201,168,76,.16); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 1.1rem; }
+    .start-card h3 { font-size: 1.25rem; color: var(--navy-d); margin-bottom: .5rem; font-weight: 700; }
+    .start-card .sc-when { display:inline-block; font-size: .72rem; font-weight: 700; letter-spacing:.05em; text-transform: uppercase; color:#9a7d2e; background:rgba(201,168,76,.12); padding:.2rem .6rem; border-radius:6px; margin-bottom:.8rem; align-self:flex-start;}
+    .start-card p { color: var(--muted); font-size: .92rem; line-height: 1.6; flex: 1; margin-bottom: 1.4rem; }
+    .start-btn { background: var(--navy); color: #fff; padding: .75rem 1.3rem; border-radius: 10px; font-size: .9rem; font-weight: 600; text-decoration: none; text-align: center; transition: background .2s; }
+    .start-btn:hover { background: var(--navy-l); }
+    .start-btn.gold { background: var(--gold); color: var(--navy-d); } .start-btn.gold:hover { background: var(--gold-l); }
+
+    /* RUTA */
+    .ruta-section { background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .ruta-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+    .step { background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.3rem; position: relative; }
+    .step .st-num { width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: .8rem; }
+    .step h4 { font-size: .95rem; color: var(--navy-d); margin-bottom: .3rem; }
+    .step p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+
+    /* INFO / MOODLE */
+    .info-card { background: linear-gradient(135deg, var(--navy-d), var(--navy)); border-radius: 16px; padding: 2.5rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+    .info-card .ic-body { flex: 1; min-width: 240px; }
+    .info-card .ic-role { color: var(--gold); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .info-card h3 { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin: .25rem 0 .5rem; }
+    .info-card p { color: rgba(255,255,255,.65); font-size: .9rem; line-height: 1.6; }
+    .info-card a.contact-btn { display: inline-flex; align-items: center; gap: .5rem; background: var(--gold); color: var(--navy-d); padding: .7rem 1.3rem; border-radius: 9px; text-decoration: none; font-size: .9rem; font-weight: 600; }
+
+    footer { background: var(--navy-d); border-top: 1px solid rgba(201,168,76,.3); padding: 2rem; text-align: center; }
+    footer p { color: rgba(255,255,255,.35); font-size: .8rem; }
+    footer p span { color: var(--gold); }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; height: 64px; } .nav-brand .nb-text { display: none; } .nav-links { gap: 1rem; }
+      .hero { padding: 3.5rem 1.25rem 3rem; } section { padding: 3rem 1.25rem; } .info-card { padding: 1.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes" />
+    <div class="nb-divider"></div>
+    <div class="nb-text"><strong>Prof. López Saynes</strong>Física y Matemáticas</div>
+  </a>
+  <div class="nav-links">
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+    <a href="induccion.html" class="active">Inducción</a>
+  </div>
+</nav>
+
+<!-- HERO ANIMADO -->
+<div class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">Nuevo ingreso · Ciclo 2026-2027</div>
+    <h1>Curso de Inducción<br/><span>Matemáticas</span></h1>
+    <p>Una semana para reconocer tu nivel, reforzar lo esencial y arrancar con el pie derecho tu bachillerato. ¡Bienvenido(a)!</p>
+    <div class="hero-cta">
+      <a class="btn-hero btn-hero-primary" href="induccion-diagnostico.html">📝 Presentar diagnóstico</a>
+      <a class="btn-hero btn-hero-ghost" href="#ruta">Ver la ruta de la semana</a>
+    </div>
+  </div>
+</div>
+
+<!-- EMPIEZA AQUÍ -->
+<section id="empieza">
+  <p class="section-label">Empieza aquí</p>
+  <h2 class="section-title">Tus dos actividades clave</h2>
+  <p class="section-sub">El diagnóstico va al inicio de la semana; la encuesta, al final. Ambas se abren en tu celular o computadora.</p>
+  <div class="start-grid">
+    <div class="start-card">
+      <div class="sc-icon">📝</div>
+      <span class="sc-when">Día 1 · al inicio</span>
+      <h3>Examen diagnóstico</h3>
+      <p>24 preguntas de opción múltiple. Se califica solo y te muestra tu resultado por tema. No es para calificar: es para saber de dónde partimos y prepararte para el examen final.</p>
+      <a class="start-btn gold" href="induccion-diagnostico.html">Presentar diagnóstico →</a>
+    </div>
+    <div class="start-card">
+      <div class="sc-icon">📊</div>
+      <span class="sc-when">Día 5 · al final</span>
+      <h3>Encuesta de satisfacción</h3>
+      <p>Cuéntanos cómo te fue en el curso: qué tan útil te pareció, la dificultad y tus comentarios. Son 2 minutos y nos ayuda muchísimo a mejorar.</p>
+      <a class="start-btn" href="induccion-encuesta.html">Responder encuesta →</a>
+    </div>
+  </div>
+</section>
+
+<!-- RUTA DE LA SEMANA -->
+<div class="ruta-section" id="ruta">
+  <div class="ruta-wrap">
+    <p class="section-label">Plan del curso</p>
+    <h2 class="section-title">Tu ruta de la semana</h2>
+    <p class="section-sub">Cinco días para nivelarte en lo que más importa antes de arrancar el semestre.</p>
+    <div class="steps">
+      <div class="step"><div class="st-num">1</div><h4>Bienvenida y diagnóstico</h4><p>Nos conocemos, exploramos la plataforma y presentas tu examen diagnóstico.</p></div>
+      <div class="step"><div class="st-num">2</div><h4>Aritmética</h4><p>Enteros y signos, jerarquía de operaciones y fracciones.</p></div>
+      <div class="step"><div class="st-num">3</div><h4>Porcentajes y potencias</h4><p>Porcentajes, regla de tres, potencias, raíces y notación científica.</p></div>
+      <div class="step"><div class="st-num">4</div><h4>Álgebra</h4><p>Lenguaje algebraico, expresiones y ecuaciones de primer grado.</p></div>
+      <div class="step"><div class="st-num">5</div><h4>Examen final y cierre</h4><p>Presentas tu examen final, respondes la encuesta y ¡a celebrar!</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MOODLE / INFO -->
+<section>
+  <p class="section-label">Aula virtual</p>
+  <h2 class="section-title">Todo el curso en Moodle</h2>
+  <p class="section-sub">Foros, materiales, tareas e insignias por completar cada día.</p>
+  <div class="info-card">
+    <div class="ic-body">
+      <div class="ic-role">Plataforma del curso</div>
+      <h3>Entra a tu aula de Moodle</h3>
+      <p>Ahí encontrarás las actividades día por día, el foro de avisos, el de dudas y tus insignias. Usa el usuario que te dio la escuela.</p>
+    </div>
+    <a class="contact-btn" href="https://bachillerato.universidaddescartes.edu.mx" target="_blank" rel="noopener">🎓 Ir a Moodle</a>
+  </div>
+</section>
+
+<footer>
+  <p>M.C. <span>José Luis López Saynes</span> · Universidad de Ciencia y Tecnología Descartes · UNAM clave 7948 · Ciclo 2026-2027-1</p>
+</footer>
+
+<script>
+/* ════════ HERO: símbolos matemáticos flotando ════════ */
+const hc = document.getElementById('heroCanvas'), hx = hc.getContext('2d');
+const SYMS = ['π','∑','√','∞','×','÷','%','=','θ','Δ','∫','½','x²','a²','≈','∠'];
+let parts = [], syms = [], t = 0;
+function initHero(){
+  const W = hc.offsetWidth || hc.clientWidth || window.innerWidth || 1000;
+  const H = hc.offsetHeight || hc.clientHeight || 420;
+  hc.width = W; hc.height = H;
+  parts = [];
+  const n = Math.max(14, Math.min(40, Math.floor(W/28)));
+  for(let i=0;i<n;i++) parts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.8+.4, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, a:Math.random()*.4+.1 });
+  syms = [];
+  const m = Math.max(9, Math.min(16, Math.floor(W/70)));
+  for(let i=0;i<m;i++) syms.push({
+    x:Math.random()*W, y:Math.random()*H,
+    vy:-(Math.random()*.25+.08), vx:(Math.random()-.5)*.12,
+    size:Math.random()*26+18, rot:Math.random()*Math.PI, vrot:(Math.random()-.5)*.004,
+    a:Math.random()*.10+.05, char:SYMS[Math.floor(Math.random()*SYMS.length)],
+    gold:Math.random()<.5
+  });
+}
+function drawHero(){
+  const W=hc.width, H=hc.height; hx.clearRect(0,0,W,H);
+  // partículas
+  parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    hx.beginPath(); hx.arc(p.x,p.y,p.r,0,Math.PI*2); hx.fillStyle='rgba(201,168,76,'+p.a+')'; hx.fill(); });
+  // símbolos flotando hacia arriba
+  syms.forEach(s=>{ s.y+=s.vy; s.x+=s.vx; s.rot+=s.vrot;
+    if(s.y< -40){ s.y=H+40; s.x=Math.random()*W; s.char=SYMS[Math.floor(Math.random()*SYMS.length)]; }
+    hx.save(); hx.translate(s.x,s.y); hx.rotate(s.rot);
+    hx.font='700 '+s.size+"px 'Playfair Display', serif"; hx.textAlign='center'; hx.textBaseline='middle';
+    hx.fillStyle = s.gold ? 'rgba(201,168,76,'+s.a+')' : 'rgba(255,255,255,'+s.a+')';
+    hx.fillText(s.char,0,0); hx.restore(); });
+  t+=0.01; requestAnimationFrame(drawHero);
+}
+window.addEventListener('resize', initHero);
+window.addEventListener('load', ()=>{ initHero(); drawHero(); });
+</script>
+</body>
+</html>
