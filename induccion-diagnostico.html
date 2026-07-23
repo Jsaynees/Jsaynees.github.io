@@ -42,8 +42,34 @@
   .foot{text-align:center;color:#9aa7ba;font-size:12px;margin:18px 0 6px;}
   .hidden{display:none;}
 </style>
+<!-- SITE-SHELL:START -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#112447">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("jsaynees-theme");
+    var preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", saved === "dark" || saved === "light" ? saved : preferred);
+  } catch (_) {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+})();
+</script>
+<link rel="stylesheet" href="assets/site-shell.css?v=20260723-1">
+<script src="assets/site-shell.js?v=20260723-1" defer></script>
+<!-- SITE-SHELL:END -->
 </head>
 <body>
+<!-- SITE-LOADER:START -->
+<div id="site-loader" role="status" aria-live="polite" aria-label="Cargando página">
+  <div class="site-loader__box">
+    <div class="site-loader__orbit" aria-hidden="true"></div>
+    <div class="site-loader__title">Preparando el contenido</div>
+    <div class="site-loader__text">Portal académico López Saynes</div>
+  </div>
+</div>
+<!-- SITE-LOADER:END -->
 <div class="app">
   <div class="hero">
     <div class="kick">🎓 CURSO DE INDUCCIÓN · CCH-UNAM DESCARTES</div>
