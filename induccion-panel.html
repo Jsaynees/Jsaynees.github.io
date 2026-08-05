@@ -148,6 +148,103 @@
     font-size: 12px;
   }
 
+  .report-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .report-toolbar.hidden { display: none; }
+
+  .report-toolbar-copy h2 { margin-bottom: 5px; }
+  .report-toolbar-copy p,
+  .coverage-note {
+    color: #6f7e91;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .report-controls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+
+  .filter-field label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--navy, #1B3A6B);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .filter-field select {
+    min-height: 39px;
+    padding: 0 31px 0 11px;
+    border: 1px solid #d8dfeb;
+    border-radius: 9px;
+    color: var(--navy, #1B3A6B);
+    background: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-report {
+    min-height: 39px;
+    padding: 0 15px;
+    background: var(--gold, #C9A84C);
+    color: var(--navy, #1B3A6B);
+  }
+
+  .comparison-legend {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0 10px;
+    color: #66758a;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    border-radius: 3px;
+  }
+
+  .comparison-row {
+    display: grid;
+    grid-template-columns: 125px minmax(170px, 1fr) 54px;
+    gap: 10px;
+    align-items: center;
+    margin: 11px 0;
+  }
+
+  .comparison-name {
+    color: var(--navy, #1B3A6B);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .comparison-bars { display: grid; gap: 4px; }
+  .comparison-bar { height: 9px; overflow: hidden; border-radius: 999px; background: #e7ebf2; }
+  .comparison-bar i { display: block; height: 100%; border-radius: inherit; }
+  .comparison-values { color: #617086; font-size: 11px; font-weight: 700; text-align: right; }
+
+  .print-report-head {
+    display: none;
+    margin: 0 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--gold, #C9A84C);
+  }
+
+  .print-report-head h1 { color: var(--navy, #1B3A6B); font-size: 23px; }
+  .print-report-head p { margin-top: 4px; color: #68778b; font-size: 12px; }
+
   @media (max-width: 620px) {
     .panel-card-head {
       align-items: stretch;
@@ -157,6 +254,34 @@
     .btn-export {
       width: 100%;
     }
+
+    .report-toolbar,
+    .report-controls { align-items: stretch; flex-direction: column; }
+    .report-controls { width: 100%; }
+    .filter-field,
+    .filter-field select,
+    .btn-report { width: 100%; }
+    .comparison-row { grid-template-columns: 95px minmax(120px,1fr) 48px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 12mm; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { padding: 0; background: #fff; }
+    .app { max-width: none; }
+    .portal-nav,
+    .hero,
+    footer,
+    .panel-login-card,
+    .report-toolbar,
+    .btn-export,
+    .scroll,
+    .coment { display: none !important; }
+    .print-report-head { display: block !important; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #dfe4ec; margin-top: 10px; padding: 15px; }
+    .tiles { grid-template-columns: repeat(4,1fr); gap: 8px; }
+    .tile { padding: 10px; }
+    .tile .n { font-size: 23px; }
   }
 </style>
 <!-- RESULTADOS-V5-STYLE:END -->
@@ -237,6 +362,38 @@
   </div>
 </div>
 
+<div class="print-report-head" id="print-report-head">
+  <h1>Curso de Inducción · Reporte visual de resultados</h1>
+  <p id="print-report-meta">Resumen estadístico</p>
+</div>
+
+<div class="card report-toolbar hidden" id="report-toolbar">
+  <div class="report-toolbar-copy">
+    <h2>Reporte visual</h2>
+    <p>Filtra por grupo y guarda las tarjetas y gráficas como PDF. Los listados individuales permanecen disponibles en CSV.</p>
+  </div>
+  <div class="report-controls">
+    <div class="filter-field">
+      <label for="group-filter">Grupo incluido</label>
+      <select id="group-filter">
+        <option value="">Todos los grupos</option>
+        <option value="1">Grupo 1</option>
+        <option value="2">Grupo 2</option>
+        <option value="3">Grupo 3</option>
+        <option value="4">Grupo 4</option>
+      </select>
+    </div>
+    <button class="btn btn-report" id="btn-report" type="button">Guardar reporte visual / PDF</button>
+  </div>
+</div>
+
+<div class="card hidden" id="c-comparison">
+  <h2>Comparación diagnóstico–final</h2>
+  <div class="tiles" id="comparison-tiles"></div>
+  <p class="coverage-note" id="comparison-note"></p>
+  <div id="comparison-blocks"></div>
+</div>
+
 <div class="card hidden" id="c-diag">
     <div class="panel-card-head">
     <h2>Diagnóstico</h2>
@@ -289,69 +446,140 @@ if($('url').value && $('token').value) $('btn-cargar').click();
 function num(x){ const n=parseFloat(x); return isNaN(n)?0:n; }
 function avg(a){ return a.length? a.reduce((s,x)=>s+x,0)/a.length : 0; }
 
+const NOMBRES_BLOQUE=['Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones'];
+
 function render(data){
-  
- datosPanel=data;
- if($('btn-csv-diag')) $('btn-csv-diag').disabled=!(data.Diagnostico&&data.Diagnostico.length);
- if($('btn-csv-final')) $('btn-csv-final').disabled=!(data.Final&&data.Final.length);
- if($('btn-csv-enc')) $('btn-csv-enc').disabled=!(data.Encuesta&&data.Encuesta.length);
-if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps Script.',true); return; }
+  if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps Script.',true); return; }
+  datosPanel=data;
+  $('btn-csv-diag').disabled=!(data.Diagnostico&&data.Diagnostico.length>1);
+  $('btn-csv-final').disabled=!(data.Final&&data.Final.length>1);
+  $('btn-csv-enc').disabled=!(data.Encuesta&&data.Encuesta.length>1);
+  $('report-toolbar').classList.remove('hidden');
   setStatus('Datos cargados ✓');
-  ['c-diag','c-final','c-enc'].forEach(id=>$(id).classList.add('hidden'));
-  // ---- DIAGNÓSTICO ----
-  const D=data.Diagnostico||[];
-  if(D.length>1){
-    $('c-diag').classList.remove('hidden');
-    const rows=D.slice(1);
-    const pct=rows.map(r=>num(r[5]));
-    const blocks=[6,7,8,9,10,11].map(ci=>Math.round(avg(rows.map(r=>num(r[ci])))));
-    const nombresB=['Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones'];
-    $('diag-tiles').innerHTML=
-      tile(rows.length,'alumnos')+tile(Math.round(avg(pct))+'%','promedio general')+
-      tile(Math.min.apply(0,pct)+'%','más bajo')+tile(Math.max.apply(0,pct)+'%','más alto');
-    $('diag-blocks').innerHTML='<h2 style="font-size:15px">Dominio promedio por bloque</h2>'+
-      blocks.map((p,i)=>bar(nombresB[i],p)).join('');
-    let html='<table><tr><th>Fecha</th><th>Nombre</th><th>Grupo</th><th>%</th>'+nombresB.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
-    rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td><b>'+r[5]+'%</b></td>'+
-      [6,7,8,9,10,11].map(ci=>'<td>'+r[ci]+'%</td>').join('')+'</tr>'; });
-    $('diag-table').innerHTML=html+'</table>';
+  renderFiltered();
+}
+
+function renderFiltered(){
+  if(!datosPanel) return;
+  const grupo=$('group-filter').value;
+  const diagRows=filtrarGrupo(datosPanel.Diagnostico,2,grupo);
+  const finalRows=filtrarGrupo(datosPanel.Final,3,grupo);
+  const encRows=filtrarGrupo(datosPanel.Encuesta,2,grupo);
+  ['c-comparison','c-diag','c-final','c-enc'].forEach(id=>$(id).classList.add('hidden'));
+  renderComparison(diagRows,finalRows);
+  renderDiagnostico(diagRows);
+  renderFinal(finalRows);
+  renderEncuesta(encRows);
+  updateReportMeta();
+}
+
+function filtrarGrupo(sheetRows,groupIndex,grupo){
+  const rows=Array.isArray(sheetRows)?sheetRows.slice(1):[];
+  return grupo?rows.filter(r=>String(r[groupIndex]||'')===grupo):rows;
+}
+
+function renderDiagnostico(rows){
+  if(!rows.length) return;
+  $('c-diag').classList.remove('hidden');
+  const pct=rows.map(r=>num(r[5]));
+  const blocks=[6,7,8,9,10,11].map(ci=>Math.round(avg(rows.map(r=>num(r[ci])))));
+  $('diag-tiles').innerHTML=
+    tile(rows.length,'alumnos')+tile(Math.round(avg(pct))+'%','promedio general')+
+    tile(Math.min.apply(null,pct)+'%','más bajo')+tile(Math.max.apply(null,pct)+'%','más alto');
+  $('diag-blocks').innerHTML='<h2 style="font-size:15px">Dominio promedio por bloque</h2>'+
+    blocks.map((p,i)=>bar(NOMBRES_BLOQUE[i],p)).join('');
+  let html='<table><tr><th>Fecha</th><th>Nombre</th><th>Grupo</th><th>%</th>'+NOMBRES_BLOQUE.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
+  rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td><b>'+num(r[5])+'%</b></td>'+
+    [6,7,8,9,10,11].map(ci=>'<td>'+num(r[ci])+'%</td>').join('')+'</tr>'; });
+  $('diag-table').innerHTML=html+'</table>';
+}
+
+function renderFinal(rows){
+  if(!rows.length) return;
+  $('c-final').classList.remove('hidden');
+  const pct=rows.map(r=>num(r[6]));
+  const blocks=[9,10,11,12,13,14].map(ci=>Math.round(avg(rows.map(r=>num(r[ci])))));
+  $('final-tiles').innerHTML=
+    tile(rows.length,'exámenes')+tile(Math.round(avg(pct))+'%','promedio general')+
+    tile(Math.min.apply(null,pct)+'%','más bajo')+tile(Math.max.apply(null,pct)+'%','más alto');
+  $('final-blocks').innerHTML='<h2 style="font-size:15px">Dominio promedio por bloque</h2>'+
+    blocks.map((p,i)=>bar(NOMBRES_BLOQUE[i],p)).join('');
+  let html='<table><tr><th>Fecha</th><th>Nombre</th><th>Grupo</th><th>Puntaje</th><th>Aciertos</th><th>Duración</th><th>Tiempo</th>'+NOMBRES_BLOQUE.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
+  rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td><b>'+num(r[4])+'/100</b></td><td>'+num(r[7])+'/'+num(r[8])+'</td><td>'+duracion(r[15])+'</td><td>'+esc(r[16])+'</td>'+
+    [9,10,11,12,13,14].map(ci=>'<td>'+num(r[ci])+'%</td>').join('')+'</tr>'; });
+  $('final-table').innerHTML=html+'</table>';
+}
+
+function renderEncuesta(rows){
+  if(!rows.length) return;
+  $('c-enc').classList.remove('hidden');
+  const util=rows.map(r=>num(r[3])).filter(x=>x>0);
+  const dificultad=cuenta(rows.map(r=>r[4]));
+  const prep=cuenta(rows.map(r=>r[6]));
+  const temas=cuenta(rows.flatMap(r=>String(r[5]||'').split(',').map(s=>s.trim()).filter(Boolean)));
+  $('enc-tiles').innerHTML=tile(rows.length,'respuestas')+tile(util.length?avg(util).toFixed(1)+' ★':'—','utilidad promedio');
+  let extra='<h2 style="font-size:15px">Dificultad percibida</h2>'+distro(dificultad,rows.length);
+  extra+='<h2 style="font-size:15px;margin-top:14px">¿Se sienten preparados?</h2>'+distro(prep,rows.length);
+  extra+='<h2 style="font-size:15px;margin-top:14px">Temas que más ayudaron</h2>'+distro(temas,rows.length);
+  const coments=rows.map(r=>r[7]).filter(c=>String(c).trim());
+  if(coments.length){ extra+='<h2 style="font-size:15px;margin-top:14px">Comentarios</h2>'+
+    coments.map(c=>'<div class="coment">'+esc(c)+'</div>').join(''); }
+  $('enc-extra').innerHTML=extra;
+}
+
+function renderComparison(diagRows,finalRows){
+  if(!diagRows.length && !finalRows.length) return;
+  $('c-comparison').classList.remove('hidden');
+  const diag=mapaAlumnos(diagRows,1,2);
+  const final=mapaAlumnos(finalRows,2,3);
+  const comunes=Array.from(diag.keys()).filter(k=>final.has(k));
+  const soloDiag=Array.from(diag.keys()).filter(k=>!final.has(k)).length;
+  const soloFinal=Array.from(final.keys()).filter(k=>!diag.has(k)).length;
+
+  if(!comunes.length){
+    $('comparison-tiles').innerHTML=tile(0,'alumnos comparables')+tile(soloDiag,'solo diagnóstico')+tile(soloFinal,'solo examen final');
+    $('comparison-note').textContent='No hay coincidencias de nombre y grupo entre ambos registros. El reporte conserva las estadísticas independientes sin intentar calcular una variación.';
+    $('comparison-blocks').innerHTML='';
+    return;
   }
-  // ---- EXAMEN FINAL ----
-  const F=data.Final||[];
-  if(F.length>1){
-    $('c-final').classList.remove('hidden');
-    const rows=F.slice(1);
-    const pct=rows.map(r=>num(r[6]));
-    const blocks=[9,10,11,12,13,14].map(ci=>Math.round(avg(rows.map(r=>num(r[ci])))));
-    const nombresB=['Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones'];
-    $('final-tiles').innerHTML=
-      tile(rows.length,'exámenes')+tile(Math.round(avg(pct))+'%','promedio general')+
-      tile(Math.min.apply(0,pct)+'%','más bajo')+tile(Math.max.apply(0,pct)+'%','más alto');
-    $('final-blocks').innerHTML='<h2 style="font-size:15px">Dominio promedio por bloque</h2>'+
-      blocks.map((p,i)=>bar(nombresB[i],p)).join('');
-    let html='<table><tr><th>Fecha</th><th>Nombre</th><th>Grupo</th><th>Puntaje</th><th>Aciertos</th><th>Duración</th><th>Tiempo</th>'+nombresB.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
-    rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td><b>'+num(r[4])+'/100</b></td><td>'+num(r[7])+'/'+num(r[8])+'</td><td>'+duracion(r[15])+'</td><td>'+esc(r[16])+'</td>'+
-      [9,10,11,12,13,14].map(ci=>'<td>'+num(r[ci])+'%</td>').join('')+'</tr>'; });
-    $('final-table').innerHTML=html+'</table>';
-  }
-  // ---- ENCUESTA ----
-  const E=data.Encuesta||[];
-  if(E.length>1){
-    $('c-enc').classList.remove('hidden');
-    const rows=E.slice(1);
-    const util=rows.map(r=>num(r[3])).filter(x=>x>0);
-    const dificultad=cuenta(rows.map(r=>r[4]));
-    const prep=cuenta(rows.map(r=>r[6]));
-    const temas=cuenta(rows.flatMap(r=>String(r[5]||'').split(',').map(s=>s.trim()).filter(Boolean)));
-    $('enc-tiles').innerHTML=tile(rows.length,'respuestas')+tile(avg(util).toFixed(1)+' ★','utilidad promedio');
-    let extra='<h2 style="font-size:15px">Dificultad percibida</h2>'+distro(dificultad,rows.length);
-    extra+='<h2 style="font-size:15px;margin-top:14px">¿Se sienten preparados?</h2>'+distro(prep,rows.length);
-    extra+='<h2 style="font-size:15px;margin-top:14px">Temas que más ayudaron</h2>'+distro(temas,rows.length);
-    const coments=rows.map(r=>r[7]).filter(c=>String(c).trim());
-    if(coments.length){ extra+='<h2 style="font-size:15px;margin-top:14px">Comentarios</h2>'+
-      coments.map(c=>'<div class="coment">'+esc(c)+'</div>').join(''); }
-    $('enc-extra').innerHTML=extra;
-  }
+
+  const pares=comunes.map(k=>({d:diag.get(k),f:final.get(k)}));
+  const promedioDiag=Math.round(avg(pares.map(p=>num(p.d[5]))));
+  const promedioFinal=Math.round(avg(pares.map(p=>num(p.f[6]))));
+  const cambio=promedioFinal-promedioDiag;
+  $('comparison-tiles').innerHTML=
+    tile(pares.length,'alumnos comparables')+tile(promedioDiag+'%','diagnóstico comparable')+
+    tile(promedioFinal+'%','final comparable')+tile((cambio>0?'+':'')+cambio+' pts','variación promedio');
+  $('comparison-note').textContent='La comparación usa únicamente alumnos cuyo nombre y grupo coinciden. '+soloDiag+' '+(soloDiag===1?'aparece':'aparecen')+' solo en diagnóstico y '+soloFinal+' '+(soloFinal===1?'aparece':'aparecen')+' solo en examen final; esos registros no generan error ni se incluyen en la variación.';
+
+  const diagBlocks=[6,7,8,9,10,11].map(ci=>Math.round(avg(pares.map(p=>num(p.d[ci])))));
+  const finalBlocks=[9,10,11,12,13,14].map(ci=>Math.round(avg(pares.map(p=>num(p.f[ci])))));
+  $('comparison-blocks').innerHTML=
+    '<div class="comparison-legend"><span><i class="legend-dot" style="background:#8ea6c8"></i>Diagnóstico</span><span><i class="legend-dot" style="background:#2e7d32"></i>Examen final</span></div>'+
+    NOMBRES_BLOQUE.map((nombre,i)=>comparisonBar(nombre,diagBlocks[i],finalBlocks[i])).join('');
+}
+
+function mapaAlumnos(rows,nameIndex,groupIndex){
+  const map=new Map();
+  rows.forEach(function(row){
+    const nombre=normalizarNombre(row[nameIndex]);
+    const grupo=String(row[groupIndex]||'').trim();
+    if(nombre && grupo) map.set(grupo+'|'+nombre,row);
+  });
+  return map;
+}
+
+function normalizarNombre(value){
+  let text=String(value||'').trim().toLowerCase();
+  if(text.normalize) text=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return text.replace(/[^a-z0-9ñ]+/g,' ').trim().replace(/\s+/g,' ');
+}
+
+function comparisonBar(nombre,diagnostico,final){
+  return '<div class="comparison-row"><div class="comparison-name">'+esc(nombre)+'</div><div class="comparison-bars">'+
+    '<div class="comparison-bar"><i style="width:'+diagnostico+'%;background:#8ea6c8"></i></div>'+
+    '<div class="comparison-bar"><i style="width:'+final+'%;background:#2e7d32"></i></div></div>'+
+    '<div class="comparison-values">'+diagnostico+'%<br>'+final+'%</div></div>';
 }
 function tile(n,l){ return '<div class="tile"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
 function bar(nm,p){ const col=p>=67?'#2e7d32':(p>=34?'#C9A84C':'#c0392b');
@@ -376,6 +604,28 @@ $('toggle-token').onclick=function(){
   input.type=visible?'password':'text';
   this.textContent=visible?'Mostrar':'Ocultar';
 };
+
+$('group-filter').onchange=renderFiltered;
+
+$('btn-report').onclick=function(){
+  if(!datosPanel) return;
+  const hasVisible=['c-comparison','c-diag','c-final','c-enc'].some(id=>!$(id).classList.contains('hidden'));
+  if(!hasVisible){
+    setStatus('No hay resultados para el grupo seleccionado.',true);
+    return;
+  }
+  updateReportMeta();
+  window.print();
+};
+
+function updateReportMeta(){
+  const grupo=$('group-filter').value;
+  const alcance=grupo?'Grupo '+grupo:'Todos los grupos';
+  const generado=new Date().toLocaleString('es-MX',{dateStyle:'long',timeStyle:'short'});
+  $('print-report-meta').textContent=alcance+' · Generado el '+generado;
+}
+
+window.addEventListener('beforeprint',updateReportMeta);
 
 $('btn-csv-diag').onclick=function(){
   if(!datosPanel) return;

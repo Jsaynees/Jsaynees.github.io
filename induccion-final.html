@@ -65,6 +65,7 @@
   .send-status{min-height:20px;margin-top:10px;color:var(--muted);font-size:13px;line-height:1.45;text-align:center;}
   .send-status.ok{color:#237a42;font-weight:600;}.send-status.error{color:#b33b2e;font-weight:600;}
   .result-score{text-align:center;color:var(--navy);font-size:48px;font-weight:850;}
+  .result-score.pending{font-size:30px;line-height:1.25;}
   .result-sub{text-align:center;color:var(--muted);margin:3px 0 18px;}
   .blockrow{display:grid;grid-template-columns:minmax(145px,1fr) minmax(120px,2fr) 58px;align-items:center;gap:10px;margin:10px 0;}
   .blockrow .nm{font-size:13px;font-weight:700;color:var(--navy);}
@@ -152,6 +153,7 @@
         <li>Tienes 60 minutos y no se permite calculadora.</li>
         <li>Escribe la respuesta final y muestra el procedimiento esencial.</li>
         <li>Tu avance se guarda en este dispositivo mientras contestas.</li>
+        <li>Al confirmar la entrega, tus respuestas se envían y califican automáticamente.</li>
         <li>Reserva los últimos 10 minutos para revisar.</li>
       </ul>
     </div>
@@ -185,7 +187,7 @@
     <div class="result-sub" id="result-sub">0 respuestas correctas de 15</div>
     <div id="result-blocks"></div>
     <div class="result-msg" id="result-msg"></div>
-    <div class="actions"><button class="btn gold" id="btn-enviar">Enviar resultado</button></div>
+    <div class="actions"><button class="btn gold hidden" id="btn-enviar">Reintentar entrega</button></div>
     <div class="send-status" id="final-envio" aria-live="polite"></div>
   </section>
 
@@ -194,6 +196,7 @@
 
 <script>
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
+const FINAL_VERSION = 'induccion-final-2026-v1';
 const DURATION_MS = 60*60*1000;
 const DRAFT_KEY = 'induccion_borrador_final';
 const PENDING_KEY = 'induccion_pendiente_final';
@@ -209,21 +212,21 @@ const SECTIONS = [
 ];
 
 const QUESTIONS = [
-  {id:'i1',section:0,label:'1',points:8,prompt:'−8 + 5(−3) − (−6) =',kind:'number',value:-17},
-  {id:'i2',section:0,label:'2',points:8,prompt:'20 − [3 − (7 − 12)] =',kind:'number',value:12},
-  {id:'ii1',section:1,label:'1',points:8,prompt:'<span class="frac"><span>2</span><span>3</span></span> + <span class="frac"><span>3</span><span>4</span></span> =',kind:'number',value:17/12,hint:'Puedes responder como fracción simplificada o decimal.'},
-  {id:'ii2',section:1,label:'2',points:8,prompt:'<span class="frac"><span>9</span><span>10</span></span> ÷ <span class="frac"><span>3</span><span>5</span></span> =',kind:'number',value:3/2,hint:'Puedes responder como fracción simplificada o decimal.'},
-  {id:'iii1',section:2,label:'1',points:8,prompt:'Una mochila cuesta $850 y tiene 15 % de descuento. ¿Cuál es el precio final?',kind:'number',value:722.5,hint:'Escribe el precio final.'},
-  {id:'iii2',section:2,label:'2',points:8,prompt:'Si 4 cuadernos cuestan $92, ¿cuánto cuestan 7 cuadernos?',kind:'number',value:161,hint:'Escribe el costo total.'},
-  {id:'iv1',section:3,label:'1',points:8,prompt:'Simplifica: <span class="frac"><span>2<sup>5</sup> · 2<sup>3</sup></span><span>2<sup>4</sup></span></span> =',kind:'number',value:16},
-  {id:'iv2a',section:3,label:'2 a)',points:4,prompt:'√144 + ∛27 =',kind:'number',value:15},
+  {id:'i1',section:0,label:'1',points:8,prompt:'−8 + 5(−3) − (−6) =',kind:'number'},
+  {id:'i2',section:0,label:'2',points:8,prompt:'20 − [3 − (7 − 12)] =',kind:'number'},
+  {id:'ii1',section:1,label:'1',points:8,prompt:'<span class="frac"><span>2</span><span>3</span></span> + <span class="frac"><span>3</span><span>4</span></span> =',kind:'number',hint:'Puedes responder como fracción simplificada o decimal.'},
+  {id:'ii2',section:1,label:'2',points:8,prompt:'<span class="frac"><span>9</span><span>10</span></span> ÷ <span class="frac"><span>3</span><span>5</span></span> =',kind:'number',hint:'Puedes responder como fracción simplificada o decimal.'},
+  {id:'iii1',section:2,label:'1',points:8,prompt:'Una mochila cuesta $850 y tiene 15 % de descuento. ¿Cuál es el precio final?',kind:'number',hint:'Escribe el precio final.'},
+  {id:'iii2',section:2,label:'2',points:8,prompt:'Si 4 cuadernos cuestan $92, ¿cuánto cuestan 7 cuadernos?',kind:'number',hint:'Escribe el costo total.'},
+  {id:'iv1',section:3,label:'1',points:8,prompt:'Simplifica: <span class="frac"><span>2<sup>5</sup> · 2<sup>3</sup></span><span>2<sup>4</sup></span></span> =',kind:'number'},
+  {id:'iv2a',section:3,label:'2 a)',points:4,prompt:'√144 + ∛27 =',kind:'number'},
   {id:'iv2b',section:3,label:'2 b)',points:4,prompt:'Escribe en notación científica: 0.00042 =',kind:'scientific',hint:'Usa el teclado matemático: coeficiente, ×10ⁿ y exponente.'},
   {id:'v1',section:4,label:'1',points:8,prompt:'Traduce usando x: “el cuadrado de la mitad de un número”.',kind:'expression',hint:'Usa los botones x, x², paréntesis y fracción del teclado matemático.'},
-  {id:'v2',section:4,label:'2',points:8,prompt:'Evalúa 3x<sup>2</sup> − 5x + 2 cuando x = 2.',kind:'number',value:4},
-  {id:'vi1',section:5,label:'1',points:5,prompt:'3x − 7 = 11',kind:'number',value:6,hint:'Escribe el valor de x.'},
-  {id:'vi2',section:5,label:'2',points:5,prompt:'5x + 4 = 2x − 8',kind:'number',value:-4,hint:'Escribe el valor de x.'},
-  {id:'vi3',section:5,label:'3',points:5,prompt:'2(x − 3) = x + 5',kind:'number',value:11,hint:'Escribe el valor de x.'},
-  {id:'vi4',section:5,label:'4',points:5,prompt:'<strong>Problema.</strong> El triple de un número, más 5, es igual a 23. ¿Cuál es el número?',kind:'number',value:6}
+  {id:'v2',section:4,label:'2',points:8,prompt:'Evalúa 3x<sup>2</sup> − 5x + 2 cuando x = 2.',kind:'number'},
+  {id:'vi1',section:5,label:'1',points:5,prompt:'3x − 7 = 11',kind:'number',hint:'Escribe el valor de x.'},
+  {id:'vi2',section:5,label:'2',points:5,prompt:'5x + 4 = 2x − 8',kind:'number',hint:'Escribe el valor de x.'},
+  {id:'vi3',section:5,label:'3',points:5,prompt:'2(x − 3) = x + 5',kind:'number',hint:'Escribe el valor de x.'},
+  {id:'vi4',section:5,label:'4',points:5,prompt:'<strong>Problema.</strong> El triple de un número, más 5, es igual a 23. ¿Cuál es el número?',kind:'number'}
 ];
 
 let state={nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{}};
@@ -232,6 +235,7 @@ let payloadFinal=null;
 let deliveryConfirmation=false;
 let deliveryConfirmationTimer=0;
 let activeAnswerInput=null;
+let submittingFinal=false;
 const TOUCH_KEYPAD=window.matchMedia('(pointer:coarse)').matches;
 
 function show(id){
@@ -481,80 +485,70 @@ function resetDeliveryConfirmation(){
 }
 
 function finishExam(expired){
+  if(submittingFinal) return;
   clearInterval(timerId);
-  const blockScores=SECTIONS.map(()=>0);
-  const blockCorrect=SECTIONS.map(()=>0);
-  let score=0;
-  let correct=0;
-  const detail=QUESTIONS.map(function(q,index){
-    const answer=String(state.answers[q.id]||'').trim();
-    const ok=isCorrect(q,answer);
-    if(ok){ score+=q.points; correct++; blockScores[q.section]+=q.points; blockCorrect[q.section]++; }
-    return {reactivo:index+1,id:q.id,respuesta:answer,procedimiento:String(state.procedures[q.id]||'').trim(),correcta:ok,puntos:ok?q.points:0};
-  });
-  const blockPct=SECTIONS.map((section,i)=>Math.round(blockScores[i]/section.points*100));
   const durationSeconds=Math.min(Math.round((Date.now()-state.startedAt)/1000),DURATION_MS/1000);
-
-  $('result-score').textContent=score+' / 100';
-  $('result-sub').textContent=correct+' respuestas correctas de '+QUESTIONS.length+(expired?' · Tiempo agotado':'');
-  $('result-blocks').innerHTML=SECTIONS.map(function(section,i){
-    const pct=blockPct[i];
-    const color=pct>=70?'#2e7d32':(pct>=40?'#C9A84C':'#c0392b');
-    return '<div class="blockrow"><div class="nm">'+shortTitle(section.title)+'</div><div class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></div><div class="pc" style="color:'+color+'">'+blockScores[i]+'/'+section.points+'</div></div>';
-  }).join('');
-  $('result-msg').textContent=score>=70
-    ? 'Buen trabajo. Revisa los bloques con menor puntaje para llegar aún mejor preparado al semestre.'
-    : 'Este resultado muestra exactamente qué temas conviene reforzar. Lo importante es usarlo como punto de partida.';
-
   payloadFinal={
-    tipo:'final',submissionId:state.submissionId,nombre:state.nombre,grupo:state.grupo,puntaje:score,total:100,pct:score,
-    aciertos:correct,totalReactivos:QUESTIONS.length,b1:blockPct[0],b2:blockPct[1],b3:blockPct[2],b4:blockPct[3],b5:blockPct[4],b6:blockPct[5],
-    duracionSegundos:durationSeconds,tiempoAgotado:expired,detalle:JSON.stringify(detail),fechaCliente:new Date().toISOString()
+    tipo:'final',versionExamen:FINAL_VERSION,submissionId:state.submissionId,
+    nombre:state.nombre,grupo:state.grupo,respuestas:{},procedimientos:{},
+    duracionSegundos:durationSeconds,tiempoAgotado:expired,fechaCliente:new Date().toISOString()
   };
-  detail.forEach(function(item,index){
-    payloadFinal['r'+(index+1)]=item.respuesta;
-    payloadFinal['p'+(index+1)]=item.procedimiento;
+  QUESTIONS.forEach(function(q){
+    payloadFinal.respuestas[q.id]=String(state.answers[q.id]||'').trim();
+    payloadFinal.procedimientos[q.id]=String(state.procedures[q.id]||'').trim();
   });
+  showPendingResult(expired);
+  submitFinalPayload(payloadFinal);
+}
+
+function showPendingResult(expired){
+  $('result-score').classList.add('pending');
+  $('result-score').textContent='Entregando y calificando…';
+  $('result-sub').textContent=expired
+    ? 'El tiempo terminó. Estamos enviando tus respuestas.'
+    : 'Estamos enviando tus respuestas de forma automática.';
+  $('result-blocks').innerHTML='';
+  $('result-msg').textContent='No cierres esta pestaña hasta recibir la confirmación del servidor.';
+  $('btn-enviar').classList.add('hidden');
+  $('btn-enviar').disabled=false;
+  $('final-envio').className='send-status';
+  $('final-envio').textContent='Guardando el examen en el registro del curso…';
   show('scr-resultado');
   window.scrollTo(0,0);
 }
 
-function parseNumber(value){
-  let text=String(value||'').trim().toLowerCase().replace(/−/g,'-').replace(/,/g,'.').replace(/\$/g,'');
-  text=text.replace(/\b(pesos?|mxn|kg)\b/g,'').trim();
-  text=text.replace(/^x\s*=\s*/,'');
-  const mixed=text.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
-  if(mixed){
-    const whole=Number(mixed[1]),num=Number(mixed[2]),den=Number(mixed[3]);
-    if(!den) return NaN;
-    return whole<0?whole-num/den:whole+num/den;
-  }
-  const fraction=text.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)$/);
-  if(fraction){
-    const den=Number(fraction[2]);
-    return den?Number(fraction[1])/den:NaN;
-  }
-  return /^-?\d+(?:\.\d+)?$/.test(text)?Number(text):NaN;
+function renderServerResult(result,expired){
+  const blocks=Array.isArray(result.bloques)?result.bloques:[];
+  $('result-score').classList.remove('pending');
+  $('result-score').textContent=Number(result.puntaje||0)+' / '+Number(result.total||100);
+  $('result-sub').textContent=Number(result.aciertos||0)+' respuestas correctas de '+Number(result.totalReactivos||QUESTIONS.length)+(expired?' · Tiempo agotado':'');
+  $('result-blocks').innerHTML=SECTIONS.map(function(section,i){
+    const block=blocks[i]||{puntos:0,total:section.points,pct:0};
+    const pct=Math.max(0,Math.min(100,Number(block.pct)||0));
+    const color=pct>=70?'#2e7d32':(pct>=40?'#C9A84C':'#c0392b');
+    return '<div class="blockrow"><div class="nm">'+shortTitle(section.title)+'</div><div class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></div><div class="pc" style="color:'+color+'">'+Number(block.puntos||0)+'/'+Number(block.total||section.points)+'</div></div>';
+  }).join('');
+  $('result-msg').textContent=Number(result.puntaje||0)>=70
+    ? 'Buen trabajo. Revisa los bloques con menor puntaje para llegar aún mejor preparado al semestre.'
+    : 'Este resultado muestra exactamente qué temas conviene reforzar. Lo importante es usarlo como punto de partida.';
+  $('btn-enviar').classList.add('hidden');
+  $('final-envio').className='send-status ok';
+  $('final-envio').textContent='Tu examen fue calificado y guardado correctamente. Ya puedes cerrar esta pestaña.';
 }
 
-function isCorrect(q,answer){
-  if(!answer) return false;
-  if(q.kind==='number'){
-    const value=parseNumber(answer);
-    return Number.isFinite(value) && Math.abs(value-q.value)<1e-6;
-  }
-  if(q.kind==='scientific'){
-    let text=answer.toLowerCase().replace(/,/g,'.').replace(/[×·*]/g,'x').replace(/\s+/g,'');
-    text=text.replace(/⁻/g,'-').replace(/⁰/g,'0').replace(/¹/g,'1').replace(/²/g,'2').replace(/³/g,'3').replace(/⁴/g,'4').replace(/⁵/g,'5').replace(/⁶/g,'6').replace(/⁷/g,'7').replace(/⁸/g,'8').replace(/⁹/g,'9');
-    text=text.replace(/[()]/g,'').replace('10^','10');
-    return /^(4\.2e-4|4\.2x10-4)$/.test(text);
-  }
-  if(q.kind==='expression'){
-    let text=answer.toLowerCase().replace(/²/g,'^2').replace(/[·*]/g,'').replace(/\s+/g,'');
-    text=text.replace(/^y=/,'').replace(/^r=/,'');
-    return new Set(['(x/2)^2','x^2/4','(x^2)/4','1/4x^2','x^2÷4','(1/2x)^2','(0.5x)^2','x^2/2^2','x^2/(2^2)']).has(text);
-  }
-  return false;
+function showPendingFailure(){
+  $('result-score').classList.add('pending');
+  $('result-score').textContent='Entrega pendiente';
+  $('result-sub').textContent='Tus respuestas permanecen guardadas en este dispositivo.';
+  $('result-blocks').innerHTML='';
+  $('result-msg').textContent=navigator.onLine
+    ? 'El servidor aún no confirmó la entrega. Puedes reintentar ahora sin duplicar el examen.'
+    : 'No hay conexión. La página volverá a intentarlo automáticamente cuando regrese internet.';
+  $('btn-enviar').classList.remove('hidden');
+  $('btn-enviar').disabled=false;
+  $('btn-enviar').textContent='Reintentar entrega';
+  $('final-envio').className='send-status error';
+  $('final-envio').textContent='El examen todavía no aparece como guardado en el registro del curso.';
 }
 
 function shortTitle(title){ return title.replace(/^[IVX]+\.\s*/,'').replace(' con enteros y jerarquía de operaciones',' y jerarquía').replace(', razones y proporciones','').replace(', raíces y notación científica',' y raíces').replace(' de primer grado',''); }
@@ -565,29 +559,30 @@ function createSubmissionId(){
   return 'final-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
 }
 
-$('btn-enviar').onclick=async function(){
+$('btn-enviar').onclick=function(){
+  if(payloadFinal) submitFinalPayload(payloadFinal);
+};
+
+async function submitFinalPayload(payload){
+  if(submittingFinal) return;
+  submittingFinal=true;
   const btn=$('btn-enviar');
-  const status=$('final-envio');
   btn.disabled=true;
   btn.textContent='Enviando…';
-  status.className='send-status';
-  status.textContent='Enviando tu resultado. No cierres esta pestaña todavía.';
+  $('final-envio').className='send-status';
+  $('final-envio').textContent='Guardando el examen en el registro del curso…';
   try{
-    await enviar(payloadFinal);
-    btn.textContent='Resultado enviado ✓';
-    status.className='send-status ok';
-    status.textContent='Tu examen fue enviado al registro del curso. Ya puedes cerrar esta pestaña.';
-    if(window.PortalUI) PortalUI.notify('Examen final enviado correctamente.','success',3200);
+    const response=await enviar(payload);
+    renderServerResult(response.resultado,Boolean(payload.tiempoAgotado));
+    if(window.PortalUI) PortalUI.notify('Examen final calificado y guardado correctamente.','success',3600);
   }catch(error){
-    btn.disabled=false;
-    btn.textContent='Reintentar envío';
-    status.className='send-status error';
-    status.textContent=navigator.onLine
-      ? 'No se pudo completar el envío. Presiona “Reintentar envío”.'
-      : 'No hay conexión. Tu examen quedó guardado en este dispositivo para reintentarlo.';
-    if(window.PortalUI) PortalUI.notify(status.textContent,'error',0,'Envío pendiente');
+    showPendingFailure();
+    if(window.PortalUI) PortalUI.notify('Tu entrega quedó guardada para reintentarse.','error',0,'Entrega pendiente');
+    console.warn('[examen final] entrega pendiente',error);
+  }finally{
+    submittingFinal=false;
   }
-};
+}
 
 async function enviar(payload){
   if(!payload) throw new Error('No hay examen final para enviar.');
@@ -604,9 +599,12 @@ async function enviar(payload){
   if(!result || result.ok!==true){
     throw new Error(result && result.error ? result.error : 'El servidor no confirmó el guardado.');
   }
+  if(!result.resultado || !Array.isArray(result.resultado.bloques)){
+    throw new Error('El servidor debe actualizarse a la versión con calificación privada.');
+  }
   localStorage.removeItem(PENDING_KEY);
   localStorage.removeItem(DRAFT_KEY);
-  return true;
+  return result;
 }
 
 function archivar_(payload){
@@ -620,15 +618,32 @@ function archivar_(payload){
 
 async function retryPendingFinal(){
   const raw=localStorage.getItem(PENDING_KEY);
-  if(!raw || !navigator.onLine) return;
+  if(!raw || !navigator.onLine || submittingFinal) return;
   try{
-    await enviar(JSON.parse(raw));
-    if(window.PortalUI) PortalUI.notify('Se envió un examen final que había quedado pendiente.','success',4200);
-  }catch(error){ console.warn('[examen final] el envío continúa pendiente',error); }
+    payloadFinal=JSON.parse(raw);
+    showPendingResult(Boolean(payloadFinal.tiempoAgotado));
+    await submitFinalPayload(payloadFinal);
+  }catch(error){
+    showPendingFailure();
+    console.warn('[examen final] el envío continúa pendiente',error);
+  }
+}
+
+function preparePendingFinal(){
+  const raw=localStorage.getItem(PENDING_KEY);
+  if(!raw) return false;
+  try{
+    payloadFinal=JSON.parse(raw);
+    showPendingResult(Boolean(payloadFinal.tiempoAgotado));
+    return true;
+  }catch(error){
+    console.warn('[examen final] no se pudo leer la entrega pendiente',error);
+    return false;
+  }
 }
 
 window.addEventListener('online',retryPendingFinal);
-prepareDraft();
+if(!preparePendingFinal()) prepareDraft();
 setTimeout(retryPendingFinal,900);
 </script>
 </body>
