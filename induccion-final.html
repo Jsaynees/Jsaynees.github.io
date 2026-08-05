@@ -42,10 +42,23 @@
   .question-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;}
   .question-text{font-size:17px;font-weight:600;line-height:1.5;}
   .points{white-space:nowrap;color:#8a6b17;background:#fff8df;border:1px solid #ead99f;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;}
-  .answer-row{margin-top:13px;max-width:420px;}
+  .answer-row{margin-top:13px;max-width:520px;}
   .answer-row label,.procedure label{font-size:13px;}
   .procedure{margin-top:12px;}
   .hint{margin-top:5px;color:#8a96a8;font-size:12px;}
+  .math-keypad{margin-top:10px;padding:11px;border:1px solid #d7dfec;border-radius:12px;background:#f7f9fc;box-shadow:0 5px 16px rgba(27,58,107,.08);}
+  .math-keypad[hidden]{display:none;}
+  .math-keypad-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:9px;}
+  .math-keypad-title{color:var(--navy);font-size:13px;font-weight:800;}
+  .math-keypad-guide{display:block;margin-top:2px;color:#7d899a;font-size:11.5px;font-weight:400;line-height:1.35;}
+  .math-keypad-close{cursor:pointer;border:0;background:transparent;color:#68778b;font-family:inherit;font-size:12px;font-weight:700;padding:3px 4px;}
+  .math-keypad-grid{display:grid;grid-template-columns:repeat(4,minmax(48px,1fr));gap:7px;}
+  .math-key{cursor:pointer;min-height:44px;border:1px solid #d7dfec;border-radius:9px;background:#fff;color:var(--navy);font-family:inherit;font-size:18px;font-weight:750;box-shadow:0 1px 2px rgba(27,58,107,.06);touch-action:manipulation;}
+  .math-key:hover{border-color:var(--gold);background:#fffdf7;}
+  .math-key:active{transform:translateY(1px);background:#f7efd4;}
+  .math-key.symbol{background:#eef3fb;}
+  .math-key.action{color:#56657a;background:#edf0f5;font-size:14px;}
+  .math-key.wide{grid-column:span 2;}
   .frac{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;line-height:1.05;margin:0 .15em;}
   .frac span:first-child{border-bottom:1px solid currentColor;padding:0 .15em .08em;}
   .frac span:last-child{padding:.08em .15em 0;}
@@ -64,6 +77,7 @@
     body{padding:10px;}.hero{padding:22px 18px}.hero h1{font-size:23px}.card{padding:17px}.identity{grid-template-columns:1fr}
     .exam-toolbar{top:66px;padding:12px}.section-head{font-size:15px}.question{padding:16px 14px}.question-top{display:block}.points{display:inline-block;margin-top:8px}
     .blockrow{grid-template-columns:112px 1fr 48px}.exam-meta{display:block}.exam-meta span{display:block;margin-top:3px}
+    .math-key{min-height:48px;font-size:19px}.math-keypad{padding:10px}.answer-row{max-width:none}
   }
 </style>
 
@@ -203,8 +217,8 @@ const QUESTIONS = [
   {id:'iii2',section:2,label:'2',points:8,prompt:'Si 4 cuadernos cuestan $92, ¿cuánto cuestan 7 cuadernos?',kind:'number',value:161,hint:'Escribe el costo total.'},
   {id:'iv1',section:3,label:'1',points:8,prompt:'Simplifica: <span class="frac"><span>2<sup>5</sup> · 2<sup>3</sup></span><span>2<sup>4</sup></span></span> =',kind:'number',value:16},
   {id:'iv2a',section:3,label:'2 a)',points:4,prompt:'√144 + ∛27 =',kind:'number',value:15},
-  {id:'iv2b',section:3,label:'2 b)',points:4,prompt:'Escribe en notación científica: 0.00042 =',kind:'scientific',hint:'Ejemplo de formato: 4.2 × 10^-4'},
-  {id:'v1',section:4,label:'1',points:8,prompt:'Traduce usando x: “el cuadrado de la mitad de un número”.',kind:'expression',hint:'Usa ^2 para indicar el cuadrado si lo necesitas.'},
+  {id:'iv2b',section:3,label:'2 b)',points:4,prompt:'Escribe en notación científica: 0.00042 =',kind:'scientific',hint:'Usa el teclado matemático: coeficiente, ×10ⁿ y exponente.'},
+  {id:'v1',section:4,label:'1',points:8,prompt:'Traduce usando x: “el cuadrado de la mitad de un número”.',kind:'expression',hint:'Usa los botones x, x², paréntesis y fracción del teclado matemático.'},
   {id:'v2',section:4,label:'2',points:8,prompt:'Evalúa 3x<sup>2</sup> − 5x + 2 cuando x = 2.',kind:'number',value:4},
   {id:'vi1',section:5,label:'1',points:5,prompt:'3x − 7 = 11',kind:'number',value:6,hint:'Escribe el valor de x.'},
   {id:'vi2',section:5,label:'2',points:5,prompt:'5x + 4 = 2x − 8',kind:'number',value:-4,hint:'Escribe el valor de x.'},
@@ -217,6 +231,8 @@ let timerId=0;
 let payloadFinal=null;
 let deliveryConfirmation=false;
 let deliveryConfirmationTimer=0;
+let activeAnswerInput=null;
+const TOUCH_KEYPAD=window.matchMedia('(pointer:coarse)').matches;
 
 function show(id){
   ['scr-inicio','scr-examen','scr-resultado'].forEach(function(screen){
@@ -298,7 +314,7 @@ function renderQuestions(){
       wrap.className='question';
       wrap.innerHTML=
         '<div class="question-top"><div class="question-text">'+q.label+'. '+q.prompt+'</div><span class="points">'+q.points+' pts</span></div>'+
-        '<div class="answer-row"><label for="answer-'+q.id+'">Respuesta final</label><input type="text" id="answer-'+q.id+'" data-answer="'+q.id+'" autocomplete="off" inputmode="text" maxlength="80" value="'+escAttr(state.answers[q.id]||'')+'">'+
+        '<div class="answer-row"><label for="answer-'+q.id+'">Respuesta final</label><input type="text" id="answer-'+q.id+'" data-answer="'+q.id+'" data-kind="'+q.kind+'" autocomplete="off" inputmode="'+(TOUCH_KEYPAD?'none':(q.kind==='number'?'decimal':'text'))+'" maxlength="80" value="'+escAttr(state.answers[q.id]||'')+'">'+
         (q.hint?'<div class="hint">'+q.hint+'</div>':'')+'</div>'+
         '<div class="procedure"><label for="procedure-'+q.id+'">Procedimiento esencial</label><textarea id="procedure-'+q.id+'" data-procedure="'+q.id+'" maxlength="1000" placeholder="Escribe aquí tus operaciones o razonamiento…">'+escHtml(state.procedures[q.id]||'')+'</textarea></div>';
       card.appendChild(wrap);
@@ -308,11 +324,111 @@ function renderQuestions(){
 
   host.querySelectorAll('[data-answer]').forEach(function(input){
     input.addEventListener('input',function(){ state.answers[this.dataset.answer]=this.value; saveDraft(); updateProgress(); });
+    input.addEventListener('focus',function(){ showMathKeypad(this); });
+    input.addEventListener('click',function(){ showMathKeypad(this); });
   });
   host.querySelectorAll('[data-procedure]').forEach(function(input){
     input.addEventListener('input',function(){ state.procedures[this.dataset.procedure]=this.value; saveDraft(); });
   });
   updateProgress();
+}
+
+function showMathKeypad(input){
+  activeAnswerInput=input;
+  const row=input.closest('.answer-row');
+  let keypad=$('math-keypad');
+  if(!keypad){
+    keypad=document.createElement('div');
+    keypad.id='math-keypad';
+    keypad.className='math-keypad';
+    keypad.setAttribute('role','group');
+    keypad.setAttribute('aria-label','Teclado matemático');
+  }
+  row.appendChild(keypad);
+  keypad.hidden=false;
+  renderMathKeys(keypad,input.dataset.kind||'number');
+}
+
+function renderMathKeys(keypad,kind){
+  const layouts={
+    number:{
+      guide:'Números, decimal, signo negativo o fracción.',
+      keys:[
+        key_('7'),key_('8'),key_('9'),key_('−','−','symbol'),
+        key_('4'),key_('5'),key_('6'),key_('.'),
+        key_('1'),key_('2'),key_('3'),key_('a/b','/','symbol','Fracción'),
+        key_('0'),actionKey_('⌫','backspace','Retroceso'),actionKey_('Borrar','clear','Borrar respuesta',true)
+      ]
+    },
+    scientific:{
+      guide:'Coeficiente, ×10ⁿ y después el exponente.',
+      keys:[
+        key_('7'),key_('8'),key_('9'),key_('.'),
+        key_('4'),key_('5'),key_('6'),key_('−','−','symbol','Signo negativo'),
+        key_('1'),key_('2'),key_('3'),key_('×10ⁿ','×10','symbol','Por diez elevado a'),
+        key_('0'),key_('⁻','⁻','symbol','Signo negativo del exponente'),key_('⁰'),key_('¹'),
+        key_('²'),key_('³'),key_('⁴'),key_('⁵'),
+        key_('⁶'),key_('⁷'),key_('⁸'),key_('⁹'),
+        actionKey_('⌫','backspace','Retroceso',true),actionKey_('Borrar','clear','Borrar respuesta',true)
+      ]
+    },
+    expression:{
+      guide:'Construye la expresión con x, fracción y cuadrado.',
+      keys:[
+        key_('x'),key_('x²'),key_('(',undefined,'symbol'),key_(')',undefined,'symbol'),
+        key_('7'),key_('8'),key_('9'),key_('a/b','/','symbol','Fracción'),
+        key_('4'),key_('5'),key_('6'),key_('×','×','symbol','Multiplicación'),
+        key_('1'),key_('2'),key_('3'),key_('−','−','symbol','Signo negativo'),
+        key_('0'),key_('+','+','symbol'),key_('□²','²','symbol','Elevar al cuadrado'),actionKey_('⌫','backspace','Retroceso'),
+        actionKey_('Borrar','clear','Borrar respuesta',true)
+      ]
+    }
+  };
+  const layout=layouts[kind]||layouts.number;
+  keypad.innerHTML=
+    '<div class="math-keypad-head"><div class="math-keypad-title">Teclado matemático<span class="math-keypad-guide">'+layout.guide+'</span></div>'+
+    '<button type="button" class="math-keypad-close" aria-label="Ocultar teclado matemático">Ocultar</button></div>'+
+    '<div class="math-keypad-grid">'+layout.keys.map(mathKeyHtml_).join('')+'</div>';
+
+  keypad.querySelector('.math-keypad-close').onclick=function(){ keypad.hidden=true; activeAnswerInput=null; };
+  keypad.querySelectorAll('.math-key').forEach(function(button){
+    button.addEventListener('mousedown',function(event){ event.preventDefault(); });
+    button.onclick=function(){ applyMathKey(this.dataset.value||'',this.dataset.action||''); };
+  });
+}
+
+function key_(label,value,className,ariaLabel){
+  return {label:label,value:value===undefined?label:value,className:className||'',ariaLabel:ariaLabel||label};
+}
+
+function actionKey_(label,action,ariaLabel,wide){
+  return {label:label,action:action,className:'action'+(wide?' wide':''),ariaLabel:ariaLabel||label};
+}
+
+function mathKeyHtml_(key){
+  return '<button type="button" class="math-key '+key.className+'" aria-label="'+escAttr(key.ariaLabel)+'"'+
+    (key.action?' data-action="'+key.action+'"':' data-value="'+escAttr(key.value)+'"')+'>'+key.label+'</button>';
+}
+
+function applyMathKey(value,action){
+  const input=activeAnswerInput;
+  if(!input) return;
+  const start=input.selectionStart==null?input.value.length:input.selectionStart;
+  const end=input.selectionEnd==null?input.value.length:input.selectionEnd;
+  if(action==='clear'){
+    input.value='';
+    input.setSelectionRange(0,0);
+  }else if(action==='backspace'){
+    const from=start!==end?start:Math.max(0,start-1);
+    input.value=input.value.slice(0,from)+input.value.slice(end);
+    input.setSelectionRange(from,from);
+  }else{
+    input.value=input.value.slice(0,start)+value+input.value.slice(end);
+    const cursor=start+value.length;
+    input.setSelectionRange(cursor,cursor);
+  }
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.focus({preventScroll:true});
 }
 
 function updateProgress(){
