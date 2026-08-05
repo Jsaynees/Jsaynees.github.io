@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Final · Curso de Inducción · Matemáticas</title>
+<style>
+  :root{--navy:#1B3A6B;--navy2:#274a83;--gold:#C9A84C;--ink:#22303f;--muted:#6e7d91;--bg:#eef1f7;--ok:#2e7d32;--no:#c0392b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;padding:16px;}
+  .app{max-width:860px;margin:0 auto;}
+  .hero{background:linear-gradient(135deg,#132749,#274a83);color:#fff;border-radius:16px;padding:26px;box-shadow:0 6px 18px rgba(27,58,107,.3);}
+  .hero .kick{color:var(--gold);font-size:13px;letter-spacing:2px;font-weight:bold;}
+  .hero h1{font-size:27px;margin:6px 0;}
+  .hero p{color:#dbe6f7;font-size:15px;line-height:1.5;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);padding:22px;margin-top:16px;}
+  .identity{display:grid;grid-template-columns:2fr 1fr;gap:14px;}
+  label{display:block;font-weight:700;color:var(--navy);margin:0 0 6px;font-size:15px;}
+  input[type=text],select,textarea{width:100%;padding:11px 13px;border:2px solid #d5dced;border-radius:10px;background:#fff;color:var(--ink);font-size:16px;font-family:inherit;}
+  input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.14);}
+  textarea{min-height:82px;resize:vertical;line-height:1.45;}
+  .rules{margin:18px 0 0;padding:15px 17px;border-left:4px solid var(--gold);border-radius:9px;background:#f8fafc;color:#536276;line-height:1.6;}
+  .rules strong{color:var(--navy);}
+  .rules ul{margin:7px 0 0 20px;}
+  .privacy{margin-top:14px;color:var(--muted);font-size:12.5px;line-height:1.5;}
+  .actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .btn{cursor:pointer;font-family:inherit;font-weight:bold;font-size:16px;border:none;border-radius:10px;padding:13px 22px;background:var(--navy);color:#fff;transition:transform .05s,background .15s;}
+  .btn:hover{background:var(--navy2);}.btn:active{transform:translateY(1px);}.btn:disabled{opacity:.52;cursor:not-allowed;}
+  .btn.gold{background:var(--gold);color:var(--navy);}.btn.ghost{background:#eef1f7;color:var(--navy);}
+  .draft-note{display:none;margin-top:14px;padding:11px 13px;border:1px solid #d9e3f2;border-radius:9px;background:#f4f8fe;color:var(--navy);font-size:13px;line-height:1.5;}
+  .exam-toolbar{position:sticky;top:76px;z-index:8;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 18px;border:1px solid #dbe2ed;}
+  .exam-meta{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;margin-bottom:7px;}
+  .progress{height:9px;background:#e3e8f2;border-radius:999px;overflow:hidden;}
+  .progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#e0c56e);transition:width .2s;}
+  .timer{min-width:104px;padding:9px 12px;border-radius:9px;background:var(--navy);color:#fff;text-align:center;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
+  .timer.warn{background:#a76500;}.timer.danger{background:var(--no);}
+  .section-card{padding:0;overflow:hidden;}
+  .section-head{display:flex;justify-content:space-between;gap:12px;padding:12px 17px;background:var(--navy);color:#fff;font-size:17px;}
+  .section-head strong:last-child{white-space:nowrap;}
+  .question{padding:18px;border-bottom:1px solid #e7ebf2;}
+  .question:last-child{border-bottom:0;}
+  .question-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;}
+  .question-text{font-size:17px;font-weight:600;line-height:1.5;}
+  .points{white-space:nowrap;color:#8a6b17;background:#fff8df;border:1px solid #ead99f;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;}
+  .answer-row{margin-top:13px;max-width:420px;}
+  .answer-row label,.procedure label{font-size:13px;}
+  .procedure{margin-top:12px;}
+  .hint{margin-top:5px;color:#8a96a8;font-size:12px;}
+  .frac{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;line-height:1.05;margin:0 .15em;}
+  .frac span:first-child{border-bottom:1px solid currentColor;padding:0 .15em .08em;}
+  .frac span:last-child{padding:.08em .15em 0;}
+  .send-status{min-height:20px;margin-top:10px;color:var(--muted);font-size:13px;line-height:1.45;text-align:center;}
+  .send-status.ok{color:#237a42;font-weight:600;}.send-status.error{color:#b33b2e;font-weight:600;}
+  .result-score{text-align:center;color:var(--navy);font-size:48px;font-weight:850;}
+  .result-sub{text-align:center;color:var(--muted);margin:3px 0 18px;}
+  .blockrow{display:grid;grid-template-columns:minmax(145px,1fr) minmax(120px,2fr) 58px;align-items:center;gap:10px;margin:10px 0;}
+  .blockrow .nm{font-size:13px;font-weight:700;color:var(--navy);}
+  .bar{height:13px;background:#e3e8f2;border-radius:999px;overflow:hidden;}.bar>i{display:block;height:100%;border-radius:999px;}
+  .pc{text-align:right;font-size:13px;font-weight:800;}
+  .result-msg{margin-top:16px;padding:13px 15px;border-radius:10px;background:#f7f9fc;color:#536276;text-align:center;line-height:1.55;}
+  .foot{text-align:center;color:#9aa7ba;font-size:12px;margin:18px 0 6px;}
+  .hidden{display:none!important;}
+  @media(max-width:640px){
+    body{padding:10px;}.hero{padding:22px 18px}.hero h1{font-size:23px}.card{padding:17px}.identity{grid-template-columns:1fr}
+    .exam-toolbar{top:66px;padding:12px}.section-head{font-size:15px}.question{padding:16px 14px}.question-top{display:block}.points{display:inline-block;margin-top:8px}
+    .blockrow{grid-template-columns:112px 1fr 48px}.exam-meta{display:block}.exam-meta span{display:block;margin-top:3px}
+  }
+</style>
+
+<!-- PORTAL-UNIFICADO:START -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
+<script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
+<!-- PORTAL-UNIFICADO:END -->
+</head>
+<body data-portal-page="induccion-final">
+<!-- PORTAL-LOADER:START -->
+<div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página">
+  <div class="portal-loader-box">
+    <div class="portal-loader-mark" aria-hidden="true"></div>
+    <strong>Preparando el contenido</strong>
+    <small>Portal académico López Saynes</small>
+  </div>
+</div>
+<!-- PORTAL-LOADER:END -->
+<nav class="portal-nav" aria-label="Navegación principal">
+  <a class="portal-brand" href="index.html" aria-label="Ir al inicio">
+    <img src="img/logo-descartes.png" alt="Universidad Descartes">
+    <span class="portal-brand-divider" aria-hidden="true"></span>
+    <span class="portal-brand-copy"><strong>Prof. López Saynes</strong>Física y Matemáticas</span>
+  </a>
+  <button class="portal-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="portal-nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="fisica1.html">Física I</a>
+    <a href="fisica3.html">Física III</a>
+    <a href="mates1.html">Matemáticas I</a>
+    <a href="induccion.html" class="active">Inducción</a>
+    <a class="portal-contact-link" href="mailto:jose.lopsay@gmail.com?subject=Consulta%20desde%20el%20portal">Contacto</a>
+  </div>
+</nav>
+
+<main class="app">
+  <header class="hero">
+    <div class="tool-breadcrumb" aria-label="Ruta de navegación">
+      <a href="index.html">Inicio</a><span aria-hidden="true">/</span>
+      <a href="induccion.html">Curso de Inducción</a><span aria-hidden="true">/</span>
+      <em>Examen final</em>
+    </div>
+    <div class="kick">🎓 CURSO DE INDUCCIÓN · CCH-UNAM DESCARTES</div>
+    <h1>Examen Final · Matemáticas</h1>
+    <p>15 respuestas · 6 bloques · 60 minutos · 100 puntos · 7 de agosto de 2026</p>
+  </header>
+
+  <section class="card" id="scr-inicio">
+    <div class="identity">
+      <div>
+        <label for="nombre">Tu nombre completo</label>
+        <input type="text" id="nombre" placeholder="Nombre y apellidos" maxlength="60" autocomplete="name">
+      </div>
+      <div>
+        <label for="grupo">Tu grupo</label>
+        <select id="grupo">
+          <option value="" disabled selected>Selecciona tu grupo</option>
+          <option value="1">Grupo 1</option>
+          <option value="2">Grupo 2</option>
+          <option value="3">Grupo 3</option>
+          <option value="4">Grupo 4</option>
+        </select>
+      </div>
+    </div>
+    <div class="rules">
+      <strong>Indicaciones</strong>
+      <ul>
+        <li>Tienes 60 minutos y no se permite calculadora.</li>
+        <li>Escribe la respuesta final y muestra el procedimiento esencial.</li>
+        <li>Tu avance se guarda en este dispositivo mientras contestas.</li>
+        <li>Reserva los últimos 10 minutos para revisar.</li>
+      </ul>
+    </div>
+    <div class="draft-note" id="draft-note">Encontramos un examen en progreso en este dispositivo. Puedes continuarlo con el tiempo restante o comenzar uno nuevo.</div>
+    <p class="privacy"><strong>Privacidad:</strong> tu nombre, grupo y respuestas se usarán únicamente para el seguimiento académico del curso de inducción.</p>
+    <div class="actions">
+      <button class="btn" id="btn-empezar">Comenzar examen →</button>
+      <button class="btn ghost hidden" id="btn-nuevo" type="button">Descartar borrador</button>
+    </div>
+    <div class="send-status error" id="start-status" aria-live="polite"></div>
+  </section>
+
+  <section id="scr-examen" class="hidden">
+    <div class="card exam-toolbar">
+      <div>
+        <div class="exam-meta"><span id="answered-count">0 de 15 respuestas finales</span><span>El procedimiento también se guarda</span></div>
+        <div class="progress" aria-label="Progreso del examen"><i id="exam-progress"></i></div>
+      </div>
+      <div class="timer" id="timer" role="timer" aria-live="polite">60:00</div>
+    </div>
+    <div id="questions"></div>
+    <div class="card">
+      <p style="text-align:center;color:var(--muted);line-height:1.55;">Antes de entregar: revisa signos, simplificación, unidades y soluciones. Las respuestas vacías cuentan como incorrectas.</p>
+      <div class="actions"><button class="btn gold" id="btn-entregar">Entregar examen ✓</button></div>
+      <div class="send-status" id="deliver-status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="card hidden" id="scr-resultado">
+    <div class="result-score" id="result-score">0 / 100</div>
+    <div class="result-sub" id="result-sub">0 respuestas correctas de 15</div>
+    <div id="result-blocks"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <div class="actions"><button class="btn gold" id="btn-enviar">Enviar resultado</button></div>
+    <div class="send-status" id="final-envio" aria-live="polite"></div>
+  </section>
+
+  <div class="foot">M.C. José Luis López Saynes · Bachillerato UNAM-Descartes · Ciclo 2026-2027-1</div>
+</main>
+
+<script>
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
+const DURATION_MS = 60*60*1000;
+const DRAFT_KEY = 'induccion_borrador_final';
+const PENDING_KEY = 'induccion_pendiente_final';
+const $=id=>document.getElementById(id);
+
+const SECTIONS = [
+  {title:'I. Aritmética con enteros y jerarquía de operaciones',points:16},
+  {title:'II. Fracciones',points:16},
+  {title:'III. Porcentajes, razones y proporciones',points:16},
+  {title:'IV. Potencias, raíces y notación científica',points:16},
+  {title:'V. Lenguaje algebraico',points:16},
+  {title:'VI. Ecuaciones de primer grado',points:20}
+];
+
+const QUESTIONS = [
+  {id:'i1',section:0,label:'1',points:8,prompt:'−8 + 5(−3) − (−6) =',kind:'number',value:-17},
+  {id:'i2',section:0,label:'2',points:8,prompt:'20 − [3 − (7 − 12)] =',kind:'number',value:12},
+  {id:'ii1',section:1,label:'1',points:8,prompt:'<span class="frac"><span>2</span><span>3</span></span> + <span class="frac"><span>3</span><span>4</span></span> =',kind:'number',value:17/12,hint:'Puedes responder como fracción simplificada o decimal.'},
+  {id:'ii2',section:1,label:'2',points:8,prompt:'<span class="frac"><span>9</span><span>10</span></span> ÷ <span class="frac"><span>3</span><span>5</span></span> =',kind:'number',value:3/2,hint:'Puedes responder como fracción simplificada o decimal.'},
+  {id:'iii1',section:2,label:'1',points:8,prompt:'Una mochila cuesta $850 y tiene 15 % de descuento. ¿Cuál es el precio final?',kind:'number',value:722.5,hint:'Escribe el precio final.'},
+  {id:'iii2',section:2,label:'2',points:8,prompt:'Si 4 cuadernos cuestan $92, ¿cuánto cuestan 7 cuadernos?',kind:'number',value:161,hint:'Escribe el costo total.'},
+  {id:'iv1',section:3,label:'1',points:8,prompt:'Simplifica: <span class="frac"><span>2<sup>5</sup> · 2<sup>3</sup></span><span>2<sup>4</sup></span></span> =',kind:'number',value:16},
+  {id:'iv2a',section:3,label:'2 a)',points:4,prompt:'√144 + ∛27 =',kind:'number',value:15},
+  {id:'iv2b',section:3,label:'2 b)',points:4,prompt:'Escribe en notación científica: 0.00042 =',kind:'scientific',hint:'Ejemplo de formato: 4.2 × 10^-4'},
+  {id:'v1',section:4,label:'1',points:8,prompt:'Traduce usando x: “el cuadrado de la mitad de un número”.',kind:'expression',hint:'Usa ^2 para indicar el cuadrado si lo necesitas.'},
+  {id:'v2',section:4,label:'2',points:8,prompt:'Evalúa 3x<sup>2</sup> − 5x + 2 cuando x = 2.',kind:'number',value:4},
+  {id:'vi1',section:5,label:'1',points:5,prompt:'3x − 7 = 11',kind:'number',value:6,hint:'Escribe el valor de x.'},
+  {id:'vi2',section:5,label:'2',points:5,prompt:'5x + 4 = 2x − 8',kind:'number',value:-4,hint:'Escribe el valor de x.'},
+  {id:'vi3',section:5,label:'3',points:5,prompt:'2(x − 3) = x + 5',kind:'number',value:11,hint:'Escribe el valor de x.'},
+  {id:'vi4',section:5,label:'4',points:5,prompt:'<strong>Problema.</strong> El triple de un número, más 5, es igual a 23. ¿Cuál es el número?',kind:'number',value:6}
+];
+
+let state={nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{}};
+let timerId=0;
+let payloadFinal=null;
+let deliveryConfirmation=false;
+let deliveryConfirmationTimer=0;
+
+function show(id){
+  ['scr-inicio','scr-examen','scr-resultado'].forEach(function(screen){
+    $(screen).classList.toggle('hidden',screen!==id);
+  });
+}
+
+function readDraft(){
+  try{
+    const draft=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+    return draft && draft.startedAt ? draft : null;
+  }catch(error){ return null; }
+}
+
+function saveDraft(){
+  try{ localStorage.setItem(DRAFT_KEY,JSON.stringify(state)); }catch(error){ /* el examen sigue funcionando */ }
+}
+
+function prepareDraft(){
+  const draft=readDraft();
+  if(!draft) return;
+  $('nombre').value=draft.nombre||'';
+  $('grupo').value=draft.grupo||'';
+  $('draft-note').style.display='block';
+  $('btn-nuevo').classList.remove('hidden');
+  $('btn-empezar').textContent='Continuar examen →';
+}
+
+$('btn-nuevo').onclick=function(){
+  if(!window.confirm('¿Descartar el examen guardado y comenzar desde cero?')) return;
+  localStorage.removeItem(DRAFT_KEY);
+  state={nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{}};
+  $('draft-note').style.display='none';
+  $('btn-nuevo').classList.add('hidden');
+  $('btn-empezar').textContent='Comenzar examen →';
+};
+
+$('btn-empezar').onclick=function(){
+  const nombre=$('nombre').value.trim();
+  const grupo=$('grupo').value;
+  const status=$('start-status');
+  if(!nombre){
+    $('nombre').focus();
+    status.textContent='Escribe tu nombre completo antes de comenzar.';
+    return;
+  }
+  if(!grupo){
+    $('grupo').focus();
+    status.textContent='Selecciona tu grupo antes de comenzar.';
+    return;
+  }
+
+  const draft=readDraft();
+  if(draft && draft.nombre===nombre && draft.grupo===grupo){
+    state={nombre:nombre,grupo:grupo,submissionId:draft.submissionId||createSubmissionId(),startedAt:draft.startedAt,answers:draft.answers||{},procedures:draft.procedures||{}};
+  }else{
+    state={nombre:nombre,grupo:grupo,submissionId:createSubmissionId(),startedAt:Date.now(),answers:{},procedures:{}};
+  }
+  saveDraft();
+  renderQuestions();
+  show('scr-examen');
+  window.scrollTo(0,0);
+  startTimer();
+};
+
+function renderQuestions(){
+  const host=$('questions');
+  host.innerHTML='';
+  SECTIONS.forEach(function(section,sectionIndex){
+    const card=document.createElement('section');
+    card.className='card section-card';
+    const head=document.createElement('div');
+    head.className='section-head';
+    head.innerHTML='<strong>'+section.title+'</strong><strong>'+section.points+' pts</strong>';
+    card.appendChild(head);
+
+    QUESTIONS.filter(q=>q.section===sectionIndex).forEach(function(q){
+      const wrap=document.createElement('div');
+      wrap.className='question';
+      wrap.innerHTML=
+        '<div class="question-top"><div class="question-text">'+q.label+'. '+q.prompt+'</div><span class="points">'+q.points+' pts</span></div>'+
+        '<div class="answer-row"><label for="answer-'+q.id+'">Respuesta final</label><input type="text" id="answer-'+q.id+'" data-answer="'+q.id+'" autocomplete="off" inputmode="text" maxlength="80" value="'+escAttr(state.answers[q.id]||'')+'">'+
+        (q.hint?'<div class="hint">'+q.hint+'</div>':'')+'</div>'+
+        '<div class="procedure"><label for="procedure-'+q.id+'">Procedimiento esencial</label><textarea id="procedure-'+q.id+'" data-procedure="'+q.id+'" maxlength="1000" placeholder="Escribe aquí tus operaciones o razonamiento…">'+escHtml(state.procedures[q.id]||'')+'</textarea></div>';
+      card.appendChild(wrap);
+    });
+    host.appendChild(card);
+  });
+
+  host.querySelectorAll('[data-answer]').forEach(function(input){
+    input.addEventListener('input',function(){ state.answers[this.dataset.answer]=this.value; saveDraft(); updateProgress(); });
+  });
+  host.querySelectorAll('[data-procedure]').forEach(function(input){
+    input.addEventListener('input',function(){ state.procedures[this.dataset.procedure]=this.value; saveDraft(); });
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  const answered=QUESTIONS.filter(q=>String(state.answers[q.id]||'').trim()).length;
+  $('answered-count').textContent=answered+' de '+QUESTIONS.length+' respuestas finales';
+  $('exam-progress').style.width=Math.round(answered/QUESTIONS.length*100)+'%';
+}
+
+function startTimer(){
+  clearInterval(timerId);
+  updateTimer();
+  timerId=setInterval(updateTimer,1000);
+}
+
+function updateTimer(){
+  const remaining=Math.max(0,DURATION_MS-(Date.now()-state.startedAt));
+  const totalSeconds=Math.ceil(remaining/1000);
+  const minutes=Math.floor(totalSeconds/60);
+  const seconds=totalSeconds%60;
+  const timer=$('timer');
+  timer.textContent=String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');
+  timer.classList.toggle('warn',remaining<=10*60*1000 && remaining>5*60*1000);
+  timer.classList.toggle('danger',remaining<=5*60*1000);
+  if(remaining<=0){ clearInterval(timerId); finishExam(true); }
+}
+
+$('btn-entregar').onclick=function(){
+  const unanswered=QUESTIONS.filter(q=>!String(state.answers[q.id]||'').trim()).length;
+  if(!deliveryConfirmation){
+    deliveryConfirmation=true;
+    this.textContent='Confirmar entrega';
+    $('deliver-status').className='send-status error';
+    $('deliver-status').textContent=unanswered
+      ? 'Tienes '+unanswered+' respuesta'+(unanswered===1?'':'s')+' final'+(unanswered===1?'':'es')+' en blanco. Presiona “Confirmar entrega” para continuar.'
+      : 'Presiona “Confirmar entrega” para terminar. Después ya no podrás cambiar tus respuestas.';
+    clearTimeout(deliveryConfirmationTimer);
+    deliveryConfirmationTimer=setTimeout(resetDeliveryConfirmation,10000);
+    return;
+  }
+  resetDeliveryConfirmation();
+  finishExam(false);
+};
+
+function resetDeliveryConfirmation(){
+  clearTimeout(deliveryConfirmationTimer);
+  deliveryConfirmation=false;
+  $('btn-entregar').textContent='Entregar examen ✓';
+  $('deliver-status').textContent='';
+  $('deliver-status').className='send-status';
+}
+
+function finishExam(expired){
+  clearInterval(timerId);
+  const blockScores=SECTIONS.map(()=>0);
+  const blockCorrect=SECTIONS.map(()=>0);
+  let score=0;
+  let correct=0;
+  const detail=QUESTIONS.map(function(q,index){
+    const answer=String(state.answers[q.id]||'').trim();
+    const ok=isCorrect(q,answer);
+    if(ok){ score+=q.points; correct++; blockScores[q.section]+=q.points; blockCorrect[q.section]++; }
+    return {reactivo:index+1,id:q.id,respuesta:answer,procedimiento:String(state.procedures[q.id]||'').trim(),correcta:ok,puntos:ok?q.points:0};
+  });
+  const blockPct=SECTIONS.map((section,i)=>Math.round(blockScores[i]/section.points*100));
+  const durationSeconds=Math.min(Math.round((Date.now()-state.startedAt)/1000),DURATION_MS/1000);
+
+  $('result-score').textContent=score+' / 100';
+  $('result-sub').textContent=correct+' respuestas correctas de '+QUESTIONS.length+(expired?' · Tiempo agotado':'');
+  $('result-blocks').innerHTML=SECTIONS.map(function(section,i){
+    const pct=blockPct[i];
+    const color=pct>=70?'#2e7d32':(pct>=40?'#C9A84C':'#c0392b');
+    return '<div class="blockrow"><div class="nm">'+shortTitle(section.title)+'</div><div class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></div><div class="pc" style="color:'+color+'">'+blockScores[i]+'/'+section.points+'</div></div>';
+  }).join('');
+  $('result-msg').textContent=score>=70
+    ? 'Buen trabajo. Revisa los bloques con menor puntaje para llegar aún mejor preparado al semestre.'
+    : 'Este resultado muestra exactamente qué temas conviene reforzar. Lo importante es usarlo como punto de partida.';
+
+  payloadFinal={
+    tipo:'final',submissionId:state.submissionId,nombre:state.nombre,grupo:state.grupo,puntaje:score,total:100,pct:score,
+    aciertos:correct,totalReactivos:QUESTIONS.length,b1:blockPct[0],b2:blockPct[1],b3:blockPct[2],b4:blockPct[3],b5:blockPct[4],b6:blockPct[5],
+    duracionSegundos:durationSeconds,tiempoAgotado:expired,detalle:JSON.stringify(detail),fechaCliente:new Date().toISOString()
+  };
+  detail.forEach(function(item,index){
+    payloadFinal['r'+(index+1)]=item.respuesta;
+    payloadFinal['p'+(index+1)]=item.procedimiento;
+  });
+  show('scr-resultado');
+  window.scrollTo(0,0);
+}
+
+function parseNumber(value){
+  let text=String(value||'').trim().toLowerCase().replace(/−/g,'-').replace(/,/g,'.').replace(/\$/g,'');
+  text=text.replace(/\b(pesos?|mxn|kg)\b/g,'').trim();
+  text=text.replace(/^x\s*=\s*/,'');
+  const mixed=text.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+  if(mixed){
+    const whole=Number(mixed[1]),num=Number(mixed[2]),den=Number(mixed[3]);
+    if(!den) return NaN;
+    return whole<0?whole-num/den:whole+num/den;
+  }
+  const fraction=text.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)$/);
+  if(fraction){
+    const den=Number(fraction[2]);
+    return den?Number(fraction[1])/den:NaN;
+  }
+  return /^-?\d+(?:\.\d+)?$/.test(text)?Number(text):NaN;
+}
+
+function isCorrect(q,answer){
+  if(!answer) return false;
+  if(q.kind==='number'){
+    const value=parseNumber(answer);
+    return Number.isFinite(value) && Math.abs(value-q.value)<1e-6;
+  }
+  if(q.kind==='scientific'){
+    let text=answer.toLowerCase().replace(/,/g,'.').replace(/[×·*]/g,'x').replace(/\s+/g,'');
+    text=text.replace(/⁻/g,'-').replace(/⁰/g,'0').replace(/¹/g,'1').replace(/²/g,'2').replace(/³/g,'3').replace(/⁴/g,'4').replace(/⁵/g,'5').replace(/⁶/g,'6').replace(/⁷/g,'7').replace(/⁸/g,'8').replace(/⁹/g,'9');
+    text=text.replace(/[()]/g,'').replace('10^','10');
+    return /^(4\.2e-4|4\.2x10-4)$/.test(text);
+  }
+  if(q.kind==='expression'){
+    let text=answer.toLowerCase().replace(/²/g,'^2').replace(/[·*]/g,'').replace(/\s+/g,'');
+    text=text.replace(/^y=/,'').replace(/^r=/,'');
+    return new Set(['(x/2)^2','x^2/4','(x^2)/4','1/4x^2','x^2÷4','(1/2x)^2','(0.5x)^2','x^2/2^2','x^2/(2^2)']).has(text);
+  }
+  return false;
+}
+
+function shortTitle(title){ return title.replace(/^[IVX]+\.\s*/,'').replace(' con enteros y jerarquía de operaciones',' y jerarquía').replace(', razones y proporciones','').replace(', raíces y notación científica',' y raíces').replace(' de primer grado',''); }
+function escHtml(value){ return String(value).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function escAttr(value){ return escHtml(value).replace(/"/g,'&quot;'); }
+function createSubmissionId(){
+  if(window.crypto && typeof window.crypto.randomUUID==='function') return window.crypto.randomUUID();
+  return 'final-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
+}
+
+$('btn-enviar').onclick=async function(){
+  const btn=$('btn-enviar');
+  const status=$('final-envio');
+  btn.disabled=true;
+  btn.textContent='Enviando…';
+  status.className='send-status';
+  status.textContent='Enviando tu resultado. No cierres esta pestaña todavía.';
+  try{
+    await enviar(payloadFinal);
+    btn.textContent='Resultado enviado ✓';
+    status.className='send-status ok';
+    status.textContent='Tu examen fue enviado al registro del curso. Ya puedes cerrar esta pestaña.';
+    if(window.PortalUI) PortalUI.notify('Examen final enviado correctamente.','success',3200);
+  }catch(error){
+    btn.disabled=false;
+    btn.textContent='Reintentar envío';
+    status.className='send-status error';
+    status.textContent=navigator.onLine
+      ? 'No se pudo completar el envío. Presiona “Reintentar envío”.'
+      : 'No hay conexión. Tu examen quedó guardado en este dispositivo para reintentarlo.';
+    if(window.PortalUI) PortalUI.notify(status.textContent,'error',0,'Envío pendiente');
+  }
+};
+
+async function enviar(payload){
+  if(!payload) throw new Error('No hay examen final para enviar.');
+  if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
+  if(!localStorage.getItem(PENDING_KEY)) archivar_(payload);
+  localStorage.setItem(PENDING_KEY,JSON.stringify(payload));
+  if(!navigator.onLine) throw new Error('Sin conexión.');
+
+  const response=await fetch(ENDPOINT,{
+    method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)
+  });
+  if(!response.ok) throw new Error('El servidor respondió '+response.status);
+  const result=await response.json();
+  if(!result || result.ok!==true){
+    throw new Error(result && result.error ? result.error : 'El servidor no confirmó el guardado.');
+  }
+  localStorage.removeItem(PENDING_KEY);
+  localStorage.removeItem(DRAFT_KEY);
+  return true;
+}
+
+function archivar_(payload){
+  try{
+    const key='induccion_historial';
+    const history=JSON.parse(localStorage.getItem(key)||'[]');
+    history.push({cuando:new Date().toISOString(),payload:payload});
+    localStorage.setItem(key,JSON.stringify(history));
+  }catch(error){ /* si falla, no debe impedir el envío */ }
+}
+
+async function retryPendingFinal(){
+  const raw=localStorage.getItem(PENDING_KEY);
+  if(!raw || !navigator.onLine) return;
+  try{
+    await enviar(JSON.parse(raw));
+    if(window.PortalUI) PortalUI.notify('Se envió un examen final que había quedado pendiente.','success',4200);
+  }catch(error){ console.warn('[examen final] el envío continúa pendiente',error); }
+}
+
+window.addEventListener('online',retryPendingFinal);
+prepareDraft();
+setTimeout(retryPendingFinal,900);
+</script>
+</body>
+</html>

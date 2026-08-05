@@ -206,7 +206,7 @@
     <h2>Consultar resultados</h2>
     <p>
       Escribe la clave configurada en tu Google Apps Script. Al cargar,
-      aparecerán los resultados del diagnóstico y de la encuesta en esta misma página.
+      aparecerán el diagnóstico, el examen final y la encuesta en esta misma página.
     </p>
   </div>
 
@@ -247,6 +247,16 @@
     <div class="scroll" id="diag-table"></div>
   </div>
 
+  <div class="card hidden" id="c-final">
+    <div class="panel-card-head">
+      <h2>Examen final</h2>
+      <button class="btn-export" id="btn-csv-final" type="button" disabled>Descargar CSV</button>
+    </div>
+    <div class="tiles" id="final-tiles"></div>
+    <div id="final-blocks"></div>
+    <div class="scroll" id="final-table"></div>
+  </div>
+
   <div class="card hidden" id="c-enc">
     <div class="panel-card-head">
     <h2>Encuesta de satisfacción</h2>
@@ -283,9 +293,11 @@ function render(data){
   
  datosPanel=data;
  if($('btn-csv-diag')) $('btn-csv-diag').disabled=!(data.Diagnostico&&data.Diagnostico.length);
+ if($('btn-csv-final')) $('btn-csv-final').disabled=!(data.Final&&data.Final.length);
  if($('btn-csv-enc')) $('btn-csv-enc').disabled=!(data.Encuesta&&data.Encuesta.length);
 if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps Script.',true); return; }
   setStatus('Datos cargados ✓');
+  ['c-diag','c-final','c-enc'].forEach(id=>$(id).classList.add('hidden'));
   // ---- DIAGNÓSTICO ----
   const D=data.Diagnostico||[];
   if(D.length>1){
@@ -303,6 +315,24 @@ if(data.error){ setStatus('Token incorrecto. Revisa que coincida con el del Apps
     rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td><b>'+r[5]+'%</b></td>'+
       [6,7,8,9,10,11].map(ci=>'<td>'+r[ci]+'%</td>').join('')+'</tr>'; });
     $('diag-table').innerHTML=html+'</table>';
+  }
+  // ---- EXAMEN FINAL ----
+  const F=data.Final||[];
+  if(F.length>1){
+    $('c-final').classList.remove('hidden');
+    const rows=F.slice(1);
+    const pct=rows.map(r=>num(r[6]));
+    const blocks=[9,10,11,12,13,14].map(ci=>Math.round(avg(rows.map(r=>num(r[ci])))));
+    const nombresB=['Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones'];
+    $('final-tiles').innerHTML=
+      tile(rows.length,'exámenes')+tile(Math.round(avg(pct))+'%','promedio general')+
+      tile(Math.min.apply(0,pct)+'%','más bajo')+tile(Math.max.apply(0,pct)+'%','más alto');
+    $('final-blocks').innerHTML='<h2 style="font-size:15px">Dominio promedio por bloque</h2>'+
+      blocks.map((p,i)=>bar(nombresB[i],p)).join('');
+    let html='<table><tr><th>Fecha</th><th>Nombre</th><th>Grupo</th><th>Puntaje</th><th>Aciertos</th><th>Duración</th><th>Tiempo</th>'+nombresB.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
+    rows.forEach(r=>{ html+='<tr><td>'+fecha(r[0])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td><b>'+num(r[4])+'/100</b></td><td>'+num(r[7])+'/'+num(r[8])+'</td><td>'+duracion(r[15])+'</td><td>'+esc(r[16])+'</td>'+
+      [9,10,11,12,13,14].map(ci=>'<td>'+num(r[ci])+'%</td>').join('')+'</tr>'; });
+    $('final-table').innerHTML=html+'</table>';
   }
   // ---- ENCUESTA ----
   const E=data.Encuesta||[];
@@ -330,6 +360,11 @@ function cuenta(arr){ const m={}; arr.forEach(function(x){ x=String(x||'').trim(
 function distro(m,total){ const ks=Object.keys(m).sort((a,b)=>m[b]-m[a]);
   return ks.map(k=>{ const p=Math.round(m[k]/total*100); return '<div class="brow"><div class="nm" style="width:130px">'+esc(k)+'</div><div class="bar"><i style="width:'+p+'%;background:#274a83"></i></div><div class="pc">'+m[k]+'</div></div>'; }).join('') || '<div class="muted">Sin datos</div>'; }
 function fecha(f){ try{ return new Date(f).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit'}); }catch(e){ return ''; } }
+function duracion(segundos){
+  const total=Math.max(0,Math.round(num(segundos)));
+  const minutos=Math.floor(total/60), resto=total%60;
+  return minutos+':'+String(resto).padStart(2,'0');
+}
 function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
 /* PANEL-RESULTADOS-V5:START */
@@ -350,6 +385,11 @@ $('btn-csv-diag').onclick=function(){
 $('btn-csv-enc').onclick=function(){
   if(!datosPanel) return;
   descargarHojaCSV(datosPanel.Encuesta||[],'resultados-encuesta.csv');
+};
+
+$('btn-csv-final').onclick=function(){
+  if(!datosPanel) return;
+  descargarHojaCSV(datosPanel.Final||[],'resultados-examen-final.csv');
 };
 
 function descargarHojaCSV(rows,filename){

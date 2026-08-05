@@ -16,9 +16,9 @@
   .card{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);padding:22px;margin-top:16px;}
   .qh{font-weight:600;color:var(--navy);font-size:16px;margin:18px 0 10px;}
   .qh:first-child{margin-top:0;}
-  input[type=text],textarea{width:100%;padding:11px 14px;border:2px solid #d5dced;border-radius:10px;font-size:16px;font-family:inherit;}
+  input[type=text],select,textarea{width:100%;padding:11px 14px;border:2px solid #d5dced;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;}
   textarea{min-height:90px;resize:vertical;}
-  input:focus,textarea:focus{outline:none;border-color:var(--gold);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);}
   .row{display:flex;gap:10px;flex-wrap:wrap;}
   .row .col{flex:1;min-width:180px;}
   .chips{display:flex;gap:8px;flex-wrap:wrap;}
@@ -128,7 +128,16 @@
   <div class="card" id="form">
     <div class="row">
       <div class="col"><div class="qh">Tu nombre (opcional)</div><input type="text" id="nombre" maxlength="60" placeholder="Nombre"></div>
-      <div class="col"><div class="qh">Tu grupo</div><input type="text" id="grupo" maxlength="20" placeholder="Ej. 101"></div>
+      <div class="col">
+        <div class="qh">Tu grupo</div>
+        <select id="grupo">
+          <option value="" disabled selected>Selecciona tu grupo</option>
+          <option value="1">Grupo 1</option>
+          <option value="2">Grupo 2</option>
+          <option value="3">Grupo 3</option>
+          <option value="4">Grupo 4</option>
+        </select>
+      </div>
     </div>
 
     <div class="qh">1. ¿Qué tan útil te pareció el curso?</div>
@@ -215,7 +224,7 @@ $('btn-enviar').onclick=async function(){
   if(!$('grupo').value.trim()){
     $('grupo').focus();
     status.className='send-status error';
-    status.textContent='Escribe tu grupo antes de enviar.';
+    status.textContent='Selecciona tu grupo antes de enviar.';
     return;
   }
 
@@ -265,19 +274,37 @@ async function enviar(payload){
   if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
 
   const key='induccion_pendiente_encuesta';
+  if(!localStorage.getItem(key)) archivar_(payload);
   localStorage.setItem(key,JSON.stringify(payload));
 
   if(!navigator.onLine) throw new Error('Sin conexión.');
 
-  await fetch(ENDPOINT,{
+  const r = await fetch(ENDPOINT,{
     method:'POST',
-    mode:'no-cors',
+    mode:'cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload)
   });
 
+  if(!r.ok) throw new Error('El servidor respondió '+r.status);
+
+  const res = await r.json();
+  if(!res || res.ok!==true){
+    throw new Error(res && res.error ? res.error : 'El servidor no confirmó el guardado.');
+  }
+
   localStorage.removeItem(key);
   return true;
+}
+
+// Red de seguridad final: queda en el dispositivo del alumno y nunca se borra.
+function archivar_(payload){
+  try{
+    const k='induccion_historial';
+    const h=JSON.parse(localStorage.getItem(k)||'[]');
+    h.push({cuando:new Date().toISOString(), payload:payload});
+    localStorage.setItem(k,JSON.stringify(h));
+  }catch(e){ /* si falla, no debe impedir el envío */ }
 }
 
 async function reintentarEncuestaPendiente(){
