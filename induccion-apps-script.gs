@@ -52,12 +52,17 @@ function doPost(e){
     if (d.tipo === 'encuesta'){
       guardarEncuesta_(ss, d);
     } else if (d.tipo === 'diagnostico'){
-      validarNombre_(d.nombre);
-      guardarDiagnostico_(ss, d);
+      validarNombre_(identidad_(d).nombre);
+      const guardado = guardarDiagnostico_(ss, d);
+      extra = {duplicado:!guardado, yaPresentado:!guardado};
     } else if (d.tipo === 'final'){
-      validarNombre_(d.nombre);
+      validarNombre_(identidad_(d).nombre);
       const proceso = procesarFinal_(ss, d);
-      extra = {duplicado:!proceso.guardado, resultado:proceso.resultado};
+      extra = {
+        duplicado:!proceso.guardado,
+        yaPresentado:proceso.yaPresentado === true,
+        resultado:proceso.resultado
+      };
     }
 
     return responder_(Object.assign({ok:true}, extra));
@@ -96,7 +101,27 @@ function doGet(e){
     const sh = ss.getSheetByName(nombre);
     out[nombre] = sh ? sh.getDataRange().getValues() : [];
   });
+  // Las soluciones viajan solo aquí, detrás del token. Nunca deben ponerse en
+  // el HTML del panel ni en este archivo: los dos son públicos en GitHub.
+  out.Soluciones = obtenerSoluciones_();
   return responder_(out, cb);
+}
+
+/**
+ * Procedimientos y respuestas correctas para la revisión por alumno.
+ * Se guardan como propiedad privada FINAL_SOLUCIONES del proyecto, igual que
+ * FINAL_ANSWER_KEY. Si no está configurada, el panel simplemente no muestra
+ * la solución y todo lo demás sigue funcionando.
+ */
+function obtenerSoluciones_(){
+  const raw = PropertiesService.getScriptProperties().getProperty('FINAL_SOLUCIONES');
+  if (!raw) return null;
+  try{
+    return JSON.parse(raw);
+  }catch(error){
+    console.error('FINAL_SOLUCIONES no contiene JSON válido: ' + error);
+    return null;
+  }
 }
 
 function guardarEncuesta_(ss, d){
@@ -111,17 +136,59 @@ function guardarEncuesta_(ss, d){
   ]);
 }
 
+/**
+ * Arma la identidad del alumno. El navegador ya manda los tres campos por
+ * separado, pero el nombre completo se vuelve a componer aquí para que el
+ * formato sea uniforme aunque el cliente mande cualquier cosa. Si llega un
+ * envío de la página anterior, que solo trae "nombre", se respeta tal cual.
+ */
+function identidad_(d){
+  const paterno = tituloNombre_(d.apellidoPaterno);
+  const materno = tituloNombre_(d.apellidoMaterno);
+  const nombres = tituloNombre_(d.nombres);
+  if (!paterno && !nombres){
+    return {nombre: texto_(d.nombre), paterno: '', materno: '', nombres: ''};
+  }
+  const apellidos = [paterno, materno].filter(String).join(' ');
+  const nombre = apellidos && nombres ? apellidos + ', ' + nombres : (apellidos || nombres);
+  return {nombre: nombre, paterno: paterno, materno: materno, nombres: nombres};
+}
+
+const PARTICULAS_ = ['de','del','la','las','los','y','da','di','van','von','mac','el'];
+
+function tituloNombre_(valor){
+  return texto_(valor).replace(/\s+/g, ' ').toLowerCase().split(' ')
+    .map(function(palabra, i){
+      if (i > 0 && PARTICULAS_.indexOf(palabra) >= 0) return palabra;
+      return palabra.replace(/^[a-záéíóúüñ]/, function(c){ return c.toUpperCase(); });
+    }).join(' ').trim();
+}
+
 function guardarDiagnostico_(ss, d){
   const sh = getSheet_(ss, 'Diagnostico', [
     'Fecha','Nombre','Grupo','Aciertos','Total','%',
-    'Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones'
+    'Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones',
+    'Salidas de pantalla','Segundos fuera','Dispositivo',
+    'Apellido paterno','Apellido materno','Nombre(s)'
   ]);
+
+  const quien = identidad_(d);
+
+  // Un diagnóstico por alumno. Para permitir que alguien lo repita, borra su
+  // fila de la hoja "Diagnostico".
+  if (buscarPorAlumno_(sh, 2, 3, quien.nombre, d.grupo)){
+    return false;
+  }
+
   sh.appendRow([
-    new Date(), texto_(d.nombre), texto_(d.grupo),
+    new Date(), quien.nombre, texto_(d.grupo),
     dato_(d.aciertos), dato_(d.total), dato_(d.pct),
     dato_(d.b1), dato_(d.b2), dato_(d.b3),
-    dato_(d.b4), dato_(d.b5), dato_(d.b6)
+    dato_(d.b4), dato_(d.b5), dato_(d.b6),
+    dato_(d.salidas), dato_(d.segundosFuera), texto_(d.dispositivo),
+    quien.paterno, quien.materno, quien.nombres
   ]);
+  return true;
 }
 
 function procesarFinal_(ss, d){
@@ -130,17 +197,33 @@ function procesarFinal_(ss, d){
     throw new Error('El examen final no incluye un identificador válido.');
   }
 
+  // Las tres columnas nuevas van al final a propósito: así las filas ya
+  // guardadas conservan su alineación y no hay que mover nada.
   const sh = getSheet_(ss, 'Final', [
     'Fecha','ID de envío','Nombre','Grupo','Puntaje','Total','%',
     'Aciertos','Reactivos','Enteros','Fracciones','Porcentajes',
     'Potencias','Álgebra','Ecuaciones','Duración (s)',
-    'Tiempo agotado','Fecha del dispositivo','Detalle JSON'
+    'Tiempo agotado','Fecha del dispositivo','Detalle JSON',
+    'Salidas de pantalla','Segundos fuera','Dispositivo',
+    'Apellido paterno','Apellido materno','Nombre(s)'
   ]);
+
+  const quien = identidad_(d);
 
   // Si el servidor guardó pero la respuesta se perdió, el reintento no duplica.
   const existente = buscarEnvio_(sh, id);
   if (existente){
     return {guardado:false, resultado:resultadoDesdeFila_(existente)};
+  }
+
+  // Un examen por alumno. Esto sí atrapa al que borra el examen guardado o entra
+  // en ventana privada, porque en ese caso el submissionId es nuevo pero el
+  // nombre y el grupo no. Para permitir que alguien lo repita, borra su fila
+  // de la hoja "Final" y podrá presentarlo de nuevo.
+  const filaPrevia = buscarPorAlumno_(sh, 3, 4, quien.nombre, d.grupo);
+  if (filaPrevia){
+    const previo = sh.getRange(filaPrevia, 1, 1, 19).getValues()[0];
+    return {guardado:false, yaPresentado:true, resultado:resultadoDesdeFila_(previo)};
   }
 
   if (texto_(d.versionExamen) !== FINAL_VERSION){
@@ -150,14 +233,16 @@ function procesarFinal_(ss, d){
   const calificacion = calificarFinal_(d);
 
   sh.appendRow([
-    new Date(), id, texto_(d.nombre), texto_(d.grupo),
+    new Date(), id, quien.nombre, texto_(d.grupo),
     calificacion.puntaje, 100, calificacion.puntaje,
     calificacion.aciertos, FINAL_REACTIVOS.length,
     calificacion.porcentajes[0], calificacion.porcentajes[1],
     calificacion.porcentajes[2], calificacion.porcentajes[3],
     calificacion.porcentajes[4], calificacion.porcentajes[5],
     dato_(d.duracionSegundos), d.tiempoAgotado === true ? 'Sí' : 'No',
-    texto_(d.fechaCliente), serializar_(calificacion.detalle)
+    texto_(d.fechaCliente), serializar_(calificacion.detalle),
+    dato_(d.salidas), dato_(d.segundosFuera), texto_(d.dispositivo),
+    quien.paterno, quien.materno, quien.nombres
   ]);
   return {guardado:true, resultado:resultadoPublico_(calificacion)};
 }
@@ -313,6 +398,37 @@ function resultadoDesdeFila_(fila){
   };
 }
 
+/* Compara nombres ignorando acentos, mayúsculas y espacios de más, para que
+   "Dafne Sofía Macías" y "dafne sofia  macias" cuenten como la misma persona. */
+function normalizarNombre_(valor){
+  const ACENTOS = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','ñ':'n',
+                   'à':'a','è':'e','ì':'i','ò':'o','ù':'u',
+                   'â':'a','ê':'e','î':'i','ô':'o','û':'u'};
+  return texto_(valor).toLowerCase()
+    .replace(/[áéíóúüñàèìòùâêîôû]/g, function(c){ return ACENTOS[c]; })
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* Busca si ese alumno (nombre + grupo) ya tiene un registro en la hoja.
+   Devuelve el número de fila, o null si es su primer envío. */
+function buscarPorAlumno_(sh, colNombre, colGrupo, nombre, grupo){
+  const ultimaFila = sh.getLastRow();
+  if (ultimaFila < 2) return null;
+  const objetivo = normalizarNombre_(nombre);
+  if (!objetivo) return null;
+  const grupoTexto = texto_(grupo);
+  const ancho = Math.max(colNombre, colGrupo);
+  const filas = sh.getRange(2, 1, ultimaFila - 1, ancho).getValues();
+  for (let i = 0; i < filas.length; i++){
+    if (normalizarNombre_(filas[i][colNombre - 1]) === objetivo &&
+        texto_(filas[i][colGrupo - 1]) === grupoTexto){
+      return i + 2;
+    }
+  }
+  return null;
+}
+
 function validarTipo_(tipo){
   if (['diagnostico','encuesta','final'].indexOf(tipo) < 0){
     throw new Error('Tipo de envío no reconocido: ' + tipo);
@@ -335,6 +451,17 @@ function getSheet_(ss, nombre, encabezados){
   if (sh.getLastRow() === 0){
     sh.appendRow(encabezados);
     sh.setFrozenRows(1);
+    return sh;
+  }
+  // La hoja ya existía con menos columnas: se agregan solo los encabezados
+  // nuevos, sin tocar los datos ya guardados.
+  const faltan = encabezados.length - sh.getLastColumn();
+  if (faltan > 0){
+    if (sh.getMaxColumns() < encabezados.length){
+      sh.insertColumnsAfter(sh.getMaxColumns(), encabezados.length - sh.getMaxColumns());
+    }
+    sh.getRange(1, encabezados.length - faltan + 1, 1, faltan)
+      .setValues([encabezados.slice(encabezados.length - faltan)]);
   }
   return sh;
 }

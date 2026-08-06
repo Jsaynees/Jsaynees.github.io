@@ -43,6 +43,8 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="stylesheet" href="assets/portal-unificado-v3.css?v=20260723-4">
 <script src="assets/portal-unificado-v3.js?v=20260723-3" defer></script>
+<!-- Solo para el botón de Excel. Si no carga, los botones de CSV siguen sirviendo. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <!-- PORTAL-UNIFICADO:END -->
 <!-- RESULTADOS-V5-STYLE:START -->
 <style>
@@ -264,6 +266,27 @@
     .comparison-row { grid-template-columns: 95px minmax(120px,1fr) 48px; }
   }
 
+  .alumno-picker { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
+  .alumno-picker label { display:block; font-size:12px; color:#6e7d91; margin-bottom:4px; }
+  .alumno-picker select { min-width:280px; padding:9px 11px; border:1px solid #d5dced; border-radius:8px; font:inherit; font-size:14px; background:#fff; }
+  .rev-cab { background:#f4f7fb; border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .rev-cab .nm { font-weight:600; color:#1B3A6B; font-size:17px; }
+  .rev-cab .dt { font-size:13px; color:#6e7d91; margin-top:3px; }
+  .rev-sec { margin-top:14px; font-size:11px; color:#6e7d91; text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+  .rev-item { border-left:4px solid #dfe5ee; padding:10px 13px; margin-top:9px; border-radius:0 8px 8px 0; background:#fbfcfe; }
+  .rev-item.mal { border-left-color:#c0392b; background:#fdeceb; }
+  .rev-item.bien { border-left-color:#2e7d32; background:#eaf3ea; }
+  .rev-item .en { font-weight:600; color:#1B3A6B; font-size:14px; margin-bottom:5px; }
+  .rev-item .rs { font-size:14px; }
+  .rev-item .mk { font-weight:600; }
+  .rev-item .mk.ok { color:#2e7d32; } .rev-item .mk.no { color:#c0392b; }
+  .rev-item .pr { margin-top:5px; font-size:12.5px; color:#6e7d91; white-space:pre-wrap; }
+  .rev-sol { margin-top:8px; padding:9px 12px; background:#fff; border:1px dashed #C9A84C; border-radius:8px; }
+  .rev-sol h4 { color:#1B3A6B; font-size:13px; margin-bottom:4px; }
+  .rev-sol ol { margin:0 0 0 18px; font-size:13px; }
+  .rev-sol .er { margin-top:5px; font-size:12px; color:#6e7d91; }
+  .rev-aviso { font-size:13px; color:#6e7d91; padding:10px 0; }
+
   @media print {
     @page { size: A4; margin: 12mm; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -282,6 +305,14 @@
     .tiles { grid-template-columns: repeat(4,1fr); gap: 8px; }
     .tile { padding: 10px; }
     .tile .n { font-size: 23px; }
+    /* Al imprimir la revisión de un alumno sale solo su hoja, sin estadísticas
+       del grupo: es lo que se le entrega a un padre de familia. */
+    body.imprimir-alumno #c-comparison,
+    body.imprimir-alumno #c-diag,
+    body.imprimir-alumno #c-final,
+    body.imprimir-alumno #c-enc,
+    body.imprimir-alumno .alumno-picker { display: none !important; }
+    .rev-item { break-inside: avoid; }
   }
 </style>
 <!-- RESULTADOS-V5-STYLE:END -->
@@ -383,6 +414,7 @@
         <option value="4">Grupo 4</option>
       </select>
     </div>
+    <button class="btn btn-report" id="btn-xlsx" type="button">Descargar Excel del grupo</button>
     <button class="btn btn-report" id="btn-report" type="button">Guardar reporte visual / PDF</button>
   </div>
 </div>
@@ -412,6 +444,19 @@
     <div class="tiles" id="final-tiles"></div>
     <div id="final-blocks"></div>
     <div class="scroll" id="final-table"></div>
+  </div>
+
+  <div class="card hidden" id="c-alumno">
+    <h2>Revisión individual</h2>
+    <p class="muted" style="font-size:13px;margin-bottom:10px;">Selecciona a un alumno para ver su examen final reactivo por reactivo. Sirve para aclarar dudas con un padre de familia.</p>
+    <div class="alumno-picker">
+      <div>
+        <label for="alumno-filter">Alumno</label>
+        <select id="alumno-filter"><option value="">Selecciona un alumno</option></select>
+      </div>
+      <button class="btn-export" id="btn-imprimir-alumno" type="button" disabled>Imprimir esta revisión</button>
+    </div>
+    <div id="alumno-detalle"></div>
   </div>
 
   <div class="card hidden" id="c-enc">
@@ -470,6 +515,7 @@ function renderFiltered(){
   renderDiagnostico(diagRows);
   renderFinal(finalRows);
   renderEncuesta(encRows);
+  llenarSelectorAlumnos(finalRows);
   updateReportMeta();
 }
 
@@ -595,6 +641,103 @@ function duracion(segundos){
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
+/* PANEL-REVISION-INDIVIDUAL:START */
+/* Índices de la hoja Final. El detalle por reactivo está en la 18 y las
+   soluciones llegan aparte, desde el Apps Script y solo con token válido. */
+const F_NOMBRE=2, F_GRUPO=3, F_PUNTAJE=4, F_ACIERTOS=7, F_REACTIVOS=8,
+      F_DURACION=15, F_DETALLE=18, F_SALIDAS=19, F_SEGFUERA=20;
+let alumnosRevisables=[];
+
+function llenarSelectorAlumnos(finalRows){
+  const sel=$('alumno-filter');
+  alumnosRevisables=finalRows
+    .filter(function(r){ return String(r[F_DETALLE]||'').trim(); })
+    .sort(function(a,b){ return String(a[F_NOMBRE]).localeCompare(String(b[F_NOMBRE]),'es'); });
+
+  if(!alumnosRevisables.length){
+    $('c-alumno').classList.add('hidden');
+    sel.innerHTML='<option value="">Sin alumnos con detalle</option>';
+    $('alumno-detalle').innerHTML='';
+    $('btn-imprimir-alumno').disabled=true;
+    return;
+  }
+  $('c-alumno').classList.remove('hidden');
+  sel.innerHTML='<option value="">Selecciona un alumno</option>'+
+    alumnosRevisables.map(function(r,i){
+      return '<option value="'+i+'">'+esc(r[F_NOMBRE])+' · Grupo '+esc(r[F_GRUPO])+'</option>';
+    }).join('');
+  $('alumno-detalle').innerHTML='<div class="rev-aviso">Elige un alumno de la lista para ver su examen.</div>';
+  $('btn-imprimir-alumno').disabled=true;
+}
+
+$('alumno-filter').onchange=function(){
+  const i=this.value;
+  if(i===''){
+    $('alumno-detalle').innerHTML='<div class="rev-aviso">Elige un alumno de la lista para ver su examen.</div>';
+    $('btn-imprimir-alumno').disabled=true;
+    return;
+  }
+  mostrarRevision(alumnosRevisables[Number(i)]);
+  $('btn-imprimir-alumno').disabled=false;
+};
+
+function mostrarRevision(fila){
+  let detalle;
+  try{ detalle=JSON.parse(fila[F_DETALLE]); }
+  catch(error){
+    $('alumno-detalle').innerHTML='<div class="rev-aviso">El detalle de este alumno no se pudo leer.</div>';
+    return;
+  }
+  const sol=(datosPanel&&datosPanel.Soluciones)||null;
+  const salidas=fila[F_SALIDAS], seg=fila[F_SEGFUERA];
+
+  let h='<div class="rev-cab"><div class="nm">'+esc(fila[F_NOMBRE])+'</div><div class="dt">'+
+    'Grupo '+esc(fila[F_GRUPO])+' · '+esc(fila[F_PUNTAJE])+'/100 · '+
+    esc(fila[F_ACIERTOS])+' de '+esc(fila[F_REACTIVOS])+' correctas · '+duracion(fila[F_DURACION])+' min';
+  if(salidas!==''&&salidas!=null&&num(salidas)>0){
+    h+=' · salió de la pantalla '+num(salidas)+' '+(num(salidas)===1?'vez':'veces')+
+       ' ('+num(seg)+' s)';
+  }
+  h+='</div></div>';
+
+  if(!sol){
+    h+='<div class="rev-aviso">Se muestran las respuestas del alumno. Para ver también el '+
+       'procedimiento correcto, configura la propiedad FINAL_SOLUCIONES en el proyecto de Apps Script.</div>';
+  }
+
+  let seccionActual='';
+  detalle.forEach(function(d){
+    const s=sol?sol[d.id]:null;
+    if(s&&s.seccion&&s.seccion!==seccionActual){
+      seccionActual=s.seccion;
+      h+='<div class="rev-sec">'+esc(seccionActual)+'</div>';
+    }
+    const dada=String(d.respuesta==null?'':d.respuesta).trim()||'(en blanco)';
+    h+='<div class="rev-item '+(d.correcta?'bien':'mal')+'">'+
+       '<div class="en">'+d.reactivo+'. '+(s?s.enunciado:'Reactivo '+esc(d.id))+'</div>'+
+       '<div class="rs">Respondió: <b>'+esc(dada)+'</b> <span class="mk '+(d.correcta?'ok':'no')+'">'+
+       (d.correcta?'✓ correcta':'✗ incorrecta')+'</span></div>';
+    const proc=String(d.procedimiento==null?'':d.procedimiento).trim();
+    if(proc) h+='<div class="pr">Su procedimiento: '+esc(proc)+'</div>';
+    if(!d.correcta && s){
+      h+='<div class="rev-sol"><h4>Respuesta correcta: '+esc(s.correcta)+'</h4><ol>'+
+         (s.pasos||[]).map(function(p){ return '<li>'+p+'</li>'; }).join('')+'</ol>'+
+         (s.error?'<div class="er">Error frecuente: '+esc(s.error)+'</div>':'')+'</div>';
+    }
+    h+='</div>';
+  });
+  $('alumno-detalle').innerHTML=h;
+}
+
+$('btn-imprimir-alumno').onclick=function(){
+  document.body.classList.add('imprimir-alumno');
+  window.print();
+};
+window.addEventListener('afterprint',function(){
+  document.body.classList.remove('imprimir-alumno');
+});
+/* PANEL-REVISION-INDIVIDUAL:END */
+
 /* PANEL-RESULTADOS-V5:START */
 let datosPanel=null;
 
@@ -627,20 +770,74 @@ function updateReportMeta(){
 
 window.addEventListener('beforeprint',updateReportMeta);
 
+/* La exportación respeta el grupo seleccionado arriba. Antes bajaba siempre la
+   hoja completa, que es justo lo que no sirve para entregar por grupo. */
+function sufijoGrupo(){
+  const g=$('group-filter').value;
+  return g?'-grupo-'+g:'-todos';
+}
+
+function hojaFiltrada(rows,groupIndex){
+  if(!Array.isArray(rows)||!rows.length) return [];
+  const grupo=$('group-filter').value;
+  if(!grupo) return rows;
+  const cuerpo=rows.slice(1).filter(function(r){
+    return String(r[groupIndex]||'').trim()===grupo;
+  });
+  return [rows[0]].concat(cuerpo);
+}
+
 $('btn-csv-diag').onclick=function(){
   if(!datosPanel) return;
-  descargarHojaCSV(datosPanel.Diagnostico||[],'resultados-diagnostico.csv');
+  descargarHojaCSV(hojaFiltrada(datosPanel.Diagnostico,2),'diagnostico'+sufijoGrupo()+'.csv');
 };
 
 $('btn-csv-enc').onclick=function(){
   if(!datosPanel) return;
-  descargarHojaCSV(datosPanel.Encuesta||[],'resultados-encuesta.csv');
+  descargarHojaCSV(hojaFiltrada(datosPanel.Encuesta,2),'encuesta'+sufijoGrupo()+'.csv');
 };
 
 $('btn-csv-final').onclick=function(){
   if(!datosPanel) return;
-  descargarHojaCSV(datosPanel.Final||[],'resultados-examen-final.csv');
+  descargarHojaCSV(hojaFiltrada(datosPanel.Final,3),'examen-final'+sufijoGrupo()+'.csv');
 };
+
+/* EXPORTAR-EXCEL:START */
+$('btn-xlsx').onclick=function(){
+  if(!datosPanel){ setStatus('Primero carga los resultados.',true); return; }
+  if(typeof XLSX==='undefined'){
+    setStatus('No se pudo cargar la librería de Excel. Usa los botones de CSV, que Excel también abre.',true);
+    return;
+  }
+  const hojas=[
+    ['Diagnóstico',hojaFiltrada(datosPanel.Diagnostico,2)],
+    ['Examen final',hojaFiltrada(datosPanel.Final,3)],
+    ['Encuesta',hojaFiltrada(datosPanel.Encuesta,2)]
+  ].filter(function(par){ return par[1].length>1; });
+
+  if(!hojas.length){ setStatus('No hay datos para exportar en ese grupo.',true); return; }
+
+  const libro=XLSX.utils.book_new();
+  hojas.forEach(function(par){
+    // La columna del detalle JSON se omite: es ilegible en Excel y pesa mucho.
+    const cabecera=par[1][0];
+    const iDetalle=cabecera.indexOf('Detalle JSON');
+    const limpio=par[1].map(function(fila){
+      const copia=fila.slice();
+      if(iDetalle>=0) copia.splice(iDetalle,1);
+      return copia;
+    });
+    const hoja=XLSX.utils.aoa_to_sheet(limpio);
+    hoja['!cols']=limpio[0].map(function(h){
+      return {wch:Math.min(38,Math.max(11,String(h).length+3))};
+    });
+    hoja['!freeze']={xSplit:0,ySplit:1};
+    XLSX.utils.book_append_sheet(libro,hoja,par[0]);
+  });
+  XLSX.writeFile(libro,'resultados-induccion'+sufijoGrupo()+'.xlsx');
+  setStatus('Excel generado con '+hojas.length+' hoja(s).',false);
+};
+/* EXPORTAR-EXCEL:END */
 
 function descargarHojaCSV(rows,filename){
   if(!Array.isArray(rows) || !rows.length){

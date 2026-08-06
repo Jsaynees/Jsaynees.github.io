@@ -17,6 +17,8 @@
   label{display:block;font-weight:600;color:var(--navy);margin:12px 0 6px;font-size:15px;}
   input[type=text],select{width:100%;padding:12px 14px;border:2px solid #d5dced;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;}
   input[type=text]:focus,select:focus{outline:none;border-color:var(--gold);}
+  .nombre-vista{margin-top:10px;font-size:13px;color:var(--navy);background:#eef1f7;border-radius:8px;padding:9px 12px;}
+  .nombre-vista:empty{display:none;}
   .btn{cursor:pointer;font-family:inherit;font-weight:bold;font-size:16px;border:none;border-radius:10px;padding:13px 22px;background:var(--navy);color:#fff;transition:transform .05s,background .15s;}
   .btn:hover{background:var(--navy2);} .btn:active{transform:translateY(1px);}
   .btn.gold{background:var(--gold);color:var(--navy);} .btn.ghost{background:#eef1f7;color:var(--navy);}
@@ -135,8 +137,13 @@
 
   <!-- INICIO -->
   <div class="card" id="scr-inicio">
-    <label for="nombre">Tu nombre completo</label>
-    <input type="text" id="nombre" placeholder="Nombre y apellidos" maxlength="60">
+    <label for="ap-paterno">Apellido paterno</label>
+    <input type="text" id="ap-paterno" placeholder="Ej. Pérez" maxlength="40" autocomplete="family-name" autocapitalize="words">
+    <label for="ap-materno">Apellido materno</label>
+    <input type="text" id="ap-materno" placeholder="Ej. López" maxlength="40" autocapitalize="words">
+    <label for="nombres">Nombre(s)</label>
+    <input type="text" id="nombres" placeholder="Ej. Ana Sofía" maxlength="60" autocomplete="given-name" autocapitalize="words">
+    <div class="nombre-vista" id="nombre-vista" aria-live="polite"></div>
     <label for="grupo">Tu grupo</label>
     <select id="grupo">
       <option value="" disabled selected>Selecciona tu grupo</option>
@@ -159,6 +166,11 @@
 
   <!-- QUIZ -->
   <div class="card hidden" id="scr-quiz">
+    <div class="hidden" id="aviso-salidas" role="status" aria-live="polite" style="border-left:6px solid var(--gold);background:#fbf7ec;padding:14px 16px;border-radius:8px;margin-bottom:14px;">
+      <strong id="aviso-salidas-titulo" style="display:block;color:var(--navy);margin-bottom:6px;">Saliste del examen</strong>
+      <span id="aviso-salidas-texto" style="line-height:1.6;font-size:14px;"></span>
+      <div style="text-align:center;margin-top:10px;"><button class="btn ghost" id="btn-aviso-ok" type="button">Entendido, continúo</button></div>
+    </div>
     <div class="meta"><span id="q-count">Pregunta 1 de 24</span><span id="q-block">Bloque 1</span></div>
     <div class="progress"><i id="q-prog"></i></div>
     <span class="qtag" id="q-tag">Enteros y jerarquía</span>
@@ -230,14 +242,101 @@ let idx=0; const respuestas=new Array(QS.length).fill(null);
 const $=id=>document.getElementById(id);
 function show(id){ ['scr-inicio','scr-quiz','scr-res'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
 
+/* ---- Registro de salidas del examen ----------------------------------------
+   Solo se escucha visibilitychange, nunca window.blur: blur se dispara al abrir
+   el teclado en pantalla y con cualquier notificación, y en celular llenaría el
+   conteo de falsos positivos. Además se descartan las salidas cortas. */
+const SALIDA_MINIMA_MS = 2500;
+const AVISOS_EN = [3,6,10];
+const TACTIL = window.matchMedia('(pointer:coarse)').matches;
+let salidas=0, msFuera=0, avisoMostrado=0, vigilanciaActiva=false, ocultoDesde=0;
+
+function iniciarVigilancia(){
+  if(vigilanciaActiva) return;
+  vigilanciaActiva=true;
+  ocultoDesde=document.visibilityState==='hidden'?Date.now():0;
+  document.addEventListener('visibilitychange',alCambiarVisibilidad);
+}
+
+function detenerVigilancia(){
+  vigilanciaActiva=false;
+  ocultoDesde=0;
+  document.removeEventListener('visibilitychange',alCambiarVisibilidad);
+}
+
+function alCambiarVisibilidad(){
+  if(!vigilanciaActiva) return;
+  if(document.visibilityState==='hidden'){ ocultoDesde=Date.now(); return; }
+  if(!ocultoDesde) return;
+  const fuera=Date.now()-ocultoDesde;
+  ocultoDesde=0;
+  if(fuera<SALIDA_MINIMA_MS) return;
+  salidas++;
+  msFuera+=fuera;
+  mostrarAvisoSiCorresponde();
+}
+
+function mostrarAvisoSiCorresponde(){
+  if(AVISOS_EN.indexOf(salidas)<0 || avisoMostrado>=salidas) return;
+  avisoMostrado=salidas;
+  $('aviso-salidas-titulo').textContent='Saliste del examen '+salidas+' veces';
+  $('aviso-salidas-texto').textContent=salidas>=10
+    ? 'Cada salida queda registrada junto con tus respuestas. Este examen no cuenta para tu calificación: sirve para saber con qué temas hay que apoyarte desde el primer día. Termínalo con lo que tú sepas.'
+    : (salidas>=6
+      ? 'Van '+salidas+' salidas registradas. Si el resultado sale inflado vamos a dar por visto un tema que en realidad te falta, y el que se queda con el hueco eres tú. Continúa por tu cuenta.'
+      : 'La página registra cada vez que sales del examen. Este examen es diagnóstico y no cuenta para tu calificación; su único fin es ubicar qué necesitas repasar. Responde con lo que tú sepas, aunque te equivoques.');
+  $('aviso-salidas').classList.remove('hidden');
+}
+
+$('btn-aviso-ok').onclick=function(){ $('aviso-salidas').classList.add('hidden'); };
+
+/* Las partículas de los apellidos compuestos se dejan en minúscula: "de la Cruz". */
+const PARTICULAS=['de','del','la','las','los','y','da','di','van','von','mac','el'];
+function tituloNombre(texto){
+  return String(texto||'').trim().replace(/\s+/g,' ').toLowerCase().split(' ')
+    .map(function(palabra,i){
+      if(i>0 && PARTICULAS.indexOf(palabra)>=0) return palabra;
+      return palabra.replace(/^[a-záéíóúüñ]/,function(c){ return c.toUpperCase(); });
+    }).join(' ');
+}
+function componerNombre(paterno,materno,nombres){
+  const apellidos=[tituloNombre(paterno),tituloNombre(materno)].filter(Boolean).join(' ');
+  const pila=tituloNombre(nombres);
+  return apellidos && pila ? apellidos+', '+pila : (apellidos||pila);
+}
+function actualizarVistaNombre(){
+  const compuesto=componerNombre($('ap-paterno').value,$('ap-materno').value,$('nombres').value);
+  $('nombre-vista').textContent=compuesto ? 'Se registrará como: '+compuesto : '';
+}
+['ap-paterno','ap-materno','nombres'].forEach(function(id){
+  $(id).addEventListener('input',actualizarVistaNombre);
+});
+
 $('btn-empezar').onclick=function(){
-  const n=$('nombre').value.trim();
-  if(!n){
-    $('nombre').focus();
-    $('nombre').style.borderColor='var(--no)';
-    $('start-status').textContent='Escribe tu nombre completo antes de comenzar.';
+  const paterno=tituloNombre($('ap-paterno').value);
+  const materno=tituloNombre($('ap-materno').value);
+  const nombres=tituloNombre($('nombres').value);
+  const n=componerNombre(paterno,materno,nombres);
+  if(!paterno){
+    $('ap-paterno').focus();
+    $('ap-paterno').style.borderColor='var(--no)';
+    $('start-status').textContent='Escribe tu apellido paterno antes de comenzar.';
     return;
   }
+  if(!nombres){
+    $('nombres').focus();
+    $('nombres').style.borderColor='var(--no)';
+    $('start-status').textContent='Escribe tu nombre o nombres antes de comenzar.';
+    return;
+  }
+  // Atrapa a quien escribe el nombre completo en un solo campo.
+  if(paterno.split(' ').length>2){
+    $('ap-paterno').focus();
+    $('ap-paterno').style.borderColor='var(--no)';
+    $('start-status').textContent='En “Apellido paterno” va solo ese apellido, no el nombre completo.';
+    return;
+  }
+  window._identidad={paterno:paterno,materno:materno,nombres:nombres,nombre:n};
   if(!$('grupo').value){
     $('grupo').focus();
     $('grupo').style.borderColor='var(--no)';
@@ -247,6 +346,7 @@ $('btn-empezar').onclick=function(){
   }
   $('start-status').textContent='';
   show('scr-quiz'); render();
+  iniciarVigilancia();
 };
 
 function render(){
@@ -294,8 +394,13 @@ function finalizar(){
     : pct>=40 ? 'Tienes cimientos que reforzaremos juntos. ¡Para eso es el curso! 🚀'
     : 'No te preocupes por el número: justo por esto estás aquí. Vamos paso a paso. 🌱';
   show('scr-res');
-  window._payload={tipo:'diagnostico',nombre:$('nombre').value.trim(),grupo:$('grupo').value.trim(),
-    aciertos:ac,total:QS.length,pct:pct,b1:pctB[0],b2:pctB[1],b3:pctB[2],b4:pctB[3],b5:pctB[4],b6:pctB[5]};
+  detenerVigilancia();
+  const ident=window._identidad||{};
+  window._payload={tipo:'diagnostico',nombre:ident.nombre||'',
+    apellidoPaterno:ident.paterno||'',apellidoMaterno:ident.materno||'',nombres:ident.nombres||'',
+    grupo:$('grupo').value.trim(),
+    aciertos:ac,total:QS.length,pct:pct,b1:pctB[0],b2:pctB[1],b3:pctB[2],b4:pctB[3],b5:pctB[4],b6:pctB[5],
+    salidas:salidas,segundosFuera:Math.round(msFuera/1000),dispositivo:TACTIL?'táctil':'escritorio'};
 }
 
 /* ENVIO-DIAGNOSTICO-V5:START */

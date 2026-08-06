@@ -14,7 +14,9 @@
   .hero h1{font-size:27px;margin:6px 0;}
   .hero p{color:#dbe6f7;font-size:15px;line-height:1.5;}
   .card{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);padding:22px;margin-top:16px;}
-  .identity{display:grid;grid-template-columns:2fr 1fr;gap:14px;}
+  .identity{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .nombre-vista{grid-column:1/-1;font-size:13px;color:var(--navy);background:#eef1f7;border-radius:8px;padding:9px 12px;min-height:20px;}
+  .nombre-vista:empty{display:none;}
   label{display:block;font-weight:700;color:var(--navy);margin:0 0 6px;font-size:15px;}
   input[type=text],select,textarea{width:100%;padding:11px 13px;border:2px solid #d5dced;border-radius:10px;background:#fff;color:var(--ink);font-size:16px;font-family:inherit;}
   input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.14);}
@@ -63,6 +65,9 @@
   .frac span:first-child{border-bottom:1px solid currentColor;padding:0 .15em .08em;}
   .frac span:last-child{padding:.08em .15em 0;}
   .send-status{min-height:20px;margin-top:10px;color:var(--muted);font-size:13px;line-height:1.45;text-align:center;}
+  .aviso-salidas{border-left:6px solid var(--gold);}
+  .aviso-salidas h3{color:var(--navy);font-size:16px;margin-bottom:8px;}
+  .aviso-salidas p{color:var(--ink);line-height:1.6;font-size:14px;}
   .send-status.ok{color:#237a42;font-weight:600;}.send-status.error{color:#b33b2e;font-weight:600;}
   .result-score{text-align:center;color:var(--navy);font-size:48px;font-weight:850;}
   .result-score.pending{font-size:30px;line-height:1.25;}
@@ -133,8 +138,16 @@
   <section class="card" id="scr-inicio">
     <div class="identity">
       <div>
-        <label for="nombre">Tu nombre completo</label>
-        <input type="text" id="nombre" placeholder="Nombre y apellidos" maxlength="60" autocomplete="name">
+        <label for="ap-paterno">Apellido paterno</label>
+        <input type="text" id="ap-paterno" placeholder="Ej. Pérez" maxlength="40" autocomplete="family-name" autocapitalize="words">
+      </div>
+      <div>
+        <label for="ap-materno">Apellido materno</label>
+        <input type="text" id="ap-materno" placeholder="Ej. López" maxlength="40" autocapitalize="words">
+      </div>
+      <div>
+        <label for="nombres">Nombre(s)</label>
+        <input type="text" id="nombres" placeholder="Ej. Ana Sofía" maxlength="60" autocomplete="given-name" autocapitalize="words">
       </div>
       <div>
         <label for="grupo">Tu grupo</label>
@@ -146,6 +159,7 @@
           <option value="4">Grupo 4</option>
         </select>
       </div>
+      <div class="nombre-vista" id="nombre-vista" aria-live="polite"></div>
     </div>
     <div class="rules">
       <strong>Indicaciones</strong>
@@ -174,6 +188,11 @@
       </div>
       <div class="timer" id="timer" role="timer" aria-live="polite">60:00</div>
     </div>
+    <div class="card aviso-salidas hidden" id="aviso-salidas" role="status" aria-live="polite">
+      <h3 id="aviso-salidas-titulo">Saliste del examen</h3>
+      <p id="aviso-salidas-texto"></p>
+      <div class="actions"><button class="btn" id="btn-aviso-ok" type="button">Entendido, sigo con el examen</button></div>
+    </div>
     <div id="questions"></div>
     <div class="card">
       <p style="text-align:center;color:var(--muted);line-height:1.55;">Antes de entregar: revisa signos, simplificación, unidades y soluciones. Las respuestas vacías cuentan como incorrectas.</p>
@@ -200,6 +219,11 @@ const FINAL_VERSION = 'induccion-final-2026-v1';
 const DURATION_MS = 60*60*1000;
 const DRAFT_KEY = 'induccion_borrador_final';
 const PENDING_KEY = 'induccion_pendiente_final';
+// Solo se cuenta una salida si la página estuvo oculta más de este tiempo. En celular
+// el teclado NO oculta la página, y los avisos y parpadeos del sistema duran menos que esto.
+const SALIDA_MINIMA_MS = 2500;
+// Salidas acumuladas en las que se le muestra el aviso al alumno.
+const AVISOS_EN = [3,6,10];
 const $=id=>document.getElementById(id);
 
 const SECTIONS = [
@@ -229,8 +253,10 @@ const QUESTIONS = [
   {id:'vi4',section:5,label:'4',points:5,prompt:'<strong>Problema.</strong> El triple de un número, más 5, es igual a 23. ¿Cuál es el número?',kind:'number'}
 ];
 
-let state={nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{}};
+let state={paterno:'',materno:'',nombres:'',nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{},salidas:0,msFuera:0,avisoMostrado:0};
 let timerId=0;
+let vigilanciaActiva=false;
+let ocultoDesde=0;
 let payloadFinal=null;
 let deliveryConfirmation=false;
 let deliveryConfirmationTimer=0;
@@ -258,7 +284,9 @@ function saveDraft(){
 function prepareDraft(){
   const draft=readDraft();
   if(!draft) return;
-  $('nombre').value=draft.nombre||'';
+  $('ap-paterno').value=draft.paterno||'';
+  $('ap-materno').value=draft.materno||'';
+  $('nombres').value=draft.nombres||'';
   $('grupo').value=draft.grupo||'';
   $('draft-note').style.display='block';
   $('btn-nuevo').classList.remove('hidden');
@@ -268,19 +296,54 @@ function prepareDraft(){
 $('btn-nuevo').onclick=function(){
   if(!window.confirm('¿Descartar el examen guardado y comenzar desde cero?')) return;
   localStorage.removeItem(DRAFT_KEY);
-  state={nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{}};
+  state={paterno:'',materno:'',nombres:'',nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{},salidas:0,msFuera:0,avisoMostrado:0};
   $('draft-note').style.display='none';
   $('btn-nuevo').classList.add('hidden');
   $('btn-empezar').textContent='Comenzar examen →';
 };
 
+/* Las partículas de los apellidos compuestos se dejan en minúscula: "de la Cruz". */
+const PARTICULAS=['de','del','la','las','los','y','da','di','van','von','mac','el'];
+function tituloNombre(texto){
+  return String(texto||'').trim().replace(/\s+/g,' ').toLowerCase().split(' ')
+    .map(function(palabra,i){
+      if(i>0 && PARTICULAS.indexOf(palabra)>=0) return palabra;
+      return palabra.replace(/^[a-záéíóúüñ]/,function(c){ return c.toUpperCase(); });
+    }).join(' ');
+}
+function componerNombre(paterno,materno,nombres){
+  const apellidos=[tituloNombre(paterno),tituloNombre(materno)].filter(Boolean).join(' ');
+  const pila=tituloNombre(nombres);
+  return apellidos && pila ? apellidos+', '+pila : (apellidos||pila);
+}
+function actualizarVistaNombre(){
+  const compuesto=componerNombre($('ap-paterno').value,$('ap-materno').value,$('nombres').value);
+  $('nombre-vista').textContent=compuesto ? 'Se registrará como: '+compuesto : '';
+}
+['ap-paterno','ap-materno','nombres'].forEach(function(id){
+  $(id).addEventListener('input',actualizarVistaNombre);
+});
+
 $('btn-empezar').onclick=function(){
-  const nombre=$('nombre').value.trim();
+  const paterno=tituloNombre($('ap-paterno').value);
+  const materno=tituloNombre($('ap-materno').value);
+  const nombres=tituloNombre($('nombres').value);
   const grupo=$('grupo').value;
   const status=$('start-status');
-  if(!nombre){
-    $('nombre').focus();
-    status.textContent='Escribe tu nombre completo antes de comenzar.';
+  if(!paterno){
+    $('ap-paterno').focus();
+    status.textContent='Escribe tu apellido paterno antes de comenzar.';
+    return;
+  }
+  if(!nombres){
+    $('nombres').focus();
+    status.textContent='Escribe tu nombre o nombres antes de comenzar.';
+    return;
+  }
+  // Atrapa a quien escribe el nombre completo en un solo campo.
+  if(paterno.split(' ').length>2){
+    $('ap-paterno').focus();
+    status.textContent='En “Apellido paterno” va solo ese apellido, no el nombre completo.';
     return;
   }
   if(!grupo){
@@ -288,18 +351,21 @@ $('btn-empezar').onclick=function(){
     status.textContent='Selecciona tu grupo antes de comenzar.';
     return;
   }
+  const nombre=componerNombre(paterno,materno,nombres);
 
   const draft=readDraft();
+  const base={paterno:paterno,materno:materno,nombres:nombres,nombre:nombre,grupo:grupo};
   if(draft && draft.nombre===nombre && draft.grupo===grupo){
-    state={nombre:nombre,grupo:grupo,submissionId:draft.submissionId||createSubmissionId(),startedAt:draft.startedAt,answers:draft.answers||{},procedures:draft.procedures||{}};
+    state=Object.assign(base,{submissionId:draft.submissionId||createSubmissionId(),startedAt:draft.startedAt,answers:draft.answers||{},procedures:draft.procedures||{},salidas:draft.salidas||0,msFuera:draft.msFuera||0,avisoMostrado:draft.avisoMostrado||0});
   }else{
-    state={nombre:nombre,grupo:grupo,submissionId:createSubmissionId(),startedAt:Date.now(),answers:{},procedures:{}};
+    state=Object.assign(base,{submissionId:createSubmissionId(),startedAt:Date.now(),answers:{},procedures:{},salidas:0,msFuera:0,avisoMostrado:0});
   }
   saveDraft();
   renderQuestions();
   show('scr-examen');
   window.scrollTo(0,0);
   startTimer();
+  iniciarVigilancia();
 };
 
 function renderQuestions(){
@@ -441,6 +507,58 @@ function updateProgress(){
   $('exam-progress').style.width=Math.round(answered/QUESTIONS.length*100)+'%';
 }
 
+/* ---- Registro de salidas del examen ----------------------------------------
+   Se usa SOLO visibilitychange. A propósito no se escucha window.blur: ese
+   evento se dispara al abrir el teclado en pantalla, al tocar la barra de
+   direcciones y con cualquier notificación, y llenaría el conteo de falsos
+   positivos en celular. visibilitychange solo avisa cuando la página pasa
+   realmente a segundo plano (cambio de app, cambio de pestaña, pantalla
+   bloqueada). Aun así se descartan las salidas de menos de SALIDA_MINIMA_MS,
+   que suelen ser el centro de control, una llamada rechazada o un parpadeo. */
+function iniciarVigilancia(){
+  if(vigilanciaActiva) return;
+  vigilanciaActiva=true;
+  ocultoDesde=document.visibilityState==='hidden'?Date.now():0;
+  document.addEventListener('visibilitychange',alCambiarVisibilidad);
+}
+
+function detenerVigilancia(){
+  vigilanciaActiva=false;
+  ocultoDesde=0;
+  document.removeEventListener('visibilitychange',alCambiarVisibilidad);
+}
+
+function alCambiarVisibilidad(){
+  if(!vigilanciaActiva) return;
+  if(document.visibilityState==='hidden'){ ocultoDesde=Date.now(); return; }
+  if(!ocultoDesde) return;
+  const fuera=Date.now()-ocultoDesde;
+  ocultoDesde=0;
+  if(fuera<SALIDA_MINIMA_MS) return;
+  state.salidas=(state.salidas||0)+1;
+  state.msFuera=(state.msFuera||0)+fuera;
+  saveDraft();
+  mostrarAvisoSiCorresponde();
+}
+
+function mostrarAvisoSiCorresponde(){
+  const salidas=state.salidas||0;
+  if(AVISOS_EN.indexOf(salidas)<0) return;
+  if((state.avisoMostrado||0)>=salidas) return;
+  state.avisoMostrado=salidas;
+  saveDraft();
+  $('aviso-salidas-titulo').textContent='Saliste del examen '+salidas+' veces';
+  $('aviso-salidas-texto').textContent=salidas>=10
+    ? 'Cada salida queda registrada junto con tus respuestas. Este examen no define tu calificación del semestre: sirve para saber con qué temas hay que apoyarte desde el primer día. Termínalo con lo que tú sepas.'
+    : (salidas>=6
+      ? 'Van '+salidas+' salidas registradas. Recuerda que el examen es diagnóstico: si el resultado sale inflado, vamos a dar por visto un tema que en realidad te falta, y el que se queda con el hueco eres tú. Continúa por tu cuenta.'
+      : 'La página registra cada vez que sales del examen. Este examen es diagnóstico y no cuenta para tu calificación; su único fin es ubicar qué necesitas repasar. Responde con lo que tú sepas, aunque te equivoques.');
+  $('aviso-salidas').classList.remove('hidden');
+  $('aviso-salidas').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+$('btn-aviso-ok').onclick=function(){ $('aviso-salidas').classList.add('hidden'); };
+
 function startTimer(){
   clearInterval(timerId);
   updateTimer();
@@ -487,11 +605,15 @@ function resetDeliveryConfirmation(){
 function finishExam(expired){
   if(submittingFinal) return;
   clearInterval(timerId);
+  detenerVigilancia();
   const durationSeconds=Math.min(Math.round((Date.now()-state.startedAt)/1000),DURATION_MS/1000);
   payloadFinal={
     tipo:'final',versionExamen:FINAL_VERSION,submissionId:state.submissionId,
-    nombre:state.nombre,grupo:state.grupo,respuestas:{},procedimientos:{},
-    duracionSegundos:durationSeconds,tiempoAgotado:expired,fechaCliente:new Date().toISOString()
+    nombre:state.nombre,apellidoPaterno:state.paterno,apellidoMaterno:state.materno,
+    nombres:state.nombres,grupo:state.grupo,respuestas:{},procedimientos:{},
+    duracionSegundos:durationSeconds,tiempoAgotado:expired,fechaCliente:new Date().toISOString(),
+    salidas:state.salidas||0,segundosFuera:Math.round((state.msFuera||0)/1000),
+    dispositivo:TOUCH_KEYPAD?'táctil':'escritorio'
   };
   QUESTIONS.forEach(function(q){
     payloadFinal.respuestas[q.id]=String(state.answers[q.id]||'').trim();
@@ -517,7 +639,7 @@ function showPendingResult(expired){
   window.scrollTo(0,0);
 }
 
-function renderServerResult(result,expired){
+function renderServerResult(result,expired,yaPresentado){
   const blocks=Array.isArray(result.bloques)?result.bloques:[];
   $('result-score').classList.remove('pending');
   $('result-score').textContent=Number(result.puntaje||0)+' / '+Number(result.total||100);
@@ -533,7 +655,9 @@ function renderServerResult(result,expired){
     : 'Este resultado muestra exactamente qué temas conviene reforzar. Lo importante es usarlo como punto de partida.';
   $('btn-enviar').classList.add('hidden');
   $('final-envio').className='send-status ok';
-  $('final-envio').textContent='Tu examen fue calificado y guardado correctamente. Ya puedes cerrar esta pestaña.';
+  $('final-envio').textContent=yaPresentado
+    ? 'Ya tenías un examen final registrado con tu nombre y grupo. Este es el resultado de aquella entrega; el examen se presenta una sola vez. Si crees que hay un error, avísale al profesor.'
+    : 'Tu examen fue calificado y guardado correctamente. Ya puedes cerrar esta pestaña.';
 }
 
 function showPendingFailure(){
@@ -573,8 +697,10 @@ async function submitFinalPayload(payload){
   $('final-envio').textContent='Guardando el examen en el registro del curso…';
   try{
     const response=await enviar(payload);
-    renderServerResult(response.resultado,Boolean(payload.tiempoAgotado));
-    if(window.PortalUI) PortalUI.notify('Examen final calificado y guardado correctamente.','success',3600);
+    renderServerResult(response.resultado,Boolean(payload.tiempoAgotado),Boolean(response.yaPresentado));
+    if(window.PortalUI) PortalUI.notify(response.yaPresentado
+      ? 'Ya tenías un examen registrado. Se muestra ese resultado.'
+      : 'Examen final calificado y guardado correctamente.','success',3600);
   }catch(error){
     showPendingFailure();
     if(window.PortalUI) PortalUI.notify('Tu entrega quedó guardada para reintentarse.','error',0,'Entrega pendiente');
