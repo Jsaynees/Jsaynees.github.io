@@ -1,0 +1,16 @@
+{
+  "name": "Laboratorio — Listas de cotejo",
+  "short_name": "Laboratorio",
+  "description": "Listas de cotejo de prácticas de laboratorio. Los datos se guardan solo en este dispositivo.",
+  "start_url": "laboratorio.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eae3d5",
+  "theme_color": "#1a3a6b",
+  "lang": "es-MX",
+  "icons": [
+    { "src": "img/lab-icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "img/lab-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

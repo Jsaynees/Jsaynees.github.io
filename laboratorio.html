@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1a3a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Laboratorio">
+<link rel="apple-touch-icon" href="img/lab-icon-180.png">
+<link rel="icon" href="img/lab-icon-180.png">
+<link rel="manifest" href="laboratorio.webmanifest">
+<title>Laboratorio — Listas de cotejo</title>
+<style>
+/* Paleta crema cálida: sin blanco puro, sin negro puro, sin modo oscuro.
+   Contraste suficiente para leer, sin el golpe de luminancia del blanco. */
+:root{
+  --azul:#1a3a6b; --azul-hondo:#12294c; --oro:#b3934a; --oro-suave:#e6dcc2;
+  --papel:#eae3d5;      /* fondo */
+  --tarjeta:#f4efe4;    /* superficie */
+  --tarjeta-2:#efe8da;  /* superficie hundida */
+  --tinta:#332f28; --tinta-2:#6d6558; --tinta-3:#928a7b;
+  --linea:#d9cfba; --linea-fuerte:#c4b79c;
+  --si:#4a7150; --parcial:#a37b35; --no:#964f45;
+  --sombra:0 1px 2px rgba(80,65,40,.07), 0 2px 8px rgba(80,65,40,.05);
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--papel)}
+body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.55 var(--sans);padding-bottom:4rem}
+
+header{
+  position:sticky;top:0;z-index:20;background:var(--azul);color:var(--tarjeta);
+  padding:.65rem 1rem;padding-top:calc(.65rem + env(safe-area-inset-top));
+  display:flex;align-items:center;gap:.7rem;border-bottom:2px solid var(--oro);
+}
+header h1{font:600 1.02rem/1.25 var(--serif);margin:0;flex:1;letter-spacing:.01em}
+header small{display:block;font:400 .74rem/1.4 var(--sans);color:var(--oro-suave);letter-spacing:.04em}
+.back{background:rgba(255,255,255,.12);border:0;color:inherit;font-size:1.4rem;width:2.1rem;height:2.1rem;border-radius:6px;flex:none;cursor:pointer;line-height:1}
+main{padding:1.1rem;max-width:780px;margin:0 auto}
+
+h2{font:600 .74rem/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+   color:var(--tinta-2);margin:1.6rem 0 .6rem;display:flex;align-items:center;gap:.6rem}
+h2::after{content:"";flex:1;height:1px;background:var(--linea)}
+h2:first-child{margin-top:0}
+.hint{color:var(--tinta-2);font-size:.85rem;margin:.3rem 0 .9rem}
+
+.card{background:var(--tarjeta);border:1px solid var(--linea);border-radius:10px;
+      padding:1rem 1.1rem;margin-bottom:.8rem;box-shadow:var(--sombra)}
+
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.btn{display:block;width:100%;padding:.85rem 1rem;border-radius:10px;border:1px solid var(--linea);
+     background:var(--tarjeta);color:var(--tinta);text-align:left;cursor:pointer;margin-bottom:.55rem;
+     box-shadow:var(--sombra);position:relative}
+.btn b{font:600 1rem/1.3 var(--serif)}
+.btn .sub{display:block;color:var(--tinta-2);font-size:.82rem;margin-top:.2rem}
+.btn.primary{background:var(--azul);color:var(--tarjeta);border-color:var(--azul-hondo);text-align:center;font-weight:600}
+.btn.oro{background:var(--oro);color:#2e2408;border-color:#9a7d3c;text-align:center;font-weight:600}
+.btn.primary .sub,.btn.oro .sub{color:inherit;opacity:.82}
+.btn.riesgo{color:var(--no);border-color:#c9a49c;background:var(--tarjeta-2)}
+.btn.marcado{border-left:4px solid var(--oro)}
+
+label{display:block;font:600 .72rem/1 var(--sans);letter-spacing:.07em;text-transform:uppercase;
+      color:var(--tinta-2);margin:.9rem 0 .3rem}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:.65rem .7rem;border:1px solid var(--linea-fuerte);border-radius:7px;
+  background:var(--tarjeta-2);margin-bottom:.2rem}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--oro);outline-offset:-1px}
+textarea{min-height:7rem;resize:vertical;line-height:1.5}
+.row{display:flex;gap:.6rem}.row>*{flex:1}
+
+.item{border-bottom:1px solid var(--linea);padding:.8rem 0}
+.item:last-child{border-bottom:0;padding-bottom:0}
+.item .txt{font-size:.92rem;line-height:1.45;margin-bottom:.55rem;display:flex;gap:.5rem}
+.item .txt i{font:600 .8rem/1.6 var(--serif);color:var(--oro);font-style:normal;flex:none;min-width:1.1rem}
+.marks{display:flex;border:1px solid var(--linea-fuerte);border-radius:8px;overflow:hidden}
+.marks button{flex:1;padding:.62rem .2rem;border:0;border-left:1px solid var(--linea-fuerte);
+  background:var(--tarjeta-2);color:var(--tinta-2);font-size:.82rem;font-weight:600;cursor:pointer}
+.marks button:first-child{border-left:0}
+.marks button[data-on="1"]{background:var(--si);color:#f2f6f2}
+.marks button[data-on="2"]{background:var(--parcial);color:#fdf7ec}
+.marks button[data-on="3"]{background:var(--no);color:#fdf2f0}
+
+.pill{display:inline-block;padding:.1rem .5rem;border-radius:99px;font-size:.72rem;font-weight:600;
+      border:1px solid var(--linea-fuerte);color:var(--tinta-2);background:var(--tarjeta-2);vertical-align:.1em}
+.pill.ok{background:var(--si);border-color:var(--si);color:#f2f6f2}
+.pill.mid{background:var(--oro);border-color:#9a7d3c;color:#2e2408}
+.pill.alerta{background:var(--no);border-color:var(--no);color:#fdf2f0}
+
+.bar{position:sticky;bottom:0;background:var(--tarjeta);border-top:2px solid var(--oro);
+     padding:.65rem 1.1rem;padding-bottom:calc(.65rem + env(safe-area-inset-bottom));
+     margin:1rem -1.1rem -4rem;z-index:15;box-shadow:0 -2px 10px rgba(80,65,40,.07)}
+.score{font:600 1.45rem/1.1 var(--serif)}
+.muted{color:var(--tinta-2);font-size:.82rem}
+.aviso{background:var(--oro-suave);border:1px solid var(--oro);border-radius:8px;
+       padding:.7rem .85rem;font-size:.86rem;margin-bottom:.8rem;color:#4a3a12}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--linea);border-radius:8px;background:var(--tarjeta)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{border-bottom:1px solid var(--linea);border-right:1px solid var(--linea);padding:.42rem .5rem;text-align:left;white-space:nowrap}
+th{background:var(--tarjeta-2);font:600 .72rem/1.3 var(--sans);letter-spacing:.03em}
+tr:last-child td{border-bottom:0}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.3rem 0 .2rem}
+.chips button{padding:.42rem .7rem;border-radius:99px;border:1px solid var(--linea-fuerte);
+  background:var(--tarjeta-2);font-size:.82rem;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--azul);border-color:var(--azul-hondo);color:var(--tarjeta)}
+.inc{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px solid var(--linea);font-size:.88rem}
+.inc:last-child{border-bottom:0}
+.inc .x{border:0;background:none;color:var(--no);font-size:1.1rem;cursor:pointer;padding:0 .2rem;flex:none}
+.hoja .mem{display:flex;align-items:center;gap:.8rem;margin-bottom:.7rem}
+.hoja .mem img{height:38px;width:auto;flex:none}
+.hoja .mem .tit{flex:1;text-align:center;font:700 .96rem/1.3 var(--sans);letter-spacing:.02em}
+.hoja table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:.6rem}
+.hoja th,.hoja td{border:1px solid #6b6b6b;padding:.28rem .4rem;white-space:normal;vertical-align:top}
+.hoja .datos{font-size:.7rem;table-layout:fixed}
+.hoja .datos th{background:#e2e2e2;font-weight:700;width:1%}
+.papel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hoja{width:660px;margin:0}
+.hoja .cuerpo th{background:#e2e2e2;font-weight:700;text-align:center}
+.hoja .cuerpo td{line-height:1.5}
+.hoja .firma{margin-top:2.6rem;text-align:center;font-size:.8rem}
+@media print{
+  @page{size:letter;margin:14mm}
+  header,.noprint,.bar{display:none!important}
+  html,body{background:#fff;color:#000}
+  main{padding:0;max-width:none}
+  .card.hoja{border:0;box-shadow:none;padding:0;background:#fff}
+  .hoja th,.hoja td{border:1px solid #000}
+  .hoja .cuerpo tr{break-inside:avoid}
+  .papel{overflow:visible}
+  .hoja{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="back" id="back" hidden aria-label="Regresar">‹</button>
+  <h1 id="titulo">Laboratorio<small id="subtitulo">Listas de cotejo</small></h1>
+</header>
+
+<main id="app"></main>
+
+<script>
+/* ================= Listas de cotejo ================= */
+const ETAPAS = {
+ 1:{nombre:"Protocolo", peso:.30, equipo:[
+  "Datos generales completos: ciclo, asignatura, grupo, práctica, unidad, horario",
+  "Equipo integrado: nombres, número de control, firmas y coordinador señalado",
+  "Planteamiento del problema formulado como pregunta investigable",
+  "Marco teórico pertinente, con conceptos y expresiones necesarias",
+  "Objetivo en infinitivo, medible y alcanzable en las sesiones asignadas",
+  "Hipótesis con relación explícita entre variable independiente y dependiente",
+  "Plan de investigación: tipo, lugar, instrumentos y calendario de las 3 etapas",
+  "Procedimiento en pasos numerados, reproducible sin preguntar",
+  "Materiales, equipos y sustancias con cantidades; vale entregado",
+  "Manejo y disposición de desechos especificado",
+  "Bibliografía en las cuatro categorías, con fuentes verificables",
+  "Protocolo impreso entregado en la fecha señalada",
+  "Correcciones de la revisión previa incorporadas"
+ ], individual:[
+  "Sus secciones cumplen los criterios de la lista de equipo",
+  "Puede explicar el protocolo completo, no solo su parte",
+  "Firmó y aparece con datos completos en el registro de integrantes"
+ ]},
+ 2:{nombre:"Ejecución", peso:.30, equipo:[
+  "Siguen el procedimiento que escribieron; documentan toda desviación",
+  "Montaje y uso correcto del equipo e instrumentos",
+  "Registro de datos durante la sesión, no reconstruido después",
+  "Mediciones con unidades y cifras significativas apropiadas",
+  "Normas de seguridad y disposición de desechos conforme al protocolo",
+  "Área de trabajo entregada limpia y material completo"
+ ], individual:[
+  "Participa activamente; no delega su parte ni permanece al margen",
+  "Manipula equipo e instrumentos, no solo observa",
+  "Colabora: escucha, aporta y resuelve desacuerdos sin obstruir",
+  "Puntualidad y permanencia durante toda la sesión"
+ ]},
+ 3:{nombre:"Informe", peso:.40, equipo:[
+  "Datos generales y equipo actualizados respecto al protocolo",
+  "Planteamiento, objetivo e hipótesis consistentes con el protocolo aprobado",
+  "Marco teórico ampliado con lo que la práctica exigió",
+  "Procedimiento describe lo que realmente se hizo, con desviaciones señaladas",
+  "Materiales y sustancias efectivamente utilizados",
+  "Resultados en tablas o gráficas, con unidades y título",
+  "Análisis interpreta los resultados, compara con la teoría y estima el error",
+  "Conclusiones responden al objetivo y aceptan o rechazan la hipótesis",
+  "Manejo y disposición de desechos reportado",
+  "Bibliografía completa y citada donde corresponde",
+  "Reporte final impreso entregado en la fecha señalada",
+  "Presentación: ortografía, redacción, figuras numeradas y legibles"
+ ], individual:[
+  "Sus secciones cumplen los criterios de la lista de equipo",
+  "Contribuyó al análisis y las conclusiones, no solo a transcribir datos",
+  "Sostiene y defiende los resultados al ser cuestionado"
+ ]}
+};
+const PESO_EQ=.70, PESO_IND=.30, VALOR={1:1,2:.5,3:0};
+
+/* Subetapas del ANEXO 4, en el orden de las columnas D a L de la plantilla.
+   [nombre, etapa donde la agrupa la plantilla, lista de cotejo que la alimenta,
+    reactivos, frase de cumplimiento, frase de incumplimiento]              */
+const ANEXO4 = [
+ ["Investigación",1,1,[3,10],
+  "presentaron un marco teórico pertinente y bibliografía verificable",
+  "presentan un marco teórico o una bibliografía incompletos"],
+ ["Vale de material",1,1,[8],
+  "entregaron su vale de materiales",
+  "no entregaron su vale de materiales"],
+ ["Protocolo",1,1,[0,1,2,4,5,6,7,9],
+  "plantearon su problema, objetivo e hipótesis con base en la temática",
+  "presentan deficiencias en el planteamiento, el objetivo o la hipótesis"],
+ ["Protocolo impreso",2,1,[11,12],
+  "entregaron su protocolo impreso en la fecha señalada",
+  "no entregaron su protocolo impreso en la fecha señalada"],
+ ["Procedimiento",2,2,[0,1,4,5],
+  "siguieron el procedimiento y trabajaron conforme a las normas de seguridad",
+  "se apartaron del procedimiento o de las normas de seguridad"],
+ ["Resultados",3,2,[2,3],
+  "registraron sus datos durante la sesión, con unidades",
+  "presentan un registro de datos incompleto"],
+ ["Análisis resultados",3,3,[2,5,6],
+  "presentaron e interpretaron sus resultados",
+  "presentan un análisis superficial de sus resultados"],
+ ["Conclusión",3,3,[1,7],
+  "concluyeron respondiendo al objetivo y a su hipótesis",
+  "presentan conclusiones que no responden al objetivo o a la hipótesis"],
+ ["Reporte final impreso",3,3,[0,3,4,8,9,10,11],
+  "entregaron su reporte final impreso en la fecha señalada",
+  "no entregaron su reporte final impreso en la fecha señalada"]
+];
+const subsDe = e => ANEXO4.filter(s=>s[1]===e);
+
+/* Frases de arranque: llenan el campo y se pueden editar encima. */
+const INCIDENCIAS = [
+ ["Sin protocolo",          "no contaba con su formato de protocolo (Anexo 2)"],
+ ["Sin vale de material",   "no entregó su vale de materiales"],
+ ["No trajo material",      "no trajo el material solicitado"],
+ ["No trabajó",             "no trabajó durante la sesión"],
+ ["Se retiró a un alumno",  "se retiró de la práctica al estudiante "],
+ ["Sin equipo de seguridad","no contaba con el equipo de seguridad requerido"],
+ ["Sin informe",            "no entregó su informe de práctica"],
+ ["Interrumpió la sesión",  "presentó conductas que interrumpieron el desarrollo de la sesión"]
+];
+const CONSECUENCIAS = [
+ ["Penalización",           "se les penalizó sobre su calificación"],
+ ["Acuerdo por reincidencia","se llegó al acuerdo de que la reincidencia provocará la cancelación de su sesión de laboratorio"],
+ ["Sesión cancelada",       "se canceló su sesión de laboratorio"],
+ ["Etapa anulada",          "la etapa fue anulada"]
+];
+
+/* Normaliza un fragmento para que encaje en la oración con redacción correcta. */
+const ORTO=[[/\b(con|en) base a\b/gi,"con base en"],[/\bpractica(s?)\b/gi,"práctica$1"],
+ [/\banalisis\b/gi,"análisis"],[/\bhipotesis\b/gi,"hipótesis"],[/\bejecucion\b/gi,"ejecución"],
+ [/\bcalificacion(es)?\b/gi,"calificación$1"],[/\bsesion(es)?\b/gi,"sesión$1"],
+ [/\binformacion\b/gi,"información"],[/\bteorico(s?)\b/gi,"teórico$1"],[/\bmetodo(s?)\b/gi,"método$1"],
+ [/\bnumero(s?)\b/gi,"número$1"],[/\bmateriale?s? de laboratorio\b/gi,"material de laboratorio"],
+ [/\bprotocolo anexo ?2\b/gi,"protocolo (Anexo 2)"],[/\banexo ?2\b/gi,"Anexo 2"],
+ [/\bmas\b/gi,"más"],[/\bdebido a de que\b/gi,"debido a que"]];
+const PLURAL={entregaron:"entregó",trabajaron:"trabajó",contaban:"contaba",contaron:"contó",
+ trajeron:"trajo",presentaron:"presentó",realizaron:"realizó",cumplieron:"cumplió",llegaron:"llegó",
+ tuvieron:"tuvo",hicieron:"hizo",terminaron:"terminó",siguieron:"siguió",usaron:"usó",
+ montaron:"montó",registraron:"registró",asistieron:"asistió",entregan:"entrega",tienen:"tiene",
+ trabajan:"trabaja",traen:"trae",estaban:"estaba",fueron:"fue",plantearon:"planteó",
+ concluyeron:"concluyó",apartaron:"apartó",interpretaron:"interpretó",presentan:"presenta"};
+function normalizar(t, concordar){
+  if(!t) return "";
+  let s=String(t).trim().replace(/\s+/g," ").replace(/[.,;:]+$/,"");
+  ORTO.forEach(([re,to])=>s=s.replace(re,to));
+  if(concordar) s=s.replace(/[a-záéíóúüñ]+/gi,w=>PLURAL[w.toLowerCase()]||w);
+  return s.charAt(0).toLowerCase()+s.slice(1);
+}
+const GENERAL = {
+ 1:"El grupo trabajó correctamente durante la elaboración de su protocolo de investigación, los {n} equipos seleccionaron su práctica con base en la temática y entregaron sus vales de materiales.",
+ 2:"El grupo trabajó correctamente durante la ejecución de la práctica, los {n} equipos montaron su experimento y registraron sus datos durante la sesión.",
+ 3:"El grupo entregó sus informes de práctica en la fecha señalada, los {n} equipos presentaron sus resultados, su análisis y sus conclusiones."
+};
+
+/* ================= Almacenamiento =================
+   Una llave por grupo y una por práctica. Borrar un grupo NO toca las prácticas. */
+const K_PERFIL = "lab.perfil";
+const K_GRUPO = g => "lab.grupo."+g;
+const K_PRACT = (g,n) => "lab.practica."+g+"."+n;
+const leer = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
+const guardar = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+function listaGrupos(){ const o=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);
+  if(k.startsWith("lab.grupo.")){const g=leer(k); if(g)o.push(g);}} return o.sort((a,b)=>a.clave.localeCompare(b.clave)); }
+function listaPracticas(c){ const o=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);
+  if(k.startsWith("lab.practica."+c+".")){const p=leer(k); if(p)o.push(p);}} return o.sort((a,b)=>a.num-b.num); }
+
+/* ================= Navegación ================= */
+let vista={n:"inicio"};
+const app=document.getElementById("app"), back=document.getElementById("back");
+back.onclick=()=>{ if(vista.volver) ir(vista.volver); };
+function ir(v){ vista=v; render(); window.scrollTo(0,0); }
+function cabecera(t,s,volver){
+  document.getElementById("titulo").childNodes[0].nodeValue=t;
+  document.getElementById("subtitulo").textContent=s||"";
+  back.hidden=!volver; vista.volver=volver;
+}
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nav=o=>`data-ir='${esc(JSON.stringify(o))}'`;
+
+function render(){
+  const v=vista, f={inicio:vInicio,nuevoGrupo:vNuevoGrupo,grupo:vGrupo,equipos:vEquipos,
+    nuevaPractica:vNuevaPractica,practica:vPractica,etapa:vEtapa,captura:vCaptura,
+    repos:vRepos,repoAlumno:vRepoAlumno,obs:vObs,imprimir:vImprimir,exportar:vExportar,perfil:vPerfil}[v.n];
+  f(v);
+}
+
+/* ================= Pantallas ================= */
+function vInicio(){
+  cabecera("Laboratorio","Listas de cotejo",null);
+  const gs=listaGrupos();
+  app.innerHTML =
+    (gs.length?"":'<div class="card"><p class="hint" style="margin:0">Todo se guarda en este teléfono. Nada se envía a internet. Empieza dando de alta un grupo con su lista completa.</p></div>')+
+    gs.map(g=>`<button class="btn" ${nav({n:"grupo",g:g.clave})}><b>${esc(g.clave)}</b> · ${esc(g.materia)}
+      <span class="sub">${g.alumnos.length} alumnos · ${listaPracticas(g.clave).length} prácticas</span></button>`).join("")+
+    `<button class="btn primary" ${nav({n:"nuevoGrupo"})}>Nuevo grupo</button>
+     <button class="btn" ${nav({n:"perfil"})}>Datos del profesor
+       <span class="sub">${esc((leer(K_PERFIL)||{}).docente||"Sin capturar — salen en las hojas impresas")}</span></button>
+     <p class="hint" style="text-align:center;margin-top:1.6rem">Funciona sin conexión</p>`;
+}
+
+function vNuevoGrupo(){
+  cabecera("Nuevo grupo","",{n:"inicio"});
+  app.innerHTML=`<div class="card">
+    <div class="row"><div><label>Grupo</label><input type="text" id="clave" placeholder="6030" inputmode="numeric"></div>
+    <div><label>Materia</label><input type="text" id="materia" placeholder="Física IV"></div>
+    <div><label>Clave</label><input type="text" id="cm" placeholder="1606" inputmode="numeric"></div></div>
+    <label>Alumnos del grupo completo, uno por renglón, en orden de lista</label>
+    <textarea id="alumnos" placeholder="Álvarez Ruiz Ana&#10;Bautista León Carlos&#10;…"></textarea>
+    <label>Integrantes por equipo</label><input type="number" id="tam" value="5" min="2" max="8">
+    <p class="hint">Se forman equipos consecutivos. Después puedes cambiar a quien haga falta.</p>
+    <button class="btn primary" id="crear">Crear grupo</button></div>`;
+  document.getElementById("crear").onclick=()=>{
+    const clave=document.getElementById("clave").value.trim(), materia=document.getElementById("materia").value.trim();
+    const ns=document.getElementById("alumnos").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const tam=Math.max(2,parseInt(document.getElementById("tam").value)||5);
+    if(!clave||!ns.length) return alert("Faltan el grupo y la lista de alumnos.");
+    if(leer(K_GRUPO(clave))) return alert("Ya existe un grupo con esa clave.");
+    guardar(K_GRUPO(clave),{clave,materia,claveMateria:document.getElementById("cm").value.trim(),
+      alumnos:ns.map((nombre,i)=>({n:i+1,nombre,equipo:Math.floor(i/tam)+1}))});
+    ir({n:"grupo",g:clave});
+  };
+}
+
+function vGrupo(v){
+  const g=leer(K_GRUPO(v.g)); if(!g) return ir({n:"inicio"});
+  cabecera(g.clave,g.materia,{n:"inicio"});
+  const ps=listaPracticas(v.g);
+  app.innerHTML=
+    `<button class="btn" ${nav({n:"equipos",g:v.g})}>Equipos y alumnos
+      <span class="sub">${g.alumnos.length} alumnos en ${equiposDe(g).length} equipos</span></button>
+     <h2>Prácticas</h2>`+
+    (ps.length?ps.map(p=>{const t=totalPractica(g,p);
+      return `<button class="btn" ${nav({n:"practica",g:v.g,p:p.num})}><b>Práctica ${p.num}</b> · ${esc(p.nombre)}
+        <span class="sub">${t.marcados} de ${t.total} marcas${p.cerrada?" · cerrada":""}</span></button>`;}).join("")
+      :'<p class="hint">Sin prácticas todavía.</p>')+
+    `<button class="btn primary" ${nav({n:"nuevaPractica",g:v.g})}>Nueva práctica</button>
+     <h2>Zona de riesgo</h2>
+     <p class="hint">Borrar el grupo <b>no borra</b> las prácticas calificadas: se guardan aparte y siguen ahí.</p>
+     <button class="btn riesgo" id="bg">Borrar este grupo</button>`;
+  document.getElementById("bg").onclick=()=>{
+    if(prompt("Para borrar el grupo escribe: BORRAR")!=="BORRAR") return;
+    descargar(`respaldo_grupo_${v.g}.json`,JSON.stringify(g,null,1));
+    localStorage.removeItem(K_GRUPO(v.g));
+    alert("Grupo borrado. Se descargó un respaldo y las prácticas quedaron intactas."); ir({n:"inicio"});
+  };
+}
+
+function vEquipos(v){
+  const g=leer(K_GRUPO(v.g));
+  cabecera("Equipos",g.clave,{n:"grupo",g:v.g});
+  app.innerHTML=`<div class="card"><p class="hint" style="margin-top:0">Cambia el número de equipo de quien haga falta.</p>`+
+    g.alumnos.map(a=>`<div style="display:flex;gap:.6rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--linea)">
+      <span class="muted" style="width:1.7rem;flex:none">${a.n}</span>
+      <span style="flex:1;font-size:.9rem">${esc(a.nombre)}</span>
+      <input type="number" min="1" value="${a.equipo}" data-eq="${a.n}" style="width:4rem;margin:0;text-align:center"></div>`).join("")+
+    `<button class="btn primary" id="ok" style="margin-top:1rem">Guardar</button></div>`;
+  document.getElementById("ok").onclick=()=>{
+    app.querySelectorAll("[data-eq]").forEach(i=>{ g.alumnos.find(x=>x.n==i.dataset.eq).equipo=Math.max(1,parseInt(i.value)||1); });
+    guardar(K_GRUPO(v.g),g); ir({n:"grupo",g:v.g});
+  };
+}
+
+function vNuevaPractica(v){
+  cabecera("Nueva práctica",v.g,{n:"grupo",g:v.g});
+  const ps=listaPracticas(v.g);
+  app.innerHTML=`<div class="card">
+    <label>Número</label><input type="number" id="num" value="${ps.length?Math.max(...ps.map(p=>p.num))+1:1}" min="1">
+    <label>Nombre de la práctica</label><input type="text" id="nombre" placeholder="Óptica geométrica">
+    <label>Tema</label><input type="text" id="tema" placeholder="Movimiento ondulatorio y óptica">
+    <label>Subtema</label><input type="text" id="subtema" placeholder="Reflexión y refracción de la luz">
+    <button class="btn primary" id="crear" style="margin-top:1rem">Crear</button></div>`;
+  document.getElementById("crear").onclick=()=>{
+    const num=parseInt(document.getElementById("num").value), nombre=document.getElementById("nombre").value.trim();
+    if(!num||!nombre) return alert("Faltan el número y el nombre.");
+    if(leer(K_PRACT(v.g,num))) return alert("Ya existe la práctica "+num+".");
+    guardar(K_PRACT(v.g,num),{grupo:v.g,num,nombre,
+      tema:document.getElementById("tema").value.trim(),
+      subtema:document.getElementById("subtema").value.trim(),
+      cerrada:false,marcas:{},exps:{},repo:{},anul:{},obs:{}});
+    ir({n:"practica",g:v.g,p:num});
+  };
+}
+
+function vPractica(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p)); if(!p) return ir({n:"grupo",g:v.g});
+  cabecera("Práctica "+p.num,p.nombre,{n:"grupo",g:v.g});
+  const nRepo=Object.keys(p.repo||{}).length, adeudos=Object.entries(p.repo||{}).filter(([,r])=>!r.informe).length;
+  const nInc=[1,2,3].reduce((s,e)=>s+(((p.obs||{})[e]||{}).inc||[]).length,0);
+  app.innerHTML=
+    (p.cerrada?'<div class="aviso">Práctica cerrada. Las marcas no se pueden cambiar.</div>':"")+
+    [1,2,3].map(e=>{ const t=totalEtapa(g,p,e);
+      return `<button class="btn" ${nav({n:"etapa",g:v.g,p:v.p,e})}><b>${e}ª etapa · ${ETAPAS[e].nombre}</b>
+        <span class="pill ${t.marcados===t.total?"ok":t.marcados?"mid":""}">${Math.round(ETAPAS[e].peso*100)}%</span>
+        <span class="sub">${t.marcados} de ${t.total} marcas</span></button>`;}).join("")+
+    `<h2>Registro</h2>
+     <button class="btn ${nRepo?"marcado":""}" ${nav({n:"repos",g:v.g,p:v.p})}>Reposiciones
+       <span class="sub">${nRepo?`${nRepo} alumno(s)${adeudos?` · ${adeudos} sin informe`:""}`:"Ninguna"}</span></button>
+     <button class="btn ${nInc?"marcado":""}" ${nav({n:"obs",g:v.g,p:v.p,e:1})}>Observaciones del grupo
+       <span class="sub">${nInc?`${nInc} incidencia(s) en las tres etapas`:"Sin incidencias"}</span></button>
+     <button class="btn oro" ${nav({n:"exportar",g:v.g,p:v.p})}>Exportar</button>
+     <h2>Zona de riesgo</h2>
+     <button class="btn" id="cer">${p.cerrada?"Reabrir para corregir":"Cerrar práctica (solo lectura)"}</button>
+     <button class="btn riesgo" id="bor">Borrar esta práctica</button>`;
+  document.getElementById("cer").onclick=()=>{
+    if(p.cerrada&&prompt("Para reabrir escribe: REABRIR")!=="REABRIR") return;
+    p.cerrada=!p.cerrada; guardar(K_PRACT(v.g,v.p),p); render();
+  };
+  document.getElementById("bor").onclick=()=>{
+    if(prompt(`Para borrar la práctica ${v.p} escribe: BORRAR`)!=="BORRAR") return;
+    descargar(`respaldo_${v.g}_P${v.p}.json`,JSON.stringify(p,null,1));
+    localStorage.removeItem(K_PRACT(v.g,v.p)); alert("Práctica borrada. Se descargó un respaldo."); ir({n:"grupo",g:v.g});
+  };
+}
+
+const equiposDe=g=>[...new Set(g.alumnos.map(a=>a.equipo))].sort((a,b)=>a-b);
+const integrantes=(g,eq)=>g.alumnos.filter(a=>a.equipo===eq);
+const enRepo=(p,n)=>!!(p.repo&&p.repo[n]);
+
+function vEtapa(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p)), e=v.e;
+  cabecera(`${e}ª etapa`,`${ETAPAS[e].nombre} · práctica ${v.p}`,{n:"practica",g:v.g,p:v.p});
+  app.innerHTML=equiposDe(g).map(eq=>{
+    const t=totalEquipo(g,p,e,eq), anul=(p.anul||{})[e+"."+eq];
+    const nombres=integrantes(g,eq).filter(a=>!enRepo(p,a.n)).map(a=>a.nombre.split(" ")[0]);
+    return `<button class="btn" ${nav({n:"captura",g:v.g,p:v.p,e,eq})}><b>Equipo ${eq}</b>
+      ${anul?'<span class="pill alerta">etapa anulada</span>':`<span class="pill ${t.marcados===t.total&&t.total?"ok":t.marcados?"mid":""}">${t.marcados}/${t.total}</span>`}
+      <span class="sub">${nombres.length?esc(nombres.join(", ")):"todos en reposición"}</span></button>`;}).join("")+
+    (Object.keys(p.repo||{}).length?`<h2>En reposición</h2>`+Object.keys(p.repo).map(n=>{
+      const a=g.alumnos.find(x=>x.n==n); if(!a) return "";
+      return `<button class="btn" ${nav({n:"repoAlumno",g:v.g,p:v.p,e,a:+n})}><b>${esc(a.nombre)}</b>
+        <span class="sub">Equipo ${a.equipo} · evaluación individual</span></button>`;}).join(""):"");
+}
+
+/* --- Captura de un equipo --- */
+function vCaptura(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p)), e=v.e, eq=v.eq;
+  const def=ETAPAS[e], ints=integrantes(g,eq).filter(a=>!enRepo(p,a.n)), ro=p.cerrada;
+  const kAnul=e+"."+eq, anul=(p.anul||{})[kAnul];
+  cabecera(`Equipo ${eq}`,`${e}ª etapa · ${def.nombre}`,{n:"etapa",g:v.g,p:v.p,e});
+
+  const bloque=(t,pref,rs)=>`<h2>${t}</h2><div class="card">`+rs.map((txt,i)=>
+    `<div class="item"><div class="txt"><i>${i+1}</i><span>${esc(txt)}</span></div>
+      <div class="marks" data-k="${pref}.${i}">${[[1,"Sí"],[2,"Parcial"],[3,"No"]].map(([val,l])=>
+        `<button data-v="${val}" ${ro||anul?"disabled":""} ${p.marcas[pref+"."+i]==val?`data-on="${val}"`:""}>${l}</button>`).join("")}</div></div>`).join("")+`</div>`;
+
+  app.innerHTML=
+    (ro?'<div class="aviso">Práctica cerrada. Solo lectura.</div>':"")+
+    (anul?'<div class="aviso">Etapa anulada: el equipo no entregó. La nota de esta etapa es cero.</div>':"")+
+    bloque("Equipo",`${e}.E.${eq}`,def.equipo)+
+    ints.map(a=>bloque(esc(a.nombre),`${e}.I.${eq}.${a.n}`,def.individual)).join("")+
+    `<h2>Estado de la etapa</h2><div class="card">
+      <button class="btn ${anul?"riesgo":""}" id="anul" style="margin:0" ${ro?"disabled":""}>
+        ${anul?"Quitar la anulación":"Anular esta etapa (no entregó)"}</button></div>
+     <div class="bar" id="bar"></div>`;
+
+  const pintar=()=>{
+    document.getElementById("bar").innerHTML= anul
+      ? `<div class="muted">Etapa anulada</div><div class="score">0.0</div>`
+      : `<div class="muted">Nota del equipo en esta etapa</div><div class="score">${notaEquipo(p,e,eq).toFixed(1)}</div>
+         <div class="muted">${ints.map(a=>`${esc(a.nombre.split(" ")[0])} ${notaAlumnoEtapa(p,e,eq,a.n).toFixed(0)}`).join(" · ")}</div>`;
+  };
+  pintar();
+  app.querySelectorAll(".marks button").forEach(b=>b.onclick=()=>{
+    const c=b.parentElement,k=c.dataset.k,val=b.dataset.v;
+    if(p.marcas[k]==val) delete p.marcas[k]; else p.marcas[k]=+val;
+    c.querySelectorAll("button").forEach(x=>x.removeAttribute("data-on"));
+    if(p.marcas[k]) b.setAttribute("data-on",val);
+    guardar(K_PRACT(v.g,v.p),p); pintar();
+  });
+  document.getElementById("anul").onclick=()=>{
+    p.anul=p.anul||{}; if(anul) delete p.anul[kAnul]; else p.anul[kAnul]=true;
+    guardar(K_PRACT(v.g,v.p),p); render();
+  };
+}
+
+/* --- Reposiciones --- */
+function vRepos(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p));
+  cabecera("Reposiciones","Práctica "+v.p,{n:"practica",g:v.g,p:v.p});
+  p.repo=p.repo||{}; p.exps=p.exps||{};
+  app.innerHTML=
+    `<div class="aviso">Faltar no da derecho automático a reponer. Marca aquí solo a quien le autorizaste la reposición.</div>
+     <h2>Experimento por equipo</h2><div class="card">
+     <p class="hint" style="margin-top:0">No se puede repetir experimento entre equipos ni con las reposiciones.</p>`+
+     equiposDe(g).map(eq=>`<label>Equipo ${eq}</label>
+       <input type="text" data-exp="${eq}" value="${esc(p.exps[eq]||"")}" placeholder="Experimento asignado">`).join("")+
+     `</div><h2>Alumnos</h2>`+
+     g.alumnos.map(a=>{ const r=p.repo[a.n];
+       return `<button class="btn ${r?"marcado":""}" ${nav({n:"repoAlumno",g:v.g,p:v.p,a:a.n})}>
+         <b>${a.n}. ${esc(a.nombre)}</b> ${r?(r.aprobado?'<span class="pill ok">aprobado</span>':'<span class="pill mid">sin aprobar</span>'):""}
+         <span class="sub">Equipo ${a.equipo}${r?` · ${esc(r.exp||"sin experimento")} · ${r.informe?"informe entregado":"<b>adeuda informe</b>"}`:""}</span></button>`;}).join("");
+  app.querySelectorAll("[data-exp]").forEach(i=>i.onchange=()=>{
+    p.exps[i.dataset.exp]=i.value.trim(); guardar(K_PRACT(v.g,v.p),p); avisarDuplicado(p);
+  });
+}
+
+function experimentosUsados(p,excepto){
+  const l=[]; Object.entries(p.exps||{}).forEach(([k,x])=>{ if(x&&"eq"+k!==excepto) l.push(x.toLowerCase()); });
+  Object.entries(p.repo||{}).forEach(([k,r])=>{ if(r.exp&&"al"+k!==excepto) l.push(r.exp.toLowerCase()); });
+  return l;
+}
+function avisarDuplicado(p){
+  const l=experimentosUsados(p,null), d=l.filter((x,i)=>l.indexOf(x)!==i);
+  if(d.length) alert("Ojo: el experimento «"+d[0]+"» está repetido. No puede repetirse en la misma práctica.");
+}
+
+function vRepoAlumno(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p)), a=g.alumnos.find(x=>x.n===v.a);
+  p.repo=p.repo||{};
+  cabecera(a.nombre.split(" ").slice(0,2).join(" "),"Reposición · práctica "+v.p,v.e?{n:"etapa",g:v.g,p:v.p,e:v.e}:{n:"repos",g:v.g,p:v.p});
+  const r=p.repo[a.n];
+  if(!r){
+    app.innerHTML=`<div class="card"><p class="hint" style="margin-top:0">${esc(a.nombre)} — equipo ${a.equipo}.</p>
+      <button class="btn primary" id="alta">Autorizar reposición de práctica</button></div>`;
+    document.getElementById("alta").onclick=()=>{
+      p.repo[a.n]={exp:"",aprobado:false,sede:"normal",informe:false};
+      guardar(K_PRACT(v.g,v.p),p); render();
+    };
+    return;
+  }
+  const ro=p.cerrada;
+  const bloque=(t,pref,rs)=>`<h2>${t}</h2><div class="card">`+rs.map((txt,i)=>
+    `<div class="item"><div class="txt"><i>${i+1}</i><span>${esc(txt)}</span></div>
+      <div class="marks" data-k="${pref}.${i}">${[[1,"Sí"],[2,"Parcial"],[3,"No"]].map(([val,l])=>
+        `<button data-v="${val}" ${ro?"disabled":""} ${p.marcas[pref+"."+i]==val?`data-on="${val}"`:""}>${l}</button>`).join("")}</div></div>`).join("")+`</div>`;
+
+  app.innerHTML=`<div class="card">
+      <label>Experimento (otro de la misma temática)</label>
+      <input type="text" id="exp" value="${esc(r.exp)}" placeholder="${esc(p.tema||"")}">
+      <div class="chips" style="margin-top:.8rem">
+        <button id="apr" aria-pressed="${r.aprobado}">${r.aprobado?"Experimento aprobado":"Aprobar experimento"}</button>
+        <button id="inf" aria-pressed="${r.informe}">${r.informe?"Informe entregado":"Adeuda informe"}</button>
+      </div>
+      <label>Dónde ejecuta</label>
+      <div class="chips">
+        <button data-sede="normal" aria-pressed="${r.sede==="normal"}">Con su grupo, en su mesa</button>
+        <button data-sede="viernes" aria-pressed="${r.sede==="viernes"}">Viernes después de clases</button>
+      </div>
+      ${r.informe?"":'<p class="hint" style="margin-bottom:0">Mientras no entregue el informe, no puede entrar a la siguiente práctica.</p>'}
+    </div>`+
+    [1,2,3].map(e=>bloque(`${e}ª etapa · ${ETAPAS[e].nombre}`,`${e}.R.${a.n}`,ETAPAS[e].equipo)).join("")+
+    `<div class="bar"><div class="muted">Calificación de la reposición · 100 % individual</div>
+      <div class="score">${notaRepoTotal(p,a.n).toFixed(1)}</div></div>`;
+
+  document.getElementById("exp").onchange=e=>{ r.exp=e.target.value.trim(); guardar(K_PRACT(v.g,v.p),p);
+    const l=experimentosUsados(p,"al"+a.n); if(r.exp&&l.includes(r.exp.toLowerCase())) alert("Ese experimento ya lo tiene otro equipo. Hay que escoger uno distinto."); };
+  document.getElementById("apr").onclick=()=>{ r.aprobado=!r.aprobado; guardar(K_PRACT(v.g,v.p),p); render(); };
+  document.getElementById("inf").onclick=()=>{ r.informe=!r.informe; guardar(K_PRACT(v.g,v.p),p); render(); };
+  app.querySelectorAll("[data-sede]").forEach(b=>b.onclick=()=>{ r.sede=b.dataset.sede; guardar(K_PRACT(v.g,v.p),p); render(); });
+  app.querySelectorAll(".marks button").forEach(b=>b.onclick=()=>{
+    const c=b.parentElement,k=c.dataset.k,val=b.dataset.v;
+    if(p.marcas[k]==val) delete p.marcas[k]; else p.marcas[k]=+val;
+    c.querySelectorAll("button").forEach(x=>x.removeAttribute("data-on"));
+    if(p.marcas[k]) b.setAttribute("data-on",val);
+    guardar(K_PRACT(v.g,v.p),p);
+    document.querySelector(".bar .score").textContent=notaRepoTotal(p,a.n).toFixed(1);
+  });
+}
+
+/* --- Observaciones: prosa por etapa --- */
+function obsDe(p,e){ p.obs=p.obs||{}; p.obs[e]=p.obs[e]||{general:"",inc:[],texto:""}; return p.obs[e]; }
+
+const lista=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a.slice(-1);
+const singular=f=>f.replace(/[a-záéíóúüñ]+/gi,w=>PLURAL[w.toLowerCase()]||w);
+const sujeto=(a,frase)=>a.length===1?`El equipo ${a[0]} ${singular(frase)}`:`Los equipos ${lista(a)} ${frase}`;
+
+/* Estado de un equipo en una subetapa, según sus marcas */
+function estadoSub(p,eq,s){
+  const pref=`${s[2]}.E.${eq}`; let suma=0,c=0,hayNo=false;
+  s[3].forEach(i=>{ const m=p.marcas[pref+"."+i]; if(m){ c++; suma+=VALOR[m]; if(m===3) hayNo=true; } });
+  if(!c) return "sin";
+  return (hayNo||suma/c<0.75) ? "falla" : "ok";
+}
+
+/* Observación de una subetapa: se redacta desde las listas de cotejo */
+function redactarSub(g,p,s){
+  const e=s[1], ef=s[2], eqs=equiposDe(g), out=[];
+  const anul=eqs.filter(eq=>anulada(p,ef,eq)), vivos=eqs.filter(eq=>!anulada(p,ef,eq));
+  const ok=vivos.filter(eq=>estadoSub(p,eq,s)==="ok"), mal=vivos.filter(eq=>estadoSub(p,eq,s)==="falla");
+  if(vivos.length && ok.length===vivos.length)
+    out.push(vivos.length===1 ? sujeto(ok,s[4])+"." : `Los ${vivos.length} equipos ${s[4]}.`);
+  else{ if(ok.length) out.push(sujeto(ok,s[4])+"."); if(mal.length) out.push(sujeto(mal,s[5])+"."); }
+  if(anul.length) out.push(sujeto(anul,"no entregaron, por lo tanto la etapa fue anulada")+".");
+  ((p.obs&&p.obs[e]&&p.obs[e].inc)||[]).filter(x=>x.sub===s[0]).forEach(x=>{
+    let t=`El equipo ${x.equipo} ${normalizar(x.hecho,true)}`;
+    if(x.causa) t+=` debido a que ${normalizar(x.causa)}`;
+    if(x.cons)  t+=`, por lo tanto ${normalizar(x.cons)}`;
+    out.push(t+".");
+  });
+  if(s[0]==="Reporte final impreso") Object.entries(p.repo||{}).forEach(([n,r])=>{
+    const a=g.alumnos.find(x=>x.n==n); if(!a) return;
+    out.push(`Se autorizó reposición de práctica al estudiante ${a.nombre} del equipo ${a.equipo}, con un experimento distinto de la misma temática${r.informe?"":"; queda pendiente la entrega de su informe"}.`); });
+  return out.join(" ");
+}
+const redactar=(g,p,e)=>subsDe(e).map(s=>`${s[0]}: ${redactarSub(g,p,s)}`).join("\n");
+
+function vObs(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p));
+  const e=v.e||1, o=obsDe(p,e);
+  cabecera("Observaciones",`${g.clave} · práctica ${v.p}`,{n:"practica",g:v.g,p:v.p});
+
+  app.innerHTML=`<div class="chips" id="cet">${[1,2,3].map(x=>
+      `<button data-et="${x}" aria-pressed="${x===e}">${x}ª ${ETAPAS[x].nombre}</button>`).join("")}</div>
+    <p class="hint">El texto se redacta solo desde tus listas de cotejo. Agrega aquí únicamente lo que las listas no pueden saber.</p>
+    <h2>Solo lo que se salió de lo normal</h2><div class="card">
+      <label>Subetapa</label>
+      <div class="chips" id="csub">${subsDe(e).map((s,i)=>`<button data-s="${esc(s[0])}" aria-pressed="${i===0}">${esc(s[0])}</button>`).join("")}</div>
+      <label>Equipo</label>
+      <div class="chips" id="ceq">${equiposDe(g).map((eq,i)=>`<button data-eq="${eq}" aria-pressed="${i===0}">Equipo ${eq}</button>`).join("")}</div>
+      <label>Qué pasó</label>
+      <div class="chips" id="ctipo">${INCIDENCIAS.map(t=>`<button data-f="${esc(t[1])}">${esc(t[0])}</button>`).join("")}</div>
+      <input type="text" id="hecho" placeholder="no entregaron vale de materiales">
+      <select id="al"><option value="">— insertar nombre de un alumno —</option>${g.alumnos.map(a=>`<option>${esc(a.nombre)}</option>`).join("")}</select>
+      <label>Causa · opcional</label>
+      <input type="text" id="causa" placeholder="no contaba con el calzado adecuado">
+      <label>Consecuencia · opcional</label>
+      <div class="chips" id="ccons">${CONSECUENCIAS.map(c=>`<button data-f="${esc(c[1])}">${esc(c[0])}</button>`).join("")}</div>
+      <input type="text" id="cons" placeholder="se les penalizó sobre su calificación">
+      <button class="btn primary" id="add" style="margin-top:.8rem">Agregar</button>
+      <p class="hint" style="margin:.5rem 0 0">Escribe solo los hechos. Los conectores, las mayúsculas y la ortografía los pone él.</p></div>`+
+    (o.inc.length?`<div class="card">`+o.inc.map((x,i)=>
+      `<div class="inc"><b style="flex:none">E${x.equipo}</b><span style="flex:1">${esc(x.sub)} — ${esc(x.hecho)}</span>
+       <button class="x" data-del="${i}" aria-label="Quitar">×</button></div>`).join("")+`</div>`:"")+
+    `<h2>Como va a quedar</h2><div class="card"><div id="prev" style="white-space:pre-wrap;font-size:.9rem"></div></div>
+     <button class="btn oro" ${nav({n:"imprimir",g:v.g,p:v.p,e})}>Ver hoja para imprimir</button>`;
+
+  const prev=()=>document.getElementById("prev").textContent=redactar(g,p,e);
+  prev();
+  let eqSel=equiposDe(g)[0], subSel=subsDe(e)[0][0];
+  const $=id=>document.getElementById(id);
+  const grupo=(sel,fn)=>app.querySelectorAll(sel+" button").forEach(b=>b.onclick=()=>{
+    app.querySelectorAll(sel+" button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); fn(b); });
+  grupo("#cet",b=>ir({n:"obs",g:v.g,p:v.p,e:+b.dataset.et}));
+  grupo("#csub",b=>subSel=b.dataset.s);
+  grupo("#ceq",b=>eqSel=+b.dataset.eq);
+  grupo("#ctipo",b=>{ $("hecho").value=b.dataset.f; $("hecho").focus(); });
+  grupo("#ccons",b=>$("cons").value=b.dataset.f);
+  $("al").onchange=ev=>{ if(!ev.target.value) return;
+    $("hecho").value=($("hecho").value.trimEnd()+" "+ev.target.value).trim(); ev.target.value=""; };
+  $("add").onclick=()=>{
+    const hecho=$("hecho").value.trim();
+    if(!hecho) return alert("Falta escribir qué pasó.");
+    o.inc.push({sub:subSel,equipo:eqSel,hecho,causa:$("causa").value.trim(),cons:$("cons").value.trim()});
+    guardar(K_PRACT(v.g,v.p),p); render();
+  };
+  app.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    o.inc.splice(+b.dataset.del,1); guardar(K_PRACT(v.g,v.p),p); render(); });
+}
+
+function vImprimir(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p)), perfil=leer(K_PERFIL)||{};
+  cabecera("Hoja para imprimir",`${g.clave} · práctica ${v.p}`,{n:"obs",g:v.g,p:v.p,e:v.e||1});
+  app.innerHTML=`<button class="btn oro noprint" id="imp">Imprimir o guardar en PDF</button>
+    <p class="hint noprint">Una hoja por práctica, con las tres etapas. En el diálogo de impresión escoge tamaño carta y márgenes normales.</p>
+    <div class="papel"><div class="card hoja">
+      <div class="mem">
+        <img src="img/logo-descartes.png" alt="Universidad Descartes">
+        <div class="tit">OBSERVACIONES DE PRÁCTICA</div>
+        <img src="img/siunam.png" alt="SI UNAM">
+      </div>
+      <table class="datos"><colgroup>${[9,27,9,13,9,14,7,12].map(x=>`<col style="width:${x}%">`).join("")}</colgroup>
+        <tr><th>Docente:</th><td>${esc(perfil.docente||"")}</td>
+            <th>No. Exp</th><td>${esc(perfil.exp||"")}</td>
+            <th>Materia</th><td>${esc(g.materia)}</td>
+            <th>Clave</th><td>${esc(g.claveMateria||"")}</td></tr>
+        <tr><th>Grupo</th><td>${esc(g.clave)}</td>
+            <th>Práctica</th><td>${p.num} — ${esc(p.nombre)}</td>
+            <th>Tema</th><td colspan="3">${esc(p.tema||"")}</td></tr>
+        <tr><th>Subtema</th><td colspan="7">${esc(p.subtema||"")}</td></tr></table>
+      <table class="cuerpo"><colgroup><col style="width:13%"><col style="width:19%"><col></colgroup>
+        <tr><th>Etapa</th><th>Subetapa</th><th>Observaciones</th></tr>
+        ${[1,2,3].map(e=>subsDe(e).map((s,i)=>`<tr>
+            ${i===0?`<th rowspan="${subsDe(e).length}">${ETAPAS[e].nombre}</th>`:""}
+            <th style="font-weight:400">${esc(s[0])}</th>
+            <td style="text-align:justify">${esc(redactarSub(g,p,s))}</td></tr>`).join("")).join("")}</table>
+      <div class="firma">_______________________________<br>Nombre y firma del profesor titular</div>
+    </div></div>`;
+  document.getElementById("imp").onclick=()=>window.print();
+}
+
+function vPerfil(){
+  const d=leer(K_PERFIL)||{};
+  cabecera("Datos del profesor","Aparecen en las hojas impresas",{n:"inicio"});
+  app.innerHTML=`<div class="card">
+    <label>Nombre como aparece en los formatos</label>
+    <input type="text" id="doc" value="${esc(d.docente||"")}" placeholder="M.C. José Luis López Saynes">
+    <label>No. de expediente</label>
+    <input type="text" id="exp" value="${esc(d.exp||"")}" placeholder="25014576">
+    <button class="btn primary" id="ok" style="margin-top:1rem">Guardar</button></div>`;
+  document.getElementById("ok").onclick=()=>{
+    guardar(K_PERFIL,{docente:document.getElementById("doc").value.trim(),exp:document.getElementById("exp").value.trim()});
+    ir({n:"inicio"});
+  };
+}
+
+/* ================= Cálculo ================= */
+function prom(marcas,pref,n){ let s=0,m=0; for(let i=0;i<n;i++){const x=marcas[pref+"."+i]; if(x){s+=VALOR[x];m++;}} return {pct:n?s/n*100:0,marcados:m,total:n}; }
+const anulada=(p,e,eq)=>!!((p.anul||{})[e+"."+eq]);
+function notaEquipo(p,e,eq){ return anulada(p,e,eq)?0:prom(p.marcas,`${e}.E.${eq}`,ETAPAS[e].equipo.length).pct; }
+function notaIndiv(p,e,eq,n){ return prom(p.marcas,`${e}.I.${eq}.${n}`,ETAPAS[e].individual.length).pct; }
+function notaAlumnoEtapa(p,e,eq,n){
+  if(enRepo(p,n)) return prom(p.marcas,`${e}.R.${n}`,ETAPAS[e].equipo.length).pct;
+  return anulada(p,e,eq)?0:PESO_EQ*notaEquipo(p,e,eq)+PESO_IND*notaIndiv(p,e,eq,n);
+}
+const notaAlumno=(p,eq,n)=>[1,2,3].reduce((s,e)=>s+ETAPAS[e].peso*notaAlumnoEtapa(p,e,eq,n),0);
+const notaRepoTotal=(p,n)=>[1,2,3].reduce((s,e)=>s+ETAPAS[e].peso*prom(p.marcas,`${e}.R.${n}`,ETAPAS[e].equipo.length).pct,0);
+
+function totalEquipo(g,p,e,eq){
+  const a=prom(p.marcas,`${e}.E.${eq}`,ETAPAS[e].equipo.length); let m=a.marcados,t=a.total;
+  integrantes(g,eq).filter(x=>!enRepo(p,x.n)).forEach(al=>{const x=prom(p.marcas,`${e}.I.${eq}.${al.n}`,ETAPAS[e].individual.length); m+=x.marcados; t+=x.total;});
+  return {marcados:m,total:t};
+}
+const totalEtapa=(g,p,e)=>equiposDe(g).reduce((a,eq)=>{const t=totalEquipo(g,p,e,eq);return{marcados:a.marcados+t.marcados,total:a.total+t.total};},{marcados:0,total:0});
+const totalPractica=(g,p)=>[1,2,3].reduce((a,e)=>{const t=totalEtapa(g,p,e);return{marcados:a.marcados+t.marcados,total:a.total+t.total};},{marcados:0,total:0});
+
+/* Valor de una columna del ANEXO 4 para un alumno, en escala 0-100 */
+function celdaAnexo4(p,eq,n,[,,e,idxs]){
+  const repo=enRepo(p,n);
+  const pref = repo ? `${e}.R.${n}` : `${e}.E.${eq}`;
+  if(!repo && anulada(p,e,eq)) return 0;
+  let s=0,c=0; idxs.forEach(i=>{ const x=p.marcas[pref+"."+i]; if(x!==undefined){s+=VALOR[x];} c++; });
+  const base = c? s/c*100 : 0;
+  if(repo) return base;
+  return PESO_EQ*base + PESO_IND*notaIndiv(p,e,eq,n);
+}
+
+/* ================= Exportar ================= */
+function descargar(nombre,texto){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["﻿"+texto],{type:"text/plain;charset=utf-8"}));
+  a.download=nombre; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* En iPhone lo práctico no es descargar sino compartir: AirDrop,
+   WhatsApp o Correo mandan el archivo directo a la computadora. */
+const sePuedeCompartir = () => !!(navigator.canShare && navigator.share);
+async function compartir(nombre,texto){
+  const f=new File(["﻿"+texto],nombre,{type:"text/csv;charset=utf-8"});
+  try{
+    if(navigator.canShare({files:[f]})) return await navigator.share({files:[f],title:nombre});
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  descargar(nombre,texto);
+}
+const csv=f=>f.map(r=>r.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+
+function vExportar(v){
+  const g=leer(K_GRUPO(v.g)), p=leer(K_PRACT(v.g,v.p));
+  cabecera("Exportar",`${g.clave} · práctica ${v.p}`,{n:"practica",g:v.g,p:v.p});
+
+  const enc=["No.","Equipo","Nombre",...ANEXO4.map(c=>c[0]),"Calificación obtenida"];
+  const filas=[enc];
+  g.alumnos.forEach(a=>filas.push([a.n,a.equipo,a.nombre,
+    ...ANEXO4.map(c=>celdaAnexo4(p,a.equipo,a.n,c).toFixed(1)),
+    notaAlumno(p,a.equipo,a.n).toFixed(1)]));
+
+  const obs=["OBSERVACIONES DE PRÁCTICA",
+    `Grupo: ${g.clave}    Materia: ${g.materia}    Práctica ${p.num}: ${p.nombre}`,""];
+  [1,2,3].forEach(e=>{ obs.push(`${e}ª etapa — ${ETAPAS[e].nombre}`,"",redactar(g,p,e),""); });
+
+  const nom4=`ANEXO4_${g.clave}_P${p.num}.csv`;
+  app.innerHTML=
+    (sePuedeCompartir()?`<button class="btn oro" id="c4">Compartir el ANEXO 4
+      <span class="sub">Mándalo a tu computadora por AirDrop, WhatsApp o correo</span></button>`:"")+`
+    <button class="btn ${sePuedeCompartir()?"":"oro"}" id="e4">Descargar ANEXO 4<span class="sub">${esc(nom4)} · nueve columnas de la plantilla</span></button>
+    <button class="btn oro" id="eo">Observaciones del grupo<span class="sub">Texto listo para pegar en tu formato</span></button>
+    <button class="btn" id="ej">Respaldo completo<span class="sub">JSON, por si algo se pierde</span></button>
+    <h2>ANEXO 4</h2>
+    <div class="scroll"><table><tr>${enc.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>
+      ${filas.slice(1).map(f=>`<tr>${f.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table></div>
+    <h2>Observaciones</h2><div class="card"><pre style="white-space:pre-wrap;font:inherit;font-size:.85rem;margin:0">${esc(obs.join("\n"))}</pre></div>`;
+  if(sePuedeCompartir()) document.getElementById("c4").onclick=()=>compartir(nom4,csv(filas));
+  document.getElementById("e4").onclick=()=>descargar(nom4,csv(filas));
+  document.getElementById("eo").onclick=()=>descargar(`Observaciones_${g.clave}_P${p.num}.txt`,obs.join("\n"));
+  document.getElementById("ej").onclick=()=>descargar(`respaldo_${g.clave}_P${p.num}.json`,JSON.stringify(p,null,1));
+}
+
+document.addEventListener("click",ev=>{ const b=ev.target.closest("[data-ir]"); if(b) ir(JSON.parse(b.dataset.ir)); });
+render();
+
+/* Deja la app guardada en el teléfono para abrirla sin señal.
+   Solo aplica servido por https; abierto como archivo local se ignora. */
+if("serviceWorker" in navigator && location.protocol==="https:")
+  navigator.serviceWorker.register("laboratorio-sw.js").catch(()=>{});
+</script>
+</body>
+</html>
