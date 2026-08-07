@@ -219,10 +219,6 @@
     .vern-fb.ok { color: #15803d; }
     .vern-fb.warn { color: #b45309; }
     .vern-fb.bad { color: #b91c1c; }
-    .vern-clave { display: none; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .8rem 1rem; margin-top: 1rem; font-size: .82rem; color: var(--text); }
-    .vern-clave.on { display: block; }
-    .vern-clave b { color: var(--navy); }
-    .vern-clave ol { margin: .4rem 0 0 1.1rem; line-height: 1.8; }
     @media (max-width: 460px){
       #sim-vernier .readout-item .rval { font-size: .95rem; }
       #sim-vernier .readout-item .rlbl { font-size: .6rem; }
@@ -456,7 +452,6 @@
           <button class="btn-sim btn-secondary" onclick="vernNueva()">🎲 Nueva medida</button>
           <button class="btn-sim btn-secondary" onclick="vernCerrar()">🔒 Cerrar mordazas</button>
           <button class="btn-sim btn-export" onclick="vernExportar()">⬇ Imagen</button>
-          <button class="btn-sim btn-export" onclick="vernHoja()">⬇ Hoja de 6 con clave</button>
         </div>
         <div class="vern-prac" id="vernPrac">
           <label for="vernResp">¿Cuánto mide?</label>
@@ -474,7 +469,6 @@
           <div class="fb-label">Cómo se arma la lectura</div>
           <div class="fb-eq">Lectura = escala principal + (división del nonio × 0.05 mm) <span class="dim">→</span> <span id="v-fb1"></span><br/><span id="v-fb2"></span></div>
         </div>
-        <div class="vern-clave" id="vernClave"></div>
       </div>
     </div>
 
@@ -1587,28 +1581,6 @@ function vernExportar(){
   off.width=1800; off.height=Math.round(1800*V_DH/V_DW);
   vernPaintState(off.getContext('2d'),off.width,off.height,1,vernEstado());
   exportJPG(off,'calibrador_vernier');
-}
-function vernHoja(){
-  const N=6, W=1400, RH=Math.round(W*V_DH/V_DW), LH=52;
-  const sheet=document.createElement('canvas');
-  sheet.width=W; sheet.height=N*(RH+LH)+24;
-  const sc=sheet.getContext('2d');
-  sc.fillStyle='#ffffff'; sc.fillRect(0,0,W,sheet.height);
-  const tmp=document.createElement('canvas'); tmp.width=W; tmp.height=RH;
-  const claves=[];
-  for(let i=0;i<N;i++){
-    const st=vernCalc(Math.round((1+Math.random()*(V_MAXG-1))/V_RES)*V_RES,0);
-    vernPaintState(tmp.getContext('2d'),W,RH,1,st);
-    const y=12+i*(RH+LH);
-    sc.fillStyle='#1e293b'; sc.font='700 27px Inter, system-ui, sans-serif'; sc.textAlign='left';
-    sc.fillText((i+1)+')  Lectura = ____________ mm',28,y+34);
-    sc.drawImage(tmp,0,y+LH-14);
-    claves.push(st.L.toFixed(2));
-  }
-  exportJPG(sheet,'vernier_hoja_6_lecturas');
-  const box=document.getElementById('vernClave');
-  box.className='vern-clave on';
-  box.innerHTML='<b>Clave de la hoja que acabas de descargar</b> · no aparece en la imagen<ol><li>'+claves.join(' mm</li><li>')+' mm</li></ol>';
 }
 (function(){
   let arr=false;
