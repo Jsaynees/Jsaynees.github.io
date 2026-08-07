@@ -1,6 +1,6 @@
 /* Guarda la app en el teléfono para que abra sin señal.
    Los datos del profesor NO pasan por aquí: viven en localStorage. */
-const CACHE = "laboratorio-v1";
+const CACHE = "laboratorio-v2";
 const ARCHIVOS = [
   "laboratorio.html",
   "laboratorio.webmanifest",
