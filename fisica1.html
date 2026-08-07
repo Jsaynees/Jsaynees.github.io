@@ -206,6 +206,24 @@
     .formula-box .fb-eq .gold { color: var(--gold-l); font-weight: 700; }
     .formula-box .fb-eq .dim { color: rgba(255,255,255,.5); }
 
+    /* ---- Calibrador Vernier ---- */
+    .vern-leyenda { font-size: .74rem; color: var(--gray); line-height: 1.5; margin-bottom: .75rem; }
+    .vern-lupa-wrap { margin-bottom: .75rem; }
+    .vern-lupa-tag { font-size: .68rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .3rem; }
+    #vernCanvas { display: block; cursor: ew-resize; touch-action: none; }
+    #vernLupa { display: block; }
+    .vern-prac { display: none; align-items: center; gap: .55rem; flex-wrap: wrap; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .7rem .85rem; margin-bottom: .75rem; }
+    .vern-prac.on { display: flex; }
+    .vern-prac label { font-size: .78rem; font-weight: 700; color: var(--navy); }
+    .vern-fb { font-size: .82rem; font-weight: 600; }
+    .vern-fb.ok { color: #15803d; }
+    .vern-fb.warn { color: #b45309; }
+    .vern-fb.bad { color: #b91c1c; }
+    @media (max-width: 460px){
+      #sim-vernier .readout-item .rval, #sim-micrometro .readout-item .rval { font-size: .95rem; }
+      #sim-vernier .readout-item .rlbl, #sim-micrometro .readout-item .rlbl { font-size: .6rem; }
+    }
+
     /* MATERIAL */
     .mat-intro { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
     .mat-unit { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
@@ -409,6 +427,94 @@
 
   <!-- SIMULADORES -->
   <div class="tab-panel" id="tab-simuladores">
+
+    <!-- CALIBRADOR VERNIER -->
+    <div class="sim-card" id="sim-vernier">
+      <div class="sim-header"><div class="sim-icon">📏</div><div><h3>Calibrador Vernier</h3><p>Unidad 1 · Medición, incertidumbre y cifras significativas</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>apertura de las mordazas</strong>, con la barra o <strong>arrastrando el cursor</strong> sobre el dibujo. También puedes introducir un <strong>error de cero</strong> para simular un calibrador descalibrado.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>La <strong>escala principal</strong> grabada en la regla y el <strong>nonio</strong> sobre el cursor. La <strong>lupa</strong> amplía la zona donde se juzga la coincidencia, igual que al acercarte en el laboratorio.</p></div>
+            <div class="ins-item"><div class="ins-label">Para la práctica</div><p>Activa <strong>Modo práctica</strong>: oculta la lectura, genera una medida al azar y te dice <strong>en qué te equivocaste</strong>, no solo si fallaste.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Apertura de mordazas</label><div class="ctrl-row"><input type="range" id="vgap" min="0" max="30" value="21.4" step="0.05" oninput="syncFrom('vgap','range')"><input type="number" class="num-input" id="vgapn" value="21.4" step="0.05" oninput="syncFrom('vgap','num')"><span class="num-unit">mm</span></div></div>
+          <div class="ctrl-group"><label>Error de cero</label><div class="ctrl-row"><input type="range" id="vzero" min="-0.2" max="0.2" value="0" step="0.05" oninput="syncFrom('vzero','range')"><input type="number" class="num-input" id="vzeron" value="0" step="0.05" oninput="syncFrom('vzero','num')"><span class="num-unit">mm</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap" style="margin-bottom:.35rem"><canvas id="vernCanvas" height="330"></canvas></div>
+        <div class="vern-leyenda">Escala principal en milímetros, grabada en la regla · nonio de 20 divisiones sobre el cursor, cada una vale 0.05 mm · arrastra el cursor sobre el dibujo para medir</div>
+        <div class="vern-lupa-wrap"><div class="vern-lupa-tag">🔍 Lupa · zona de coincidencia</div><div class="sim-canvas-wrap" style="margin-bottom:0"><canvas id="vernLupa" height="150"></canvas></div></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="vernPracBtn" onclick="vernTogglePrac()">🎯 Modo práctica</button>
+          <button class="btn-sim btn-secondary" onclick="vernNueva()">🎲 Nueva medida</button>
+          <button class="btn-sim btn-secondary" onclick="vernCerrar()">🔒 Cerrar mordazas</button>
+          <button class="btn-sim btn-export" onclick="vernExportar()">⬇ Imagen</button>
+        </div>
+        <div class="vern-prac" id="vernPrac">
+          <label for="vernResp">¿Cuánto mide?</label>
+          <input type="number" class="num-input" id="vernResp" step="0.01" placeholder="0.00" style="width:96px">
+          <span class="num-unit">mm</span>
+          <button class="btn-sim btn-primary" onclick="vernVerificar()">Verificar</button>
+          <span class="vern-fb" id="vernFb"></span>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="v-mm">27 mm</div><div class="rlbl">Escala principal</div></div>
+          <div class="readout-item"><div class="rval" id="v-div">8</div><div class="rlbl">División del nonio</div></div>
+          <div class="readout-item"><div class="rval" id="v-lec">27.40 mm</div><div class="rlbl">Lectura</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="fb-label">Cómo se arma la lectura</div>
+          <div class="fb-eq">Lectura = escala principal + (división del nonio × 0.05 mm) <span class="dim">→</span> <span id="v-fb1"></span><br/><span id="v-fb2"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TORNILLO MICROMÉTRICO -->
+    <div class="sim-card" id="sim-micrometro">
+      <div class="sim-header"><div class="sim-icon">🔩</div><div><h3>Tornillo Micrométrico</h3><p>Unidad 1 · Resolución de 0.01 mm · compáralo con el Vernier</p></div></div>
+      <div class="sim-body">
+        <div class="sim-instructions">
+          <h4>🛈 Cómo usar este simulador</h4>
+          <div class="ins-grid">
+            <div class="ins-item"><div class="ins-label">Qué ingresas</div><p>La <strong>apertura</strong> con la barra, arrastrando sobre el dibujo o escribiendo el valor. La barra da el ajuste fino de <strong>centésimas</strong>; el arrastre es solo aproximado.</p></div>
+            <div class="ins-item"><div class="ins-label">Qué observas</div><p>El <strong>manguito</strong> con los milímetros arriba de la línea y los <strong>medios milímetros abajo</strong>, y el <strong>tambor</strong> con sus 50 divisiones de 0.01 mm.</p></div>
+            <div class="ins-item"><div class="ins-label">Lo importante</div><p>Mide la <strong>misma pieza</strong> aquí y en el Vernier. Verás por qué un resultado lleva más cifras que el otro: la incertidumbre decide cuántos dígitos puedes escribir.</p></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <div class="ctrl-group"><label>Apertura</label><div class="ctrl-row"><input type="range" id="mgap" min="0" max="20" value="7.87" step="0.01" oninput="syncFrom('mgap','range')"><input type="number" class="num-input" id="mgapn" value="7.87" step="0.01" oninput="syncFrom('mgap','num')"><span class="num-unit">mm</span></div></div>
+          <div class="ctrl-group"><label>Error de cero</label><div class="ctrl-row"><input type="range" id="mzero" min="-0.05" max="0.05" value="0" step="0.01" oninput="syncFrom('mzero','range')"><input type="number" class="num-input" id="mzeron" value="0" step="0.01" oninput="syncFrom('mzero','num')"><span class="num-unit">mm</span></div></div>
+        </div>
+        <div class="sim-canvas-wrap" style="margin-bottom:.35rem"><canvas id="micCanvas" height="330"></canvas></div>
+        <div class="vern-leyenda">El paso del tornillo es de 0.5 mm por vuelta y el tambor tiene 50 divisiones, así que cada división vale 0.01 mm · no olvides revisar si asoma la marca de medio milímetro debajo de la línea</div>
+        <div class="vern-lupa-wrap"><div class="vern-lupa-tag">🔍 Lupa · línea de referencia y tambor</div><div class="sim-canvas-wrap" style="margin-bottom:0"><canvas id="micLupa" height="150"></canvas></div></div>
+        <div class="sim-btns">
+          <button class="btn-sim btn-primary" id="micPracBtn" onclick="micTogglePrac()">🎯 Modo práctica</button>
+          <button class="btn-sim btn-secondary" onclick="micNueva()">🎲 Nueva medida</button>
+          <button class="btn-sim btn-secondary" onclick="micCerrar()">🔒 Cerrar husillo</button>
+          <button class="btn-sim btn-export" onclick="micExportar()">⬇ Imagen</button>
+        </div>
+        <div class="vern-prac" id="micPrac">
+          <label for="micResp">¿Cuánto mide?</label>
+          <input type="number" class="num-input" id="micResp" step="0.01" placeholder="0.00" style="width:96px">
+          <span class="num-unit">mm</span>
+          <button class="btn-sim btn-primary" onclick="micVerificar()">Verificar</button>
+          <span class="vern-fb" id="micFb"></span>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-item"><div class="rval" id="m-man">7.5 mm</div><div class="rlbl">Manguito</div></div>
+          <div class="readout-item"><div class="rval" id="m-tam">37</div><div class="rlbl">División del tambor</div></div>
+          <div class="readout-item"><div class="rval" id="m-lec">7.87 mm</div><div class="rlbl">Lectura</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="fb-label">Cómo se arma la lectura</div>
+          <div class="fb-eq">Lectura = manguito + (división del tambor × 0.01 mm) <span class="dim">→</span> <span id="m-fb1"></span><br/><span id="m-fb2"></span></div>
+        </div>
+      </div>
+    </div>
 
     <!-- MRU / MRUA -->
     <div class="sim-card" id="sim-mru">
@@ -903,7 +1009,7 @@ function syncFrom(id, src){
   if(src==='range') n.value = r.value; else r.value = n.value;
   updateAll();
 }
-function updateAll(){ updateSim(); updateFall(); updatePara(); updateNewton(); updateCirc(); updateKepler(); }
+function updateAll(){ updateSim(); updateFall(); updatePara(); updateNewton(); updateCirc(); updateKepler(); vernUpdate(); micUpdate(); }
 
 /* exportar canvas a JPG con fondo blanco */
 function exportJPG(srcCanvas, filename){
@@ -1406,11 +1512,279 @@ function drawHero(){
   heroT+=0.012; requestAnimationFrame(drawHero);
 }
 
+/* ════════ SIM 0: CALIBRADOR VERNIER ════════ */
+const vernCanvas=document.getElementById('vernCanvas'), vernLupa=document.getElementById('vernLupa');
+const V_RES=0.05, V_NDIV=20, V_DIV=0.95, V_PX=14, V_X0=90, V_MAXMM=50, V_MAXG=30, V_DW=900, V_DH=330, V_LH=200;
+const V_MET='#c8cfda', V_CUR='#9aa5b5', V_EDG='#5b6879', V_ENG='#1e293b', V_HI='#C9A84C', V_OBJ='#dbe4f3';
+let vernModoPrac=false;
+
+function vernCalc(g,e){
+  const Lr=g+e, m0=Math.floor(Lr+1e-9);
+  let k=Math.round((Lr-m0)/V_RES), mm=m0;
+  if(k>=V_NDIV){ mm+=1; k=0; }
+  return { g:g, e:e, L:mm+k*V_RES, mm:mm, k:k };
+}
+function vernEstado(){
+  const g=Math.max(0,Math.min(V_MAXG, parseFloat(document.getElementById('vgap').value)||0));
+  const e=parseFloat(document.getElementById('vzero').value)||0;
+  return vernCalc(Math.round(g/V_RES)*V_RES, Math.round(e/V_RES)*V_RES);
+}
+function vX(mm){ return V_X0+mm*V_PX; }
+function vPoly(c,p,f,s,w){ c.beginPath(); c.moveTo(p[0][0],p[0][1]); for(let i=1;i<p.length;i++)c.lineTo(p[i][0],p[i][1]); c.closePath(); c.fillStyle=f; c.fill(); c.strokeStyle=s; c.lineWidth=w; c.stroke(); }
+function vRect(c,x,y,w,h,f,s,lw){ c.fillStyle=f; c.fillRect(x,y,w,h); c.strokeStyle=s; c.lineWidth=lw; c.strokeRect(x,y,w,h); }
+function vLine(c,a,b,d,f,col,w){ c.beginPath(); c.moveTo(a,b); c.lineTo(d,f); c.strokeStyle=col; c.lineWidth=w; c.stroke(); }
+function vTxt(c,t,x,y,fs,col,al){ c.font='600 '+fs+'px Inter, system-ui, sans-serif'; c.fillStyle=col; c.textAlign=al||'center'; c.fillText(t,x,y); }
+
+function vernPaintState(c,W,H,zoom,st){
+  const s=W/V_DW, es=s*zoom, HL=st.hi!==false;
+  const mjx=vX(st.L), fjx=vX(st.L-st.g);
+  c.setTransform(1,0,0,1,0,0);
+  c.fillStyle='#f8fafc'; c.fillRect(0,0,W,H);
+  if(zoom>1){ const k=es; c.setTransform(k,0,0,k, W/2-mjx*k, H/2-120*k); }
+  else { c.setTransform(s,0,0,s,0,0); }
+  const lw=1/es, hw=2.6/es, fs=Math.max(4,Math.min(30,12/es));
+  vPoly(c,[[fjx-38,60],[fjx,60],[fjx,34],[fjx-20,18],[fjx-38,18]],V_MET,V_EDG,lw);
+  vPoly(c,[[mjx,60],[mjx+38,60],[mjx+38,18],[mjx+20,18],[mjx,34]],V_CUR,V_EDG,lw);
+  vRect(c,55,60,810,58,V_MET,V_EDG,lw);
+  vRect(c,mjx-10,52,296,10,V_CUR,V_EDG,lw);
+  vRect(c,mjx-10,118,296,78,V_CUR,V_EDG,lw);
+  c.beginPath(); c.arc(mjx+170,47,9,0,6.284); c.fillStyle=V_CUR; c.fill(); c.strokeStyle=V_EDG; c.lineWidth=lw; c.stroke();
+  vLine(c,mjx+164,47,mjx+176,47,V_EDG,hw*0.6);
+  vPoly(c,[[fjx-50,118],[fjx,118],[fjx,300],[fjx-24,300],[fjx-50,206]],V_MET,V_EDG,lw);
+  vPoly(c,[[mjx,118],[mjx+50,118],[mjx+50,206],[mjx+24,300],[mjx,300]],V_CUR,V_EDG,lw);
+  if(st.g>0.4){
+    vRect(c,fjx,216,st.g*V_PX,70,V_OBJ,'#1B3A6B',lw);
+    if(st.g>7) vTxt(c,'pieza',fjx+st.g*V_PX/2,257,fs,'#1B3A6B');
+  }
+  for(let i=0;i<=V_MAXMM;i++){
+    const big=i%10===0, mid=i%5===0, on=HL&&(i===st.mm+st.k);
+    vLine(c,vX(i),big?96:(mid?104:110),vX(i),118,on?V_HI:V_ENG,on?hw:lw);
+    if(big && (es>0.5 || i%20===0)) vTxt(c,i,vX(i),90,fs,on?V_HI:V_ENG);
+  }
+  for(let j=0;j<=V_NDIV;j++){
+    const px=mjx+j*V_DIV*V_PX, lb=j%5===0, on=HL&&(j===st.k);
+    if(px<57||px>863) continue;
+    vLine(c,px,118,px,lb?144:136,on?V_HI:V_ENG,on?hw:lw);
+    if(lb && (es>0.5 || j%10===0)) vTxt(c,j,px,164,fs,on?V_HI:V_ENG);
+  }
+  if(es>0.5) vTxt(c,'nonio · 0.05 mm',mjx+286,188,fs,V_ENG,'right');
+  vTxt(c,'mordaza fija',fjx-48,322,fs,'#64748b','left');
+  vTxt(c,'mordaza móvil',mjx+4,322,fs,'#64748b','left');
+  c.setTransform(1,0,0,1,0,0);
+}
+
+function vernUpdate(){
+  const st=vernEstado(), oc=vernModoPrac;
+  const pin=Object.assign({},st,{hi:!oc});
+  vernPaintState(vernCanvas.getContext('2d'),vernCanvas.width,vernCanvas.height,1,pin);
+  vernPaintState(vernLupa.getContext('2d'),vernLupa.width,vernLupa.height,3.5,pin);
+  const neg = st.L < -1e-9;
+  document.getElementById('v-mm').textContent = (oc||neg)?'—':st.mm+' mm';
+  document.getElementById('v-div').textContent = (oc||neg)?'—':st.k;
+  document.getElementById('v-lec').textContent = oc?'—':st.L.toFixed(2)+' mm';
+  document.getElementById('v-fb1').innerHTML = oc?'<span class="dim">oculto en modo práctica</span>'
+    :(neg ? 'El cero del nonio quedó <span class="gold">a la izquierda</span> del cero de la regla, así que la lectura es negativa.'
+          : '<span class="gold">'+st.mm+' mm + '+st.k+' × 0.05 mm = '+st.L.toFixed(2)+' mm</span>');
+  document.getElementById('v-fb2').innerHTML = oc?''
+    :(st.e!==0 ? 'Error de cero = '+st.e.toFixed(2)+' mm <span class="dim">→</span> <span class="gold">medida real = '+st.L.toFixed(2)+' − ('+st.e.toFixed(2)+') = '+st.g.toFixed(2)+' mm</span>'
+               : 'Incertidumbre <span class="gold">± 0.05 mm</span> <span class="dim">·</span> la resolución del nonio');
+  const lab=document.querySelector('#vernPrac label');
+  if(lab) lab.textContent = st.e!==0 ? '¿Cuánto mide la pieza? (corrige el error de cero)' : '¿Cuánto mide?';
+}
+function vernSet(g){
+  document.getElementById('vgap').value=g;
+  document.getElementById('vgapn').value=g.toFixed(2);
+  vernUpdate();
+}
+function vernTogglePrac(){
+  vernModoPrac=!vernModoPrac;
+  document.getElementById('vernPrac').className='vern-prac'+(vernModoPrac?' on':'');
+  document.getElementById('vernPracBtn').textContent=vernModoPrac?'👁 Ver la lectura':'🎯 Modo práctica';
+  if(vernModoPrac) vernNueva(); else vernUpdate();
+}
+function vernNueva(){
+  vernSet(Math.round((1+Math.random()*(V_MAXG-1))/V_RES)*V_RES);
+  const fb=document.getElementById('vernFb'); fb.className='vern-fb'; fb.textContent='';
+  document.getElementById('vernResp').value='';
+}
+function vernCerrar(){ vernSet(0); }
+function vernVerificar(){
+  const st=vernEstado(), fb=document.getElementById('vernFb');
+  const t=parseFloat(document.getElementById('vernResp').value);
+  const esp = st.e!==0 ? st.g : st.L;
+  if(isNaN(t)){ fb.className='vern-fb'; fb.textContent='Escribe tu lectura en milímetros.'; return; }
+  const d=t-esp;
+  if(Math.abs(d)<0.005){ fb.className='vern-fb ok'; fb.textContent='✔ Correcto: '+esp.toFixed(2)+' mm'; return; }
+  if(st.e!==0 && Math.abs(t-st.L)<0.005){ fb.className='vern-fb warn'; fb.textContent='Leíste bien la escala, pero falta restar el error de cero ('+st.e.toFixed(2)+' mm).'; return; }
+  if(Math.abs(Math.abs(d)-1)<0.005){ fb.className='vern-fb warn'; fb.textContent='Te falló el milímetro entero, no el nonio. Revisa dónde cae el cero del cursor.'; return; }
+  if(Math.abs(Math.abs(d)-V_RES)<0.005){ fb.className='vern-fb warn'; fb.textContent='Te fuiste una línea del nonio. Busca la que coincide exactamente.'; return; }
+  if(Math.abs(t-(st.mm+st.k*0.1))<0.005){ fb.className='vern-fb warn'; fb.textContent='Multiplicaste por 0.1; este nonio tiene 20 divisiones, así que cada una vale 0.05 mm.'; return; }
+  fb.className='vern-fb bad'; fb.textContent='Revisa: son los milímetros enteros más la división del nonio × 0.05 mm.';
+}
+function vernExportar(){
+  const off=document.createElement('canvas');
+  off.width=1800; off.height=Math.round(1800*V_DH/V_DW);
+  vernPaintState(off.getContext('2d'),off.width,off.height,1,vernEstado());
+  exportJPG(off,'calibrador_vernier');
+}
+(function(){
+  let arr=false;
+  function pos(ev){
+    const r=vernCanvas.getBoundingClientRect(), s=(vernCanvas.width/r.width)/(vernCanvas.width/V_DW);
+    const dx=(ev.clientX-r.left)*s;
+    let mm=(dx-V_X0)/V_PX-vernEstado().e;
+    vernSet(Math.max(0,Math.min(V_MAXG,Math.round(mm/V_RES)*V_RES)));
+  }
+  vernCanvas.addEventListener('pointerdown',function(ev){ arr=true; vernCanvas.setPointerCapture(ev.pointerId); pos(ev); ev.preventDefault(); });
+  vernCanvas.addEventListener('pointermove',function(ev){ if(arr) pos(ev); });
+  vernCanvas.addEventListener('pointerup',function(){ arr=false; });
+  vernCanvas.addEventListener('pointercancel',function(){ arr=false; });
+})();
+
+/* ════════ SIM 0b: TORNILLO MICROMÉTRICO ════════ */
+const micCanvas=document.getElementById('micCanvas'), micLupa=document.getElementById('micLupa');
+const M_RES=0.01, M_NDIV=50, M_PASO=0.5, M_PX=10, M_MAX=20, M_AX=175, M_SX=390, M_SP=10;
+let micModoPrac=false;
+
+function micCalc(g,e){
+  const Lr=Math.round((g+e)/M_RES)*M_RES, mm=Math.floor(Lr+1e-9), rem=Lr-mm;
+  let half=rem>=M_PASO-1e-9?1:0;
+  let t=Math.round((rem-half*M_PASO)/M_RES);
+  if(t>=M_NDIV){ t=0; half=half?0:1; }
+  return { g:g, e:e, L:mm+half*M_PASO+t*M_RES, mm:mm, half:half, t:t };
+}
+function micEstado(){
+  const g=Math.max(0,Math.min(M_MAX, parseFloat(document.getElementById('mgap').value)||0));
+  const e=parseFloat(document.getElementById('mzero').value)||0;
+  return micCalc(Math.round(g/M_RES)*M_RES, Math.round(e/M_RES)*M_RES);
+}
+function micPaintState(c,W,H,zoom,st){
+  const s=W/V_DW, es=s*zoom, HL=st.hi!==false;
+  const spx=M_AX+st.g*M_PX, tlx=M_SX+st.L*M_PX;
+  c.setTransform(1,0,0,1,0,0);
+  c.fillStyle='#f8fafc'; c.fillRect(0,0,W,H);
+  if(zoom>1){ c.setTransform(es,0,0,es, W/2-tlx*es, H/2-160*es); }
+  else { c.setTransform(s,0,0,s,0,0); }
+  const lw=1/es, hw=2.6/es, fs=Math.max(4,Math.min(30,12/es));
+  c.beginPath();
+  c.moveTo(168,152); c.quadraticCurveTo(88,192,130,258); c.quadraticCurveTo(172,302,262,296);
+  c.lineTo(420,296); c.quadraticCurveTo(462,296,462,254); c.lineTo(462,188);
+  c.lineCap='round'; c.lineJoin='round';
+  c.strokeStyle=V_EDG; c.lineWidth=28; c.stroke();
+  c.strokeStyle=V_MET; c.lineWidth=25; c.stroke();
+  vRect(c,M_AX-24,136,24,48,V_MET,V_EDG,lw);
+  if(st.g>0.25){
+    vRect(c,M_AX,130,st.g*M_PX,60,V_OBJ,'#1B3A6B',lw);
+    if(st.g>4) vTxt(c,'pieza',M_AX+st.g*M_PX/2,166,fs,'#1B3A6B');
+  }
+  vRect(c,spx,150,Math.max(4,M_SX-spx),20,V_CUR,V_EDG,lw);
+  vRect(c,M_SX-16,138,Math.max(22,tlx-M_SX+20),44,V_MET,V_EDG,lw);
+  const finLinea=Math.min(tlx,M_SX+M_MAX*M_PX+16);
+  vLine(c,M_SX-8,160,finLinea,160,V_ENG,hw*0.5);
+  for(let i=0;i<=M_MAX;i++){
+    const x=M_SX+i*M_PX; if(x>tlx+0.5) break;
+    const big=i%5===0;
+    vLine(c,x,big?143:148,x,160,V_ENG,lw);
+    if(big && (es>0.5||i%10===0)) vTxt(c,i,x,134,fs,V_ENG);
+  }
+  for(let i=0;i<M_MAX;i++){
+    const x=M_SX+(i+0.5)*M_PX; if(x>tlx+0.5) break;
+    const ult=HL && st.half===1 && Math.abs(x-(tlx-st.t*M_RES*M_PX))<M_PX*0.6;
+    vLine(c,x,160,x,ult?178:174,ult?V_HI:V_ENG,ult?hw:lw);
+  }
+  vRect(c,tlx,108,170,104,V_CUR,V_EDG,lw);
+  for(let d=-5;d<=5;d++){
+    const j=st.t+d, lbl=((j%M_NDIV)+M_NDIV)%M_NDIV, y=160+d*M_SP;
+    const big=lbl%5===0, on=HL&&d===0;
+    vLine(c,tlx+3,y,tlx+(big?26:16),y,on?V_HI:V_ENG,on?hw:lw);
+    if(big && (es>0.5||lbl%10===0)) vTxt(c,lbl,tlx+34,y+fs*0.34,fs,on?V_HI:V_ENG,'left');
+  }
+  vRect(c,tlx+170,138,46,44,V_MET,V_EDG,lw);
+  vTxt(c,'yunque',M_AX-26,322,fs,'#64748b','left');
+  vTxt(c,'manguito',M_SX-16,322,fs,'#64748b','left');
+  vTxt(c,'tambor',tlx+164,322,fs,'#64748b','right');
+  c.setTransform(1,0,0,1,0,0);
+}
+function micUpdate(){
+  const st=micEstado(), oc=micModoPrac, neg=st.L<-1e-9;
+  const pin=Object.assign({},st,{hi:!oc});
+  micPaintState(micCanvas.getContext('2d'),micCanvas.width,micCanvas.height,1,pin);
+  micPaintState(micLupa.getContext('2d'),micLupa.width,micLupa.height,3,pin);
+  document.getElementById('m-man').textContent=(oc||neg)?'—':(st.mm+st.half*M_PASO).toFixed(1)+' mm';
+  document.getElementById('m-tam').textContent=(oc||neg)?'—':st.t;
+  document.getElementById('m-lec').textContent=oc?'—':st.L.toFixed(2)+' mm';
+  document.getElementById('m-fb1').innerHTML= oc?'<span class="dim">oculto en modo práctica</span>'
+    :(neg?'El tambor quedó <span class="gold">antes del cero</span> del manguito, así que la lectura es negativa.'
+         :'<span class="gold">'+(st.mm+st.half*M_PASO).toFixed(1)+' mm + '+st.t+' × 0.01 mm = '+st.L.toFixed(2)+' mm</span>');
+  document.getElementById('m-fb2').innerHTML= oc?''
+    :(st.e!==0?'Error de cero = '+st.e.toFixed(2)+' mm <span class="dim">→</span> <span class="gold">medida real = '+st.L.toFixed(2)+' − ('+st.e.toFixed(2)+') = '+st.g.toFixed(2)+' mm</span>'
+              :'Incertidumbre <span class="gold">± 0.01 mm</span> <span class="dim">·</span> cinco veces mejor que el Vernier, por eso la lectura lleva una cifra más');
+  const lab=document.querySelector('#micPrac label');
+  if(lab) lab.textContent = st.e!==0 ? '¿Cuánto mide la pieza? (corrige el error de cero)' : '¿Cuánto mide?';
+}
+function micSet(g){
+  document.getElementById('mgap').value=g;
+  document.getElementById('mgapn').value=g.toFixed(2);
+  micUpdate();
+}
+function micTogglePrac(){
+  micModoPrac=!micModoPrac;
+  document.getElementById('micPrac').className='vern-prac'+(micModoPrac?' on':'');
+  document.getElementById('micPracBtn').textContent=micModoPrac?'👁 Ver la lectura':'🎯 Modo práctica';
+  if(micModoPrac) micNueva(); else micUpdate();
+}
+function micNueva(){
+  micSet(Math.round((0.5+Math.random()*(M_MAX-1))/M_RES)*M_RES);
+  const fb=document.getElementById('micFb'); fb.className='vern-fb'; fb.textContent='';
+  document.getElementById('micResp').value='';
+}
+function micCerrar(){ micSet(0); }
+function micVerificar(){
+  const st=micEstado(), fb=document.getElementById('micFb');
+  const t=parseFloat(document.getElementById('micResp').value);
+  const esp = st.e!==0 ? st.g : st.L;
+  if(isNaN(t)){ fb.className='vern-fb'; fb.textContent='Escribe tu lectura en milímetros.'; return; }
+  const d=t-esp;
+  if(Math.abs(d)<0.005){ fb.className='vern-fb ok'; fb.textContent='✔ Correcto: '+esp.toFixed(2)+' mm'; return; }
+  if(st.e!==0 && Math.abs(t-st.L)<0.005){ fb.className='vern-fb warn'; fb.textContent='Leíste bien la escala, pero falta restar el error de cero ('+st.e.toFixed(2)+' mm).'; return; }
+  if(Math.abs(d+M_PASO)<0.005){ fb.className='vern-fb warn'; fb.textContent='Olvidaste la marca de medio milímetro que asoma debajo de la línea. Ese es el error más común.'; return; }
+  if(Math.abs(d-M_PASO)<0.005){ fb.className='vern-fb warn'; fb.textContent='Contaste un medio milímetro que todavía no está descubierto. Revisa debajo de la línea.'; return; }
+  if(Math.abs(Math.abs(d)-M_RES)<0.004){ fb.className='vern-fb warn'; fb.textContent='Te fuiste una división del tambor. Fíjate cuál queda justo sobre la línea.'; return; }
+  if(Math.abs(t-(st.mm+st.half*M_PASO+st.t*0.001))<0.0006){ fb.className='vern-fb warn'; fb.textContent='Usaste milésimas; cada división del tambor vale 0.01 mm, no 0.001 mm.'; return; }
+  fb.className='vern-fb bad'; fb.textContent='Revisa: lo que descubre el manguito más la división del tambor × 0.01 mm.';
+}
+function micExportar(){
+  const off=document.createElement('canvas');
+  off.width=1800; off.height=Math.round(1800*V_DH/V_DW);
+  micPaintState(off.getContext('2d'),off.width,off.height,1,micEstado());
+  exportJPG(off,'tornillo_micrometrico');
+}
+(function(){
+  let arr=false;
+  function pos(ev){
+    const r=micCanvas.getBoundingClientRect(), k=V_DW/r.width;
+    let mm=((ev.clientX-r.left)*k-M_AX)/M_PX-micEstado().e;
+    micSet(Math.max(0,Math.min(M_MAX,Math.round(mm/M_RES)*M_RES)));
+  }
+  micCanvas.addEventListener('pointerdown',function(ev){ arr=true; micCanvas.setPointerCapture(ev.pointerId); pos(ev); ev.preventDefault(); });
+  micCanvas.addEventListener('pointermove',function(ev){ if(arr) pos(ev); });
+  micCanvas.addEventListener('pointerup',function(){ arr=false; });
+  micCanvas.addEventListener('pointercancel',function(){ arr=false; });
+})();
+
 /* ════════ INIT ════════ */
 function resizeCanvases(){
   [canvas,fallCanvas,paraCanvas,newtonCanvas,circCanvas,keplerCanvas].forEach(c=>{ c.width=c.parentElement.clientWidth; });
   [xtC,vtC].forEach(c=>{ c.width=c.parentElement.clientWidth-16; });
-  drawSim(simT); drawFall(fallT); drawPara(paraT); drawNewton(nT); drawCirc(); drawKepler();
+  vernCanvas.width=vernCanvas.parentElement.clientWidth;
+  vernCanvas.height=Math.round(vernCanvas.width*V_DH/V_DW);
+  vernLupa.width=vernLupa.parentElement.clientWidth;
+  vernLupa.height=Math.round(vernLupa.width*V_LH/V_DW);
+  micCanvas.width=micCanvas.parentElement.clientWidth;
+  micCanvas.height=Math.round(micCanvas.width*V_DH/V_DW);
+  micLupa.width=micLupa.parentElement.clientWidth;
+  micLupa.height=Math.round(micLupa.width*V_LH/V_DW);
+  drawSim(simT); drawFall(fallT); drawPara(paraT); drawNewton(nT); drawCirc(); drawKepler(); vernUpdate(); micUpdate();
 }
 window.addEventListener('resize', resizeCanvases);
 window.addEventListener('resize', initHero);
