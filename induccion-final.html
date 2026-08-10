@@ -270,6 +270,13 @@ function show(id){
   });
 }
 
+/* El respaldo local es una red de seguridad, no un requisito para enviar. Si el
+   navegador lo bloquea (ventana privada, cookies deshabilitadas, cuota llena),
+   se pierde el respaldo pero el examen debe mandarse igual. */
+function almacen_(accion, porDefecto){
+  try{ return accion(); }catch(error){ return porDefecto; }
+}
+
 function readDraft(){
   try{
     const draft=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
@@ -295,7 +302,7 @@ function prepareDraft(){
 
 $('btn-nuevo').onclick=function(){
   if(!window.confirm('¿Descartar el examen guardado y comenzar desde cero?')) return;
-  localStorage.removeItem(DRAFT_KEY);
+  almacen_(function(){ localStorage.removeItem(DRAFT_KEY); });
   state={paterno:'',materno:'',nombres:'',nombre:'',grupo:'',submissionId:'',startedAt:0,answers:{},procedures:{},salidas:0,msFuera:0,avisoMostrado:0};
   $('draft-note').style.display='none';
   $('btn-nuevo').classList.add('hidden');
@@ -713,8 +720,10 @@ async function submitFinalPayload(payload){
 async function enviar(payload){
   if(!payload) throw new Error('No hay examen final para enviar.');
   if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
-  if(!localStorage.getItem(PENDING_KEY)) archivar_(payload);
-  localStorage.setItem(PENDING_KEY,JSON.stringify(payload));
+  almacen_(function(){
+    if(!localStorage.getItem(PENDING_KEY)) archivar_(payload);
+    localStorage.setItem(PENDING_KEY,JSON.stringify(payload));
+  });
   if(!navigator.onLine) throw new Error('Sin conexión.');
 
   const response=await fetch(ENDPOINT,{
@@ -728,8 +737,10 @@ async function enviar(payload){
   if(!result.resultado || !Array.isArray(result.resultado.bloques)){
     throw new Error('El servidor debe actualizarse a la versión con calificación privada.');
   }
-  localStorage.removeItem(PENDING_KEY);
-  localStorage.removeItem(DRAFT_KEY);
+  almacen_(function(){
+    localStorage.removeItem(PENDING_KEY);
+    localStorage.removeItem(DRAFT_KEY);
+  });
   return result;
 }
 
@@ -743,7 +754,7 @@ function archivar_(payload){
 }
 
 async function retryPendingFinal(){
-  const raw=localStorage.getItem(PENDING_KEY);
+  const raw=almacen_(function(){ return localStorage.getItem(PENDING_KEY); },null);
   if(!raw || !navigator.onLine || submittingFinal) return;
   try{
     payloadFinal=JSON.parse(raw);
@@ -756,7 +767,7 @@ async function retryPendingFinal(){
 }
 
 function preparePendingFinal(){
-  const raw=localStorage.getItem(PENDING_KEY);
+  const raw=almacen_(function(){ return localStorage.getItem(PENDING_KEY); },null);
   if(!raw) return false;
   try{
     payloadFinal=JSON.parse(raw);

@@ -435,13 +435,22 @@ $('btn-cerrar').onclick=async function(){
   }
 };
 
+/* El respaldo local es una red de seguridad, no un requisito para enviar. Si el
+   navegador lo bloquea (ventana privada, cookies deshabilitadas, cuota llena),
+   se pierde el respaldo pero el examen debe mandarse igual. */
+function almacen_(accion, porDefecto){
+  try{ return accion(); }catch(error){ return porDefecto; }
+}
+
 async function enviar(payload){
   if(!payload) throw new Error('No hay resultado para enviar.');
   if(!ENDPOINT || ENDPOINT.indexOf('PEGA_AQUI')===0) throw new Error('Endpoint no configurado.');
 
   const key='induccion_pendiente_diagnostico';
-  if(!localStorage.getItem(key)) archivar_(payload);
-  localStorage.setItem(key,JSON.stringify(payload));
+  almacen_(function(){
+    if(!localStorage.getItem(key)) archivar_(payload);
+    localStorage.setItem(key,JSON.stringify(payload));
+  });
 
   if(!navigator.onLine) throw new Error('Sin conexión.');
 
@@ -459,7 +468,7 @@ async function enviar(payload){
     throw new Error(res && res.error ? res.error : 'El servidor no confirmó el guardado.');
   }
 
-  localStorage.removeItem(key);
+  almacen_(function(){ localStorage.removeItem(key); });
   return true;
 }
 
@@ -475,7 +484,7 @@ function archivar_(payload){
 
 async function reintentarDiagnosticoPendiente(){
   const key='induccion_pendiente_diagnostico';
-  const raw=localStorage.getItem(key);
+  const raw=almacen_(function(){ return localStorage.getItem(key); },null);
   if(!raw || !navigator.onLine) return;
 
   try{
