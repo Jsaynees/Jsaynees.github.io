@@ -169,7 +169,7 @@ function guardarDiagnostico_(ss, d){
     'Fecha','Nombre','Grupo','Aciertos','Total','%',
     'Enteros','Fracciones','Porcentajes','Potencias','Álgebra','Ecuaciones',
     'Salidas de pantalla','Segundos fuera','Dispositivo',
-    'Apellido paterno','Apellido materno','Nombre(s)'
+    'Apellido paterno','Apellido materno','Nombre(s)','Detalle JSON'
   ]);
 
   const quien = identidad_(d);
@@ -186,7 +186,7 @@ function guardarDiagnostico_(ss, d){
     dato_(d.b1), dato_(d.b2), dato_(d.b3),
     dato_(d.b4), dato_(d.b5), dato_(d.b6),
     dato_(d.salidas), dato_(d.segundosFuera), texto_(d.dispositivo),
-    quien.paterno, quien.materno, quien.nombres
+    quien.paterno, quien.materno, quien.nombres, serializar_(d.detalle)
   ]);
   return true;
 }
