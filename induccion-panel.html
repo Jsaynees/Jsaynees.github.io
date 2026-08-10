@@ -515,7 +515,7 @@ function renderFiltered(){
   renderDiagnostico(diagRows);
   renderFinal(finalRows);
   renderEncuesta(encRows);
-  llenarSelectorAlumnos(finalRows);
+  llenarSelectorAlumnos(finalRows,diagRows);
   updateReportMeta();
 }
 
@@ -646,13 +646,24 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','
    soluciones llegan aparte, desde el Apps Script y solo con token válido. */
 const F_NOMBRE=2, F_GRUPO=3, F_PUNTAJE=4, F_ACIERTOS=7, F_REACTIVOS=8,
       F_DURACION=15, F_DETALLE=18, F_SALIDAS=19, F_SEGFUERA=20;
+/* Índices de la hoja Diagnostico. El detalle quedó en la 18, igual que en
+   Final, porque en las dos hojas la columna se agregó al final. */
+const D_NOMBRE=1, D_GRUPO=2, D_ACIERTOS=3, D_TOTAL=4, D_PCT=5,
+      D_SALIDAS=12, D_SEGFUERA=13, D_DETALLE=18;
 let alumnosRevisables=[];
 
-function llenarSelectorAlumnos(finalRows){
+function llenarSelectorAlumnos(finalRows,diagRows){
   const sel=$('alumno-filter');
-  alumnosRevisables=finalRows
-    .filter(function(r){ return String(r[F_DETALLE]||'').trim(); })
-    .sort(function(a,b){ return String(a[F_NOMBRE]).localeCompare(String(b[F_NOMBRE]),'es'); });
+  const conDetalle=function(rows,col){
+    return (rows||[]).filter(function(r){ return String(r[col]||'').trim(); });
+  };
+  alumnosRevisables=
+    conDetalle(finalRows,F_DETALLE).map(function(r){ return {t:'final',r:r,nom:String(r[F_NOMBRE]),gru:String(r[F_GRUPO])}; })
+    .concat(conDetalle(diagRows,D_DETALLE).map(function(r){ return {t:'diag',r:r,nom:String(r[D_NOMBRE]),gru:String(r[D_GRUPO])}; }))
+    .sort(function(a,b){
+      const n=a.nom.localeCompare(b.nom,'es');
+      return n!==0 ? n : (a.t<b.t?-1:1);
+    });
 
   if(!alumnosRevisables.length){
     $('c-alumno').classList.add('hidden');
@@ -663,8 +674,9 @@ function llenarSelectorAlumnos(finalRows){
   }
   $('c-alumno').classList.remove('hidden');
   sel.innerHTML='<option value="">Selecciona un alumno</option>'+
-    alumnosRevisables.map(function(r,i){
-      return '<option value="'+i+'">'+esc(r[F_NOMBRE])+' · Grupo '+esc(r[F_GRUPO])+'</option>';
+    alumnosRevisables.map(function(a,i){
+      return '<option value="'+i+'">'+esc(a.nom)+' · Grupo '+esc(a.gru)+
+             ' · '+(a.t==='final'?'examen final':'diagnóstico')+'</option>';
     }).join('');
   $('alumno-detalle').innerHTML='<div class="rev-aviso">Elige un alumno de la lista para ver su examen.</div>';
   $('btn-imprimir-alumno').disabled=true;
@@ -681,7 +693,52 @@ $('alumno-filter').onchange=function(){
   $('btn-imprimir-alumno').disabled=false;
 };
 
-function mostrarRevision(fila){
+function mostrarRevision(entrada){
+  if(!entrada){ $('alumno-detalle').innerHTML=''; return; }
+  if(entrada.t==='diag') revisionDiagnostico(entrada.r);
+  else revisionFinal(entrada.r);
+}
+
+function revisionDiagnostico(fila){
+  let paq;
+  try{ paq=JSON.parse(fila[D_DETALLE]); }
+  catch(error){
+    $('alumno-detalle').innerHTML='<div class="rev-aviso">El detalle de este alumno no se pudo leer.</div>';
+    return;
+  }
+  const bloques=(paq&&paq.bloques)||[], reactivos=(paq&&paq.reactivos)||[];
+  const salidas=fila[D_SALIDAS], seg=fila[D_SEGFUERA];
+
+  let h='<div class="rev-cab"><div class="nm">'+esc(fila[D_NOMBRE])+'</div><div class="dt">'+
+    'Diagnóstico · Grupo '+esc(fila[D_GRUPO])+' · '+esc(fila[D_ACIERTOS])+' de '+
+    esc(fila[D_TOTAL])+' correctas · '+esc(fila[D_PCT])+'%';
+  if(salidas!==''&&salidas!=null&&num(salidas)>0){
+    h+=' · salió de la pantalla '+num(salidas)+' '+(num(salidas)===1?'vez':'veces')+
+       ' ('+num(seg)+' s)';
+  }
+  h+='</div></div>';
+  h+='<div class="rev-aviso">El diagnóstico es de opción múltiple y se califica en el momento, '+
+     'así que aquí aparece la respuesta correcta de cada reactivo pero no un procedimiento.</div>';
+
+  let bloqueActual=-1;
+  reactivos.forEach(function(d){
+    if(d.b!==bloqueActual){
+      bloqueActual=d.b;
+      h+='<div class="rev-sec">'+esc(bloques[d.b]||('Bloque '+(d.b+1)))+'</div>';
+    }
+    const dada=String(d.r==null?'':d.r).trim()||'(en blanco)';
+    const bien=d.ok===1||d.ok===true;
+    h+='<div class="rev-item '+(bien?'bien':'mal')+'">'+
+       '<div class="en">'+d.n+'. '+esc(d.q)+'</div>'+
+       '<div class="rs">Respondió: <b>'+esc(dada)+'</b> <span class="mk '+(bien?'ok':'no')+'">'+
+       (bien?'✓ correcta':'✗ incorrecta')+'</span></div>';
+    if(!bien) h+='<div class="rev-sol"><h4>Respuesta correcta: '+esc(d.c)+'</h4></div>';
+    h+='</div>';
+  });
+  $('alumno-detalle').innerHTML=h;
+}
+
+function revisionFinal(fila){
   let detalle;
   try{ detalle=JSON.parse(fila[F_DETALLE]); }
   catch(error){
