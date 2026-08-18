@@ -55,6 +55,10 @@ function doPost(e){
       validarNombre_(identidad_(d).nombre);
       const guardado = guardarDiagnostico_(ss, d);
       extra = {duplicado:!guardado, yaPresentado:!guardado};
+    } else if (d.tipo === 'diagnostico-fisica'){
+      validarNombre_(identidad_(d).nombre);
+      const guardado = guardarDiagnosticoFisica_(ss, d);
+      extra = {duplicado:!guardado, yaPresentado:!guardado};
     } else if (d.tipo === 'final'){
       validarNombre_(identidad_(d).nombre);
       const proceso = procesarFinal_(ss, d);
@@ -97,7 +101,8 @@ function doGet(e){
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const out = {};
-  ['Diagnostico','Encuesta','Final'].forEach(function(nombre){
+  ['Diagnostico','Encuesta','Final',
+   'Diagnóstico Física I','Diagnóstico Física III'].forEach(function(nombre){
     const sh = ss.getSheetByName(nombre);
     out[nombre] = sh ? sh.getDataRange().getValues() : [];
   });
@@ -162,6 +167,41 @@ function tituloNombre_(valor){
       if (i > 0 && PARTICULAS_.indexOf(palabra) >= 0) return palabra;
       return palabra.replace(/^[a-záéíóúüñ]/, function(c){ return c.toUpperCase(); });
     }).join(' ').trim();
+}
+
+/**
+ * Diagnóstico de inicio de curso de Física I y Física III.
+ *
+ * A diferencia del diagnóstico de inducción, aquí la materia decide la hoja y
+ * las secciones vienen en el propio envío, así que agregar o mover reactivos en
+ * la página web no obliga a tocar este script.
+ *
+ * Para permitir que un alumno lo repita, borra su fila de la hoja.
+ */
+function guardarDiagnosticoFisica_(ss, d){
+  const materia = texto_(d.materia) || 'Física';
+  const secciones = Array.isArray(d.secciones) ? d.secciones : [];
+
+  const sh = getSheet_(ss, 'Diagnóstico ' + materia, [
+    'Fecha','Nombre','Grupo','Puntos','Total','%'
+  ].concat(secciones.map(function(s){ return texto_(s.nombre); })).concat([
+    'Minutos usados','Contestadas','Dispositivo',
+    'Apellido paterno','Apellido materno','Nombre(s)','Detalle JSON'
+  ]));
+
+  const quien = identidad_(d);
+  if (buscarPorAlumno_(sh, 2, 3, quien.nombre, d.grupo)){
+    return false;
+  }
+
+  sh.appendRow([
+    new Date(), quien.nombre, texto_(d.grupo),
+    dato_(d.puntos), dato_(d.total), dato_(d.pct)
+  ].concat(secciones.map(function(s){ return dato_(s.puntos); })).concat([
+    dato_(d.minutos), dato_(d.contestadas), texto_(d.dispositivo),
+    quien.paterno, quien.materno, quien.nombres, serializar_(d.detalle)
+  ]));
+  return true;
 }
 
 function guardarDiagnostico_(ss, d){
@@ -430,15 +470,16 @@ function buscarPorAlumno_(sh, colNombre, colGrupo, nombre, grupo){
 }
 
 function validarTipo_(tipo){
-  if (['diagnostico','encuesta','final'].indexOf(tipo) < 0){
+  if (['diagnostico','diagnostico-fisica','encuesta','final'].indexOf(tipo) < 0){
     throw new Error('Tipo de envío no reconocido: ' + tipo);
   }
 }
 
 function validarGrupo_(grupo){
-  if (['1','2','3','4'].indexOf(String(grupo || '')) < 0){
-    throw new Error('Grupo no válido.');
-  }
+  const g = String(grupo || '').trim();
+  if (['1','2','3','4'].indexOf(g) >= 0) return;   // equipos del curso de inducción
+  if (/^[1-6]0\d{2}$/.test(g)) return;             // grupos del CCH: 1010, 3040, 5010…
+  throw new Error('Grupo no válido: ' + g);
 }
 
 function validarNombre_(nombre){

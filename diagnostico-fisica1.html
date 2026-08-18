@@ -107,6 +107,9 @@ const MATERIA = "Física I";
 const GRUPOS = ["3010", "3040", "3050", "3080"];
 const MINUTOS = 40;
 const CLAVE = 'diagnostico.fisica1';
+/* Mismo Apps Script del curso de inducción; el tipo decide en qué hoja cae. */
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxG3F7aWe_fGsIVPfvP2v8FAydt1KJxJrkvrYU5SGGInCdLTJDnRFZC9cTiEqw2KGVN/exec';
+const PENDIENTE = CLAVE + '.pendiente';
 
 const $ = id => document.getElementById(id);
 const sel = $('grupo');
@@ -206,6 +209,18 @@ function entregar(porTiempo){
   });
   const pct = Math.round(puntos / total * 100);
 
+  mandar({
+    tipo: 'diagnostico-fisica', materia: MATERIA,
+    nombre: estado.nombre, grupo: estado.grupo,
+    puntos: puntos, total: total, pct: pct,
+    contestadas: detalle.filter(d => String(d.dio).trim()).length,
+    minutos: Math.round((Date.now() - estado.inicio) / 60000),
+    dispositivo: navigator.userAgent,
+    secciones: SECCIONES.map((nombre, i) => ({ nombre: nombre, puntos: porSeccion[i].ok,
+                                               total: porSeccion[i].total })),
+    detalle: detalle
+  });
+
   let html = '<div class="card"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">' +
     '<div><div class="total">' + pct + '</div><div class="uni">de 100 puntos</div></div>' +
     '<div style="flex:1;min-width:240px">' +
@@ -216,7 +231,8 @@ function entregar(porTiempo){
              '<div style="text-align:right">' + b.ok + '/' + b.total + '</div></div>';
     }).join('') + '</div></div>' +
     '<div class="aviso" style="margin-top:16px">Este resultado <strong>no afecta tu calificación</strong>. ' +
-    'Úsalo para saber qué repasar: las secciones con la barra corta son las que te conviene reforzar.</div>' +
+    'Úsalo para saber qué repasar: las secciones con la barra corta son las que te conviene reforzar.' +
+    '<div id="envio" style="margin-top:8px;font-size:13px;color:#64748b">Enviando tu resultado…</div></div>' +
     '</div><div class="card"><h3 style="margin-top:0;color:var(--navy)">Respuesta por respuesta</h3>';
 
   detalle.forEach(d => {
@@ -233,6 +249,31 @@ function entregar(porTiempo){
   $('resultado').hidden = false;
   $('resultado').innerHTML = html;
   window.scrollTo(0,0);
+}
+
+/* El envío al profesor nunca debe estorbar: si falla, el alumno ve su
+   resultado igual y el intento queda guardado en este dispositivo. */
+async function mandar(envio){
+  try{ localStorage.setItem(PENDIENTE, JSON.stringify(envio)); }catch(e){}
+  const aviso = t => { const c = $('envio'); if(c) c.textContent = t; };
+  try{
+    const r = await fetch(ENDPOINT, {
+      method: 'POST', mode: 'cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(envio)
+    });
+    const res = await r.json();
+    if(res && res.ok === true){
+      try{ localStorage.removeItem(PENDIENTE); }catch(e){}
+      aviso(res.yaPresentado
+            ? 'Ya habías presentado este diagnóstico; se conservó tu primer intento.'
+            : 'Tu resultado se envió a tu profesor.');
+    }else{
+      aviso('Tu resultado no se pudo enviar, pero quedó guardado en este dispositivo.');
+    }
+  }catch(e){
+    aviso('Tu resultado no se pudo enviar, pero quedó guardado en este dispositivo.');
+  }
 }
 
 $('empezar').onclick = empezar;
