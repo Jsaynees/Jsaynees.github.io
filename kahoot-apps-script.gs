@@ -25,9 +25,11 @@
 
 const TOKEN = 'CAMBIA_ESTO_POR_TU_CLAVE';
 
-// Duración de la caché. Una partida dura minutos; media hora sobra y evita
-// que un tablero olvidado deje basura viva toda la tarde.
-const VIDA_CACHE = 1800;
+// Duración de la caché. Se subió a dos horas tras la primera prueba: con media
+// hora, una clase que se alargue —o una pausa entre rondas— dejaba morir la
+// sala a media partida y las respuestas ya no encontraban dónde guardarse.
+// El máximo que admite CacheService son 6 horas.
+const VIDA_CACHE = 7200;
 const LETRAS_CODIGO = 'ABCDEFGHJKLMNPQRSTUVWXYZ';  // sin I ni O: se confunden
 
 function doGet(e){
@@ -92,8 +94,11 @@ function entrar_(p){
 
   // La lista de jugadores sí necesita bloqueo, pero se toca una vez por
   // alumno y al principio, no en medio de la cuenta regresiva.
+  // Espera larga a propósito: entrar no es tiempo crítico —pasa en el vestíbulo,
+  // no en la cuenta regresiva— y perder a un alumno de la lista sí duele,
+  // porque sus respuestas no se contarían.
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
+  lock.waitLock(25000);
   try{
     const lista = leerLista_(codigo);
     const yaEsta = lista.some(function(x){ return normalizar_(x) === normalizar_(nombre); });

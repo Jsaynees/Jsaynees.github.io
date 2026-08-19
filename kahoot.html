@@ -60,6 +60,7 @@ input,select{width:100%;padding:14px;border:1px solid var(--borde);border-radius
 
 <div class="tarjeta oculto" id="p-jugar">
   <p class="hola">Listo, <b id="mi-nombre"></b></p>
+  <p class="hola" id="mi-lugar" style="margin-top:-8px"></p>
   <p class="mirar">Mira la pantalla y elige el área</p>
   <div class="botonera" id="botonera"></div>
   <div class="estado esperando" id="estado">Esperando la primera pregunta…</div>
@@ -80,7 +81,9 @@ var codigo = '', nombre = '', ultimaN = -1;
 var contador = 0;
 function llamar(params, alLlegar, alFallar){
   var nombreCb = '__r' + (++contador);
-  var t = setTimeout(function(){ limpiar(); if (alFallar) alFallar('tiempo'); }, 12000);
+  // Plazo largo: el despliegue tarda entre 3 y 11 segundos por llamada, y con
+  // 12 s se cortaban respuestas que sí iban a llegar.
+  var t = setTimeout(function(){ limpiar(); if (alFallar) alFallar('tiempo'); }, 30000);
   function limpiar(){
     clearTimeout(t);
     try{ delete window[nombreCb]; }catch(e){ window[nombreCb] = undefined; }
@@ -116,6 +119,9 @@ $('b-entrar').addEventListener('click', function(){
     localStorage.setItem('r_nombre', nombre);
     localStorage.setItem('r_grupo', $('grupo').value);
     $('mi-nombre').textContent = nombre;
+    if (res.jugadores){
+      $('mi-lugar').textContent = 'Eres el jugador ' + res.jugadores + ' de la sala';
+    }
     $('p-entrar').classList.add('oculto');
     $('p-jugar').classList.remove('oculto');
   }, function(motivo){
@@ -138,19 +144,50 @@ function decir(texto, clase){
   $('estado').className = 'estado ' + clase;
 }
 
+/* El servidor tarda varios segundos en confirmar, así que el botón se marca
+   AL INSTANTE: el alumno ve que su toque contó sin quedarse mirando la
+   pantalla. La confirmación llega después y corrige si hizo falta. Lo que
+   vale es la hora en que el servidor la recibe, no cuándo confirma. */
+function marcarElegida(i){
+  Array.prototype.forEach.call($('botonera').children, function(b, k){
+    b.style.outline = (k === i) ? '4px solid #C9A84C' : '';
+    b.style.opacity = (k === i) ? '1' : '.45';
+  });
+}
+
+function limpiarMarca(){
+  Array.prototype.forEach.call($('botonera').children, function(b){
+    b.style.outline = ''; b.style.opacity = '';
+  });
+}
+
+var enviando = false;
+
 function responder(i){
-  decir('Enviando…', 'esperando');
+  if (enviando) return;
+  enviando = true;
+  marcarElegida(i);
+  var t0 = Date.now();
+  decir('Enviando tu respuesta…', 'esperando');
+  var cuenta = setInterval(function(){
+    decir('Enviando… ' + Math.round((Date.now() - t0) / 1000) + ' s', 'esperando');
+  }, 1000);
+
   llamar({accion:'responder', codigo:codigo, nombre:nombre, opcion:i}, function(res){
-    if (res.error){ decir(res.error, 'malo'); return; }
+    clearInterval(cuenta); enviando = false;
+    if (res.error){ decir(res.error, 'malo'); limpiarMarca(); return; }
     if (res.ok){
       ultimaN = res.n;
-      decir('Respuesta registrada · pregunta ' + (res.n + 1), 'ok');
+      decir('Registrada · pregunta ' + (res.n + 1), 'ok');
       return;
     }
     if (res.motivo === 'repetida'){ decir('Ya contestaste esta pregunta', 'esperando'); }
-    else if (res.motivo === 'tarde'){ decir('Se acabó el tiempo de esa pregunta', 'malo'); }
-    else { decir('Todavía no hay pregunta abierta', 'esperando'); }
-  }, function(){ decir('No se envió. Toca otra vez.', 'malo'); });
+    else if (res.motivo === 'tarde'){ decir('Se acabó el tiempo de esa pregunta', 'malo'); limpiarMarca(); }
+    else { decir('Todavía no abre la pregunta. Mira la pantalla.', 'esperando'); limpiarMarca(); }
+  }, function(){
+    clearInterval(cuenta); enviando = false; limpiarMarca();
+    decir('No se envió. Vuelve a tocar.', 'malo');
+  });
 }
 </script>
 </body>
