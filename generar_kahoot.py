@@ -110,6 +110,87 @@ BANCO = [
      "Resonancia: la onda de sonido la hace vibrar en su frecuencia propia hasta romperla."),
     (3, "La bomba atómica saca energía de un gramo de materia", 4,
      "Física nuclear: una parte de la masa se convierte en energía."),
+
+    # ══ Ampliación del 19 de agosto de 2026 ══════════════════════════
+    # Mismo formato que arriba: (ronda, enunciado, área correcta, por qué).
+
+    # ── Ronda 1 ─────────────────────────────────────────────
+    (1, "Te truenas los dedos y suena", 0,
+     "Se forma y revienta una burbuja en el líquido de la articulación; oyes el estallido."),
+    (1, "La ropa negra te da más calor en el sol", 1,
+     "El negro absorbe casi toda la luz que le llega; el blanco la refleja."),
+    (1, "El control remoto cambia de canal sin apuntarle bien", 2,
+     "Manda luz infrarroja, que rebota en las paredes antes de llegar a la tele."),
+    (1, "Ves tu cara en la ventana de noche", 3,
+     "Con oscuridad afuera, el vidrio refleja más luz de la que deja pasar."),
+    (1, "El detector de humo del pasillo vigila solo", 4,
+     "Muchos llevan una fuente radiactiva diminuta que ioniza el aire; el humo corta esa corriente."),
+    (1, "Te da flojera levantarte los lunes", 5,
+     "Trampa. La inercia de la física es la de los cuerpos, no la de las ganas."),
+    (1, "Empujas un carrito lleno y cuesta más que uno vacío", 0,
+     "Más masa, más inercia: la misma fuerza le saca menos aceleración."),
+    (1, "El vaho empaña el espejo del baño", 1,
+     "El vapor toca una superficie fría y se condensa en gotitas."),
+    (1, "El cargador del celular se calienta", 2,
+     "Efecto Joule: la corriente que atraviesa un material siempre deja algo de calor."),
+    (1, "Una cuchara dentro del vaso se ve quebrada", 3,
+     "Refracción: la luz cambia de rapidez al pasar del agua al aire y se dobla."),
+    (1, "El Sol lleva miles de millones de años encendido", 4,
+     "Fusión nuclear: cuatro núcleos de hidrógeno se unen y sobra energía."),
+    (1, "Una canción se te queda pegada todo el día", 5,
+     "Trampa. Que la recuerdes es memoria; la física solo explica cómo viajó el sonido."),
+
+    # ── Ronda 2 ─────────────────────────────────────────────
+    (2, "Un patinador gira más rápido al cerrar los brazos", 0,
+     "Se conserva el momento angular: si baja su momento de inercia, sube su rapidez de giro."),
+    (2, "El metal se siente más frío que la madera, estando los dos igual de fríos", 1,
+     "El metal conduce mejor y te roba calor más rápido. La temperatura es la misma."),
+    (2, "La tarjeta del metro funciona sin contacto", 2,
+     "El torniquete le induce corriente a distancia por inducción electromagnética."),
+    (2, "Una mancha de aceite en el charco tiene colores", 3,
+     "Interferencia: la luz que rebota arriba y abajo de la película se suma o se cancela según el color."),
+    (2, "El láser del quirófano corta sin bisturí", 4,
+     "Emisión estimulada: fotones idénticos, en fase y todos en la misma dirección."),
+    (2, "Hay quien dice que el agua caliente se congela antes que la fría", 1,
+     "Es el efecto Mpemba. Sigue en discusión, pero se mide y es un fenómeno térmico."),
+    (2, "Sientes que algo te empuja hacia afuera en una curva del camión", 0,
+     "Nada te empuja: tu cuerpo sigue derecho y el camión gira debajo de ti."),
+    (2, "El claxon de un camión cambia de tono al pasar junto a ti", 0,
+     "Efecto Doppler: la onda se comprime cuando se acerca y se estira cuando se aleja."),
+    (2, "Un pájaro se para en el cable de alta tensión y no le pasa nada", 2,
+     "Sus dos patas están al mismo voltaje: sin diferencia no hay corriente que lo cruce."),
+    (2, "El cielo de otro planeta podría no ser azul", 3,
+     "El color depende de cuánto disperse su atmósfera cada longitud de onda."),
+    (2, "Los precios del súper suben cada mes", 5,
+     "Trampa. Es economía; la física no tiene nada que decir sobre eso."),
+    (2, "El microondas casi no calienta el plato, pero sí la comida", 2,
+     "La onda está afinada al agua. Un plato seco apenas la absorbe."),
+
+    # ── Ronda 3 ─────────────────────────────────────────────
+    (3, "Un clip flota sobre el agua aunque el metal sea más denso", 0,
+     "Tensión superficial: la superficie se comporta como una membrana y lo sostiene."),
+    (3, "Sueñas que caes y despiertas de golpe", 5,
+     "Trampa. Es neurología del sueño. Caer sí es física; soñarlo, no."),
+    (3, "El horno dora el pan por arriba sin tocarlo", 1,
+     "Radiación térmica: la resistencia al rojo emite infrarrojo a distancia."),
+    (3, "Una brújula apunta al norte, pero no al Polo Norte exacto", 2,
+     "El polo magnético no coincide con el geográfico, y además se mueve cada año."),
+    (3, "El agua del excusado gira al revés en Australia", 5,
+     "Trampa. Es un mito: en algo tan chico manda la forma del chorro, no la rotación de la Tierra."),
+    (3, "Un gato que cae alcanza a girar y aterriza de pie", 0,
+     "Se retuerce conservando el momento angular total, que sigue valiendo cero."),
+    (3, "Los alimentos irradiados duran más y no quedan radiactivos", 4,
+     "La radiación mata microbios al atravesarlos; no deja material radiactivo dentro."),
+    (3, "El vidrio de las catedrales es más grueso abajo porque escurrió con los siglos", 5,
+     "Trampa. El vidrio no escurre: así lo fabricaban, y lo montaban con el lado grueso abajo."),
+    (3, "El fondo de la alberca se ve menos hondo de lo que es", 3,
+     "Refracción: la luz se dobla al salir del agua y tu cerebro la supone recta."),
+    (3, "Un helicóptero necesita el rotor de la cola", 0,
+     "Sin él, el cuerpo giraría al revés que la hélice: acción y reacción."),
+    (3, "El pan integral es más sano que el blanco", 5,
+     "Trampa. Es nutrición. La física no opina de lo que te conviene comer."),
+    (3, "El plasma es el cuarto estado de la materia", 4,
+     "Gas ionizado: sus electrones andan sueltos, y por eso conduce y brilla."),
 ]
 
 
@@ -158,7 +239,11 @@ header{background:var(--navy);color:#fff;padding:14px 28px;display:flex;align-it
 header h1{font-size:20px;font-weight:600}
 header .sep{flex:1}
 header .codigo{font-size:30px;font-weight:700;letter-spacing:.22em;color:var(--gold-light)}
-main{flex:1;padding:26px 40px;display:flex;flex-direction:column;justify-content:center;overflow:auto}
+main{flex:1;padding:26px 40px;display:flex;flex-direction:column;overflow:auto}
+/* Centrado con margin y no con justify-content: al centrar con
+   justify-content, el contenido que desborda deja de alcanzarse con el
+   scroll y se perdian las primeras filas del marcador. */
+main>.panel{margin:auto 0;width:100%}
 .panel{max-width:920px;margin:0 auto;width:100%}
 label{display:block;font-size:14px;color:var(--suave);margin:14px 0 5px;font-weight:600}
 input,select{width:100%;padding:11px 13px;border:1px solid var(--borde);border-radius:9px;font-size:16px;
@@ -197,6 +282,25 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--borde)}
 th{font-size:14px;text-transform:uppercase;letter-spacing:.09em;color:var(--suave)}
 td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 tr.podio td{background:#faf5e6}
+/* Con grupos grandes la tabla no cabe en pantalla: se desplaza sola y el
+   encabezado se queda fijo arriba. */
+.tabla-scroll{max-height:52vh;overflow-y:auto;border:1px solid var(--borde);
+              border-radius:12px}
+.tabla-scroll table{margin:0}
+.tabla-scroll thead th{position:sticky;top:0;background:#fff;z-index:2;
+                       box-shadow:0 1px 0 var(--borde)}
+.marca-podio{font-size:19px;margin-right:7px}
+tr.podio-anim{animation:entra .5s ease both}
+tr.podio-anim:nth-child(1){animation-delay:.05s}
+tr.podio-anim:nth-child(2){animation-delay:.25s}
+tr.podio-anim:nth-child(3){animation-delay:.45s}
+@keyframes entra{
+  from{opacity:0;transform:translateY(-14px) scale(.97)}
+  to{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  tr.podio-anim{animation:none}
+}
 .conexion{margin-top:14px;text-align:center;font-size:16px;min-height:24px;color:var(--suave)}
 .conexion.espera{color:var(--navy-light)}
 .conexion.bien{color:var(--ok)}
@@ -272,7 +376,9 @@ tr.podio td{background:#faf5e6}
 
   <section id="p-final" class="panel oculto">
     <h2 style="font-size:30px;color:var(--navy)">Marcador final</h2>
+    <div class="tabla-scroll">
     <table id="tabla-final"><thead><tr><th>#</th><th>Alumno</th><th style="text-align:right">Aciertos</th><th style="text-align:right">Puntos</th></tr></thead><tbody></tbody></table>
+    </div>
     <div class="fila">
       <button class="btn" id="b-guardar">Guardar en la hoja</button>
       <button class="btn claro" id="b-csv">Descargar CSV</button>
@@ -591,11 +697,18 @@ function terminar(){
     return;
   }
   var filas = tabla();
+  var MEDALLA = ['🥇', '🥈', '🥉'];
   $('tabla-final').querySelector('tbody').innerHTML = filas.map(function(f, i){
-    return '<tr class="' + (i < 3 ? 'podio' : '') + '"><td>' + (i + 1) +
+    var lugar = i < 3
+      ? '<span class="marca-podio">' + MEDALLA[i] + '</span>' + (i + 1)
+      : (i + 1);
+    return '<tr class="' + (i < 3 ? 'podio podio-anim' : '') + '"><td>' + lugar +
       '</td><td class="nom"></td><td class="num">' + f.aciertos + ' / ' + preguntas.length +
       '</td><td class="num">' + f.puntos + '</td></tr>';
   }).join('');
+  // el podio arranca arriba: si el grupo es grande, la tabla ya viene desplazada
+  var caja = $('tabla-final').parentNode;
+  if (caja && caja.classList.contains('tabla-scroll')) caja.scrollTop = 0;
   Array.prototype.forEach.call($('tabla-final').querySelectorAll('td.nom'), function(td, i){
     td.textContent = filas[i].nombre;
   });
