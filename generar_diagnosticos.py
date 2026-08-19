@@ -40,7 +40,8 @@ FISICA1 = {
         (1, 8, "Convierte 72 km/h a metros por segundo.", "num", 20, "m/s", ""),
         (1, 8, "Una mesa mide 0.75 m de alto. ¿Cuántos milímetros son?", "num", 750, "mm", ""),
         (2, 8, "Escribe en notación científica: 0.00058", "sci", 0.00058, "",
-               "Puedes escribirlo como 5.8e-4 o 5.8x10^-4."),
+               "Usa los botones de abajo. Por ejemplo, cuatro millones se escribe "
+               "4e6 o 4x10^6."),
         (2, 8, "¿Cuántas cifras significativas tiene la medición 0.03400 m?", "num", 4, "", ""),
         (3, 8, "Si 3 kg de fruta cuestan $54, ¿cuánto cuestan 7 kg?", "num", 126, "pesos", ""),
         (3, 8, "En una gráfica de posición contra tiempo, un móvil pasa de 4 m a 20 m entre "
@@ -138,6 +139,7 @@ input,select{width:100%;padding:11px 13px;border:2px solid var(--line);border-ra
 input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.16)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+}
 .btn{cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;border:0;border-radius:10px;
      padding:13px 22px;background:var(--navy);color:#fff}
 .btn:hover{background:var(--navy2)}
@@ -158,6 +160,12 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .q .fila{display:flex;gap:10px;align-items:center;margin-top:10px}
 .q .fila input{max-width:230px}
 .q .uni{color:var(--muted);font-size:14px}
+.simb{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.simb button{font-family:inherit;font-size:15px;font-weight:700;line-height:1;
+             min-width:46px;min-height:44px;padding:0 13px;cursor:pointer;
+             border:2px solid var(--line);border-radius:9px;background:#fff;color:var(--navy)}
+.simb button:active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.simb .pista{align-self:center;color:var(--muted);font-size:12px}
 .res{margin-top:6px;font-size:14px;font-weight:700}
 .res.ok{color:var(--ok)}.res.no{color:var(--no)}
 .total{font-size:44px;font-weight:800;color:var(--navy);line-height:1}
@@ -169,6 +177,28 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
        background:#fffdf5;color:#5b4a1e;font-size:14px}
 .pie{margin:22px 0 8px;color:var(--muted);font-size:13px;text-align:center}
 .pie a{color:var(--navy)}
+
+/* Telefono. Va al final a proposito: varias de estas reglas sobrescriben otras
+   de la misma especificidad declaradas mas arriba, y ahi gana la ultima. */
+@media(max-width:480px){
+  body{padding:9px}
+  .hero{padding:17px;border-radius:14px}
+  .hero h1{font-size:20px}
+  .hero p{font-size:14px}
+  .hero .kick{font-size:11px;letter-spacing:1.5px}
+  .card{padding:13px}
+  .bar{gap:9px;padding:9px 11px}
+  .bar>div:first-child{min-width:0;font-size:13px;line-height:1.35}
+  .timer{min-width:74px;font-size:17px;padding:7px 9px}
+  .sec{font-size:14px;padding:10px 12px;flex-wrap:wrap;gap:4px}
+  .q{padding:13px 12px}
+  .q .fila{flex-wrap:wrap}
+  .q .fila input{max-width:none;width:100%}
+  .q .uni{font-size:13px}
+  .total{font-size:36px}
+  .blockrow{grid-template-columns:1fr 68px 42px;gap:8px;font-size:13px}
+  .btn{width:100%}
+}
 </style>
 </head>
 <body>
@@ -231,9 +261,32 @@ GRUPOS.forEach(g => { const o = document.createElement('option'); o.value = g; o
 
 /* Una respuesta se da por buena si cae dentro del 1 % del valor esperado.
    Así "0.6" y "0.60" valen igual, y 9.8 admite 9.81. */
+// El teclado numerico del telefono no trae signo menos ni potencias de diez.
+// Estos botones insertan el simbolo donde este el cursor, sin abrir otro teclado.
+function simbolos(r){
+  const b = ['-'];
+  if (r.tipo === 'sci') b.push('x10^', '.');
+  let h = '<div class="simb" data-para="' + r.n + '">';
+  b.forEach(t => { h += '<button type="button" data-ins="' + t + '">' +
+                        (t === '-' ? '\u2212' : t) + '</button>'; });
+  if (r.tipo === 'sci') h += '<span class="pista">para escribir la potencia de diez</span>';
+  return h + '</div>';
+}
+
+function insertar(campo, txt){
+  const i = campo.selectionStart ?? campo.value.length;
+  const j = campo.selectionEnd ?? campo.value.length;
+  campo.value = campo.value.slice(0, i) + txt + campo.value.slice(j);
+  const k = i + txt.length;
+  campo.focus();
+  try { campo.setSelectionRange(k, k); } catch(e) {}
+  campo.dispatchEvent(new Event('input'));
+}
+
 function normaliza(txt){
   if(txt == null) return NaN;
   let s = String(txt).trim().toLowerCase().replace(/\\s+/g,'').replace(/,/g,'');
+  s = s.replace(/[\u2212\u2013\u2014]/g,'-');
   s = s.replace(/\\$/g,'').replace(/x10\\^?/,'e').replace(/×10\\^?/,'e').replace(/\\*10\\^?/,'e');
   s = s.replace(/e\\+/,'e');
   return parseFloat(s);
@@ -261,12 +314,16 @@ function pintarPreguntas(){
             (r.ayuda ? '<div class="ayuda">' + r.ayuda + '</div>' : '') +
             '<div class="fila"><input type="text" inputmode="decimal" id="r' + r.n +
             '" autocomplete="off">' + (r.unidad ? '<span class="uni">' + r.unidad + '</span>' : '') +
-            '</div></div>';
+            '</div>' + simbolos(r) + '</div>';
   });
   $('preguntas').innerHTML = html;
   BANCO.forEach(r => {
     const campo = $('r' + r.n);
     campo.value = estado.respuestas[r.n] || '';
+    const fila = document.querySelector('.simb[data-para="' + r.n + '"]');
+    if (fila) fila.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => insertar(campo, b.dataset.ins));
+    });
     campo.addEventListener('input', () => {
       estado.respuestas[r.n] = campo.value;
       guardar();
