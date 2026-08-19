@@ -290,6 +290,13 @@ tr.podio td{background:#faf5e6}
 .tabla-scroll thead th{position:sticky;top:0;background:#fff;z-index:2;
                        box-shadow:0 1px 0 var(--borde)}
 .marca-podio{font-size:19px;margin-right:7px}
+.parcial-caja{margin-top:16px;padding:12px 16px;border:1px solid var(--borde);
+              border-radius:12px;background:#fbfcfe}
+.parcial-caja h3{margin:0 0 8px;font-size:15px;text-transform:uppercase;
+                 letter-spacing:.09em;color:var(--suave)}
+ol.parcial{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+ol.parcial li{display:flex;justify-content:space-between;gap:14px;font-size:19px}
+ol.parcial .pl-pts{font-variant-numeric:tabular-nums;font-weight:700;color:var(--navy)}
 tr.podio-anim{animation:entra .5s ease both}
 tr.podio-anim:nth-child(1){animation-delay:.05s}
 tr.podio-anim:nth-child(2){animation-delay:.25s}
@@ -324,14 +331,21 @@ tr.podio-anim:nth-child(3){animation-delay:.45s}
     <input id="url" type="text" value="@@URL_SCRIPT@@">
     <label for="token">Clave de acceso docente</label>
     <input id="token" type="password" placeholder="Tu clave">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
       <div><label for="grupo">Grupo</label>
         <select id="grupo"><option>3010</option><option>3040</option><option>3050</option><option>3080</option></select></div>
       <div><label for="ronda">Ronda</label>
         <select id="ronda"><option value="1">1 · para calentar</option><option value="2">2 · hay que pensarle</option><option value="3">3 · trampas</option><option value="0">todas</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div><label for="cuantas">Preguntas de esta partida</label>
+        <select id="cuantas"><option value="6">6</option><option value="8" selected>8</option><option value="10">10</option><option value="12">12</option><option value="0">todas</option></select></div>
       <div><label for="segundos">Segundos por pregunta</label>
         <input id="segundos" type="number" min="5" max="60" value="15"></div>
     </div>
+    <p class="ayudita" style="margin-top:2px">Se eligen al azar y se da preferencia a
+    las que no han salido en las últimas partidas, así puedes repetir la misma ronda
+    con preguntas distintas.</p>
     <label class="casilla" for="sin-red">
       <input type="checkbox" id="sin-red">
       Jugar sin internet (responden con las tarjetas de colores)
@@ -365,6 +379,7 @@ tr.podio-anim:nth-child(3){animation-delay:.45s}
     <p class="contestaron" id="contestaron"></p>
     <div class="opciones" id="opciones"></div>
     <p class="porque oculto" id="porque"></p>
+    <div class="parcial-caja oculto" id="marcador-parcial"></div>
     <div class="fila" style="justify-content:center">
       <button class="btn claro oculto" id="b-reintentar">Reintentar</button>
       <button class="btn claro oculto" id="b-cerrar">Cerrar ahora</button>
@@ -377,7 +392,7 @@ tr.podio-anim:nth-child(3){animation-delay:.45s}
   <section id="p-final" class="panel oculto">
     <h2 style="font-size:30px;color:var(--navy)">Marcador final</h2>
     <div class="tabla-scroll">
-    <table id="tabla-final"><thead><tr><th>#</th><th>Alumno</th><th style="text-align:right">Aciertos</th><th style="text-align:right">Puntos</th></tr></thead><tbody></tbody></table>
+    <table id="tabla-final"><thead><tr><th>#</th><th>Alumno</th><th style="text-align:right">Puntos</th><th style="text-align:right">Aciertos</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="fila">
       <button class="btn" id="b-guardar">Guardar en la hoja</button>
@@ -443,8 +458,9 @@ $('b-abrir').addEventListener('click', function(){
   limite = cfg.segundos * 1000;
 
   var r = $('ronda').value;
-  preguntas = BANCO.filter(function(q){ return r === '0' || String(q[0]) === r; });
-  if (!preguntas.length){ $('aviso-config').textContent = 'Esa ronda no tiene reactivos.'; return; }
+  var disponibles = BANCO.filter(function(q){ return r === '0' || String(q[0]) === r; });
+  if (!disponibles.length){ $('aviso-config').textContent = 'Esa ronda no tiene reactivos.'; return; }
+  preguntas = elegir(disponibles, +$('cuantas').value || 0, r);
   registro = {}; jugadores = []; idx = 0;
 
   if (sinRed){                       // ni sala ni servidor: al juego directo
@@ -626,6 +642,46 @@ function cerrar(){
 
 /** Pinta el revelado. Es idempotente: se puede llamar las veces que haga
  *  falta, porque los puntos se recalculan desde `registro`, no se acumulan. */
+/* ── Elegir las preguntas de la partida ───────────────────────────────────
+ * Antes cada ronda soltaba todas sus preguntas y repetirla era repetir lo
+ * mismo. Ahora se barajan y se toman `cuantas`, dando preferencia a las que no
+ * han salido en partidas recientes: se guarda en el navegador la lista de
+ * enunciados ya usados por ronda, y solo cuando el pozo se agota se vuelve a
+ * empezar. La memoria es por navegador, no por alumno: vive en el tablero. */
+var LLAVE_USADAS = 'kahoot.usadas.';
+
+function leerUsadas(ronda){
+  try { return JSON.parse(localStorage.getItem(LLAVE_USADAS + ronda) || '[]'); }
+  catch(e){ return []; }
+}
+
+function guardarUsadas(ronda, lista){
+  try { localStorage.setItem(LLAVE_USADAS + ronda, JSON.stringify(lista)); }
+  catch(e){}
+}
+
+function barajar(a){
+  for (var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function elegir(disponibles, cuantas, ronda){
+  if (!cuantas || cuantas >= disponibles.length) return barajar(disponibles.slice());
+  var usadas = leerUsadas(ronda);
+  var frescas = disponibles.filter(function(q){ return usadas.indexOf(q[1]) < 0; });
+  var repetidas = disponibles.filter(function(q){ return usadas.indexOf(q[1]) >= 0; });
+  barajar(frescas); barajar(repetidas);
+  var elegidas = frescas.concat(repetidas).slice(0, cuantas);
+  // si se acabo el pozo, la memoria se reinicia con lo de esta partida
+  var nuevas = (frescas.length >= cuantas) ? usadas.concat([]) : [];
+  elegidas.forEach(function(q){ if (nuevas.indexOf(q[1]) < 0) nuevas.push(q[1]); });
+  guardarUsadas(ronda, nuevas);
+  return barajar(elegidas);
+}
+
 function revelar(){
   var q = preguntas[idx], correcta = q[2];
   var resp = registro[idx] || {};
@@ -645,8 +701,27 @@ function revelar(){
   }
   $('porque').textContent = q[3];
   $('porque').classList.remove('oculto');
+  parcial();
   $('b-siguiente').classList.remove('oculto');
   $('b-siguiente').textContent = (idx + 1 < preguntas.length) ? 'Siguiente' : 'Ver marcador';
+}
+
+/* Marcador parcial. El juego es de puntos, no de aciertos, y sin verlo durante
+ * la partida nadie sabe como va la carrera: solo aparecia al final. */
+function parcial(){
+  var caja = $('marcador-parcial');
+  if (sinRed || !jugadores.length){ caja.classList.add('oculto'); return; }
+  var top = tabla().slice(0, 5);
+  if (!top.length){ caja.classList.add('oculto'); return; }
+  var MED = ['🥇', '🥈', '🥉'];
+  caja.innerHTML = '<h3>Van ganando</h3><ol class="parcial">' + top.map(function(f, i){
+    return '<li><span class="pl-nom"></span><span class="pl-pts">' +
+           (i < 3 ? MED[i] + ' ' : '') + f.puntos + '</span></li>';
+  }).join('') + '</ol>';
+  Array.prototype.forEach.call(caja.querySelectorAll('.pl-nom'), function(el, i){
+    el.textContent = top[i].nombre;
+  });
+  caja.classList.remove('oculto');
 }
 
 $('b-siguiente').addEventListener('click', function(){
@@ -703,8 +778,9 @@ function terminar(){
       ? '<span class="marca-podio">' + MEDALLA[i] + '</span>' + (i + 1)
       : (i + 1);
     return '<tr class="' + (i < 3 ? 'podio podio-anim' : '') + '"><td>' + lugar +
-      '</td><td class="nom"></td><td class="num">' + f.aciertos + ' / ' + preguntas.length +
-      '</td><td class="num">' + f.puntos + '</td></tr>';
+      '</td><td class="nom"></td><td class="num">' + f.puntos +
+      '</td><td class="num" style="color:var(--suave)">' + f.aciertos + ' / ' + preguntas.length +
+      '</td></tr>';
   }).join('');
   // el podio arranca arriba: si el grupo es grande, la tabla ya viene desplazada
   var caja = $('tabla-final').parentNode;
