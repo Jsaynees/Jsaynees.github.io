@@ -25,7 +25,7 @@
     body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--text); }
 
     /* NAV — light, with real logo */
-    nav {
+    .portal-nav {
       position: sticky; top: 0; z-index: 100;
       background: #fff; border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 12px rgba(17,36,71,.05);
@@ -241,7 +241,7 @@
     footer p span { color: var(--gold); }
 
     @media (max-width: 640px) {
-      nav { padding: 0 1rem; height: 64px; }
+      .portal-nav { padding: 0 1rem; height: 64px; }
       .nav-brand .nb-text { display: none; }
       .nav-links { gap: 1rem; }
       .page-header { padding: 2.5rem 1.25rem 2rem; }
@@ -307,16 +307,16 @@
 
 <div class="layout">
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('bienvenida')">Bienvenida</button>
+    <button class="tab-btn active" data-tab="bienvenida" aria-pressed="true" onclick="switchTab('bienvenida')">Bienvenida</button>
 <!-- ENCUADRE-BTN:START -->
-    <button class="tab-btn" onclick="switchTab('encuadre')">Encuadre</button>
+    <button class="tab-btn" data-tab="encuadre" aria-pressed="false" onclick="switchTab('encuadre')">Encuadre</button>
 <!-- ENCUADRE-BTN:END -->
-    <button class="tab-btn" onclick="switchTab('programa')">Programa</button>
-    <button class="tab-btn" onclick="switchTab('formulas')">Fórmulas</button>
-    <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
-    <button class="tab-btn" onclick="switchTab('simuladores')">Simuladores</button>
-    <button class="tab-btn" onclick="switchTab('calendario')">Calendario de exámenes</button>
-    <button class="tab-btn" onclick="switchTab('material')">Material</button>
+    <button class="tab-btn" data-tab="programa" aria-pressed="false" onclick="switchTab('programa')">Programa</button>
+    <button class="tab-btn" data-tab="formulas" aria-pressed="false" onclick="switchTab('formulas')">Fórmulas</button>
+    <button class="tab-btn" data-tab="videos" aria-pressed="false" onclick="switchTab('videos')">Videos</button>
+    <button class="tab-btn" data-tab="simuladores" aria-pressed="false" onclick="switchTab('simuladores')">Simuladores</button>
+    <button class="tab-btn" data-tab="calendario" aria-pressed="false" onclick="switchTab('calendario')">Calendario de exámenes</button>
+    <button class="tab-btn" data-tab="material" aria-pressed="false" onclick="switchTab('material')">Material</button>
   </div>
 
   <!-- BIENVENIDA -->
@@ -351,12 +351,14 @@
 .enc-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.9rem}
 .enc-chip{background:var(--gold);color:var(--navyd);border-radius:999px;padding:.2rem .75rem;font-size:.85rem;font-weight:700;font-family:Cambria,Georgia,serif}
 
-.enc-toc{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.8rem}
+.enc-toc{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.8rem;
+ position:sticky;top:var(--course-header-height,72px);z-index:90;
+ height:auto;padding:.65rem 0;background:var(--white,#F8F9FC)}
 .enc-toc a{background:var(--paper);border:1px solid var(--line);color:var(--navy);text-decoration:none;
  border-radius:999px;padding:.4rem .85rem;font-size:.85rem;font-weight:600}
 .enc-toc a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
 
-.enc section{margin-bottom:2.2rem;scroll-margin-top:1rem}
+.enc section{margin-bottom:2.2rem;scroll-margin-top:calc(var(--course-header-height,72px) + var(--course-toc-height,110px) + 16px)}
 .enc section>h2{font-size:1.55rem;color:var(--navyd);margin-bottom:.2rem}
 .enc .lead{color:var(--grey);margin:.15rem 0 1rem}
 
@@ -1425,14 +1427,18 @@ function renderProximos(){
 }
 
 /* ════════ TABS ════════ */
-function switchTab(id) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  const map = { bienvenida:0, programa:1, formulas:2, videos:3, simuladores:4, calendario:5, material:6 };
-  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+function switchTab(id, scroll = true) {
+  const panel = document.getElementById('tab-' + id);
+  const buttons = [...document.querySelectorAll('.tab-btn[data-tab]')];
+  const button = buttons.find(b => b.dataset.tab === id);
+  if (!panel || !button) return;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p === panel));
+  buttons.forEach(b => {
+    b.classList.toggle('active', b === button);
+    b.setAttribute('aria-pressed', String(b === button));
+  });
   if (id === 'simuladores') resizeCanvases();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (scroll) window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
 }
 function toggleUnit(h){ h.closest('.unit-card').classList.toggle('open'); }
 
@@ -2310,11 +2316,46 @@ function resizeCanvases(){
 window.addEventListener('resize', resizeCanvases);
 window.addEventListener('resize', initHero);
 window.addEventListener('load', ()=>{ renderCalendario(); renderProximos(); renderFormulas(); renderVideos(); renderSolvers(); resizeCanvases(); updateAll(); initHero(); drawHero(); });
-if (location.hash === '#calendario') switchTab('calendario');
+
 <!-- ENCUADRE-HASH:START -->
-if (location.hash === '#encuadre') switchTab('encuadre');
+
 <!-- ENCUADRE-HASH:END -->
-if (location.hash === '#simuladores') switchTab('simuladores');
+
+</script>
+
+<script>
+(() => {
+  const header = document.querySelector('.portal-nav');
+  const toc = document.querySelector('.enc-toc');
+  const measure = () => {
+    if (header) document.documentElement.style.setProperty('--course-header-height', header.getBoundingClientRect().height + 'px');
+    if (toc && toc.getClientRects().length) document.documentElement.style.setProperty('--course-toc-height', toc.getBoundingClientRect().height + 'px');
+  };
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(measure);
+    if (header) observer.observe(header);
+    if (toc) observer.observe(toc);
+  }
+  window.addEventListener('resize', measure);
+  const openHash = () => {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
+    if (!id) return;
+    if (id === 'simuladores' && !document.getElementById('tab-simuladores') && document.getElementById('tab-herramientas')) id = 'herramientas';
+    const target = document.getElementById(id) || document.getElementById('tab-' + id);
+    const panel = target && target.closest('.tab-panel');
+    if (!panel) return;
+    switchTab(panel.id.slice(4), false);
+    measure();
+    requestAnimationFrame(() => {
+      if (target === panel) window.scrollTo({top:0,behavior:'instant'});
+      else target.scrollIntoView({block:'start',behavior:'instant'});
+    });
+  };
+  measure();
+  window.addEventListener('load', openHash);
+  window.addEventListener('hashchange', openHash);
+})();
 </script>
 </body>
 </html>
