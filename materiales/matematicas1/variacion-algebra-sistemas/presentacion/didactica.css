@@ -10,3 +10,13 @@ body{height:100dvh;display:block;overflow:hidden}#main{width:100%;max-width:none
 @media(max-width:550px){#main .frame-grid{grid-template-columns:1fr}#main .mascot{height:180px}#main .prose{font-size:21px}#main .mini-route{max-height:80px;overflow:auto}}
 
 .original-mascot,.copy-signal,#main .mascot{mix-blend-mode:darken}#main .prose{font-size:clamp(21px,1.9vw,24px)}#main .prose p.tag{font-size:14px;margin-bottom:12px}#main .prose h3{font:700 24px Arial;margin:15px 0 10px}#main .prose p{margin-bottom:14px}#main .frame-title{margin-bottom:16px}
+
+.mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
+
+.mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
+
+.mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
+
+.mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
+
+.mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
