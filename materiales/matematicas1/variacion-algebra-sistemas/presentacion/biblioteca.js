@@ -1,0 +1,4 @@
+document.addEventListener('DOMContentLoaded',()=>{
+document.getElementById('examples-menu').textContent='Más ejemplos';
+document.getElementById('examples-menu').onclick=()=>{const body=document.getElementById('statement-body');document.querySelector('#statement h2').textContent='Ejemplos y recursos adicionales';body.replaceChildren();let block='';[...LESSONS,...EXTRA_LESSONS].sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1))).filter(s=>s.kind==='ejemplo'||EXTRA_LESSONS.includes(s)).forEach(s=>{if(s.block!==block){let h=document.createElement('h3');h.textContent=s.block;body.append(h);block=s.block}let b=document.createElement('button');b.textContent=s.title;b.onclick=()=>{document.querySelector('#statement h2').textContent=s.title;DECK.showFull(s)};body.append(b)});document.getElementById('statement').showModal()};
+});

@@ -20,3 +20,31 @@ body{height:100dvh;display:block;overflow:hidden}#main{width:100%;max-width:none
 .mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
 
 .mascot,.copy-signal{mix-blend-mode:normal!important;background:transparent!important}.mascot{display:block;width:100%;height:100%;object-fit:contain}.cover-art>.mascot{max-height:360px}.copy-signal>.mascot{width:100%;height:100%}.visual-column>.mascot{max-height:330px}svg.mascot image{position:static}svg.mascot{overflow:visible}
+
+/* Ruta compacta: una pantalla por concepto, ejemplo o práctica. */
+#mini-route{display:none!important}
+#main{padding-top:3vh}
+#main .page-header{min-height:100px}
+#main .page-header{padding-right:115px}
+#main .copy-signal{width:92px;height:92px;top:0;right:0}
+#main .copy-signal img{display:block;width:100%;height:100%;object-fit:contain;mix-blend-mode:darken}
+#main .copy-signal{mix-blend-mode:darken!important}
+#main .worked-statement{border-left:3px solid var(--plum);padding-left:18px;margin:0 0 18px}
+#main .worked-statement p{margin:0}
+#main .worked-steps{width:100%;border-collapse:collapse;font-size:clamp(19px,1.8vw,25px)}
+#main .worked-steps th{font:600 17px Arial;text-align:left;color:var(--plum);width:27%;padding:9px 18px 9px 0;border-bottom:1px solid var(--line)}
+#main .worked-steps td{padding:9px 0;border-bottom:1px solid var(--line)}
+#main .worked-steps .math.display{margin:0;padding:0;font-size:1em}
+#main .worked-steps .katex-display{margin:0!important}
+#main .worked-steps th,#main .worked-steps td{vertical-align:middle}
+#main .worked-steps td p{font-size:18px;line-height:1.3;margin:5px 0 0}
+#main .worked-steps p{margin:0;font-size:21px}
+#main .feedback{margin-top:20px;padding-top:12px;border-top:1px solid var(--line);font-size:20px}
+#main .feedback summary{cursor:pointer;color:var(--plum);font:600 17px Arial}
+#statement{max-width:1050px;width:88vw;max-height:86vh;overflow:auto}
+#statement .consult-section{padding:12px 0;border-bottom:1px solid var(--line);font-size:22px}
+#statement .math.display{font-size:27px}
+#outline-body .extra-library{margin-top:25px;border-top:2px solid var(--line)}
+#main .frame-title{display:none}
+#main .kind-ejemplo .prose{font-size:23px}
+@media(max-width:800px){#main .worked-steps th{font-size:14px;width:29%;padding-right:10px}#main .worked-steps{font-size:19px}#main .copy-signal{width:75px;height:75px}}
