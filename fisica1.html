@@ -77,6 +77,8 @@
     .tab-btn { background: none; border: none; cursor: pointer; white-space: nowrap; padding: .75rem 1.25rem; font-size: .88rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .2s, border-color .2s; }
     .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
     .tab-btn:hover:not(.active) { color: var(--navy-l); }
+
+    .tab-btn[data-tab="desafio"]{color:#69416f;background:#f3edf6;border-radius:8px 8px 0 0}.tab-btn[data-tab="desafio"].active{border-bottom-color:#69416f;color:#69416f;background:#eee4f3}
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
@@ -308,6 +310,7 @@
 <div class="layout">
   <div class="tabs">
     <button class="tab-btn active" data-tab="bienvenida" aria-pressed="true" onclick="switchTab('bienvenida')">Bienvenida</button>
+    <button class="tab-btn" data-tab="desafio" aria-pressed="false" onclick="switchTab('desafio')">🐒 Desafío del changuito</button>
 <!-- ENCUADRE-BTN:START -->
     <button class="tab-btn" data-tab="encuadre" aria-pressed="false" onclick="switchTab('encuadre')">Encuadre</button>
 <!-- ENCUADRE-BTN:END -->
@@ -328,6 +331,16 @@
     </div>
     <div class="section-h">📅 Próximos exámenes</div>
     <div id="proximos-examenes"></div>
+  </div>
+
+  <!-- DESAFÍO DEL CHANGUITO -->
+  <div class="tab-panel" id="tab-desafio">
+<section id="desafio-integrador" style="margin:24px 0;padding:26px 30px;border-radius:18px;background:linear-gradient(120deg,#182b44,#69416f);color:white;display:flex;align-items:center;gap:24px;flex-wrap:wrap"><img src="assets/desafio/espacio.png" alt="Changuito astronauta" style="width:115px;height:130px;object-fit:contain"><div style="flex:1;min-width:220px"><p style="font-size:11px;letter-spacing:.15em;color:#dfbe74;margin:0 0 8px">ACTIVIDAD INTEGRADORA · FÍSICA I</p><h2 style="color:white;margin:0 0 9px">Desafío del changuito: fuerzas en acción</h2><p style="margin:0;color:#e3e0eb">Dos misiones, cuatro grupos y un tablero de puntuación. Pon a prueba tus ideas sobre Newton y la gravitación universal.</p></div><a href="desafio-fisica1.html" target="_blank" rel="noopener" style="background:#dfbe74;color:#182b44;padding:13px 21px;border-radius:8px;font-weight:bold;text-decoration:none">Entrar al desafío ↗</a></section>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;margin:24px 0">
+      <div style="padding:24px;border:1px solid #ded7e3;border-radius:14px;background:#f3edf6"><p style="font-size:11px;letter-spacing:.12em;color:#69416f;font-weight:bold">MISIÓN 01</p><h3 style="margin:10px 0;color:#182b44">El laboratorio de Newton</h3><p>Resuelve situaciones de inercia, interacción, fuerza neta y aceleración.</p><p style="font-size:13px;font-weight:bold">20 preguntas · 50 minutos · 2 intentos</p></div>
+      <div style="padding:24px;border:1px solid #d4dde5;border-radius:14px;background:#eaf0f5"><p style="font-size:11px;letter-spacing:.12em;color:#596b80;font-weight:bold">MISIÓN 02</p><h3 style="margin:10px 0;color:#182b44">Una atracción universal</h3><p>Calcula la atracción gravitatoria entre cuerpos y explora el espacio con el changuito.</p><p style="font-size:13px;font-weight:bold">20 preguntas · 50 minutos · 2 intentos</p></div>
+    </div>
+    <div class="welcome-box"><h2>Cómo participar</h2><ol style="line-height:1.9;padding-left:22px"><li>Entra al desafío y escribe tus nombres, apellidos y grupo. Usa siempre los mismos datos.</li><li>Completa las dos misiones; puedes realizarlas en momentos distintos. Se conserva tu mejor intento de cada una.</li><li>Usa calculadora y papel para resolver. Desde el celular tienes un teclado en pantalla con signo menos, decimal y notación científica.</li><li>Consulta la tabla de posiciones y compara tus puntos con los de tu grupo.</li></ol><p><strong>Tus resultados se registran automáticamente en el juego. No necesitas subir archivos.</strong></p><p style="font-size:13px">Una vez iniciada una misión, el tiempo continúa aunque cierres la página. Los cambios de pestaña quedan registrados y el profesor puede revisar las incidencias.</p><a href="desafio-fisica1.html" target="_blank" rel="noopener" style="display:inline-block;padding:13px 22px;background:#69416f;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">🐒 Jugar y consultar posiciones ↗</a></div>
   </div>
 
   <!-- ENCUADRE-PANEL:START -->
@@ -462,7 +475,7 @@
   <a href="#materiales">Materiales</a>
 </nav>
 
-<section id="desafio-integrador" style="margin:24px 0;padding:26px 30px;border-radius:18px;background:linear-gradient(120deg,#182b44,#69416f);color:white;display:flex;align-items:center;gap:24px;flex-wrap:wrap"><img src="assets/desafio/espacio.png" alt="Changuito astronauta" style="width:115px;height:130px;object-fit:contain"><div style="flex:1;min-width:220px"><p style="font-size:11px;letter-spacing:.15em;color:#dfbe74;margin:0 0 8px">ACTIVIDAD INTEGRADORA · FÍSICA I</p><h2 style="color:white;margin:0 0 9px">Desafío del changuito: fuerzas en acción</h2><p style="margin:0;color:#e3e0eb">Dos misiones, cuatro grupos y un tablero de puntuación. Pon a prueba tus ideas sobre Newton y la gravitación universal.</p></div><a href="desafio-fisica1.html" style="background:#dfbe74;color:#182b44;padding:13px 21px;border-radius:8px;font-weight:bold;text-decoration:none">Entrar al desafío ↗</a></section>
+
 <section id="grupos">
   <h2>Todo lo que cambia según tu grupo</h2>
   <p class="lead">El resto de esta página es igual para los 4 grupos. Aquí está lo único que cambia: tu horario y tus días inhábiles.</p>
