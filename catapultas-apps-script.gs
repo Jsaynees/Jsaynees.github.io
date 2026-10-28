@@ -1,6 +1,7 @@
 /** Registro privado de equipos · Bachillerato UNAM-Descartes, 2026. */
 const CIERRE = '2026-11-03T23:00:00-06:00';
 const DOCENTES = ['M.C. José Luis López Saynes','Ing. Jorge Roberto Pascacio Ruiz','Mtra. Julissa Farrera Molina','LEI. Ameth Cruz Fuentes'];
+const GRUPOS = ['3010','3020','3030','3040','3050','3060','3070','3080'];
 const COLUMNAS = ['ID de envío','Folio','Fecha de registro','Equipo','Docente de referencia','Representante','Integrantes (JSON)','Firma de envío','Claves de integrantes (JSON)','Integrante 1','Grupo 1','Integrante 2','Grupo 2','Integrante 3','Grupo 3','Integrante 4','Grupo 4'];
 
 function prepararRegistro() {
@@ -28,7 +29,7 @@ function prepararRegistro() {
 function salida_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 function doGet() {
   const listo = !!PropertiesService.getScriptProperties().getProperty('REGISTRO_SHEET_ID');
-  return salida_({ok:listo,abierto:listo && Date.now()<Date.parse(CIERRE),cierre:CIERRE,version:'catapultas-2026-v3'});
+  return salida_({ok:listo,abierto:listo && Date.now()<Date.parse(CIERRE),cierre:CIERRE,version:'catapultas-2026-v4'});
 }
 function texto_(value,min,max,label) {
   if (typeof value!=='string') throw new Error('Revisa '+label+'.');
@@ -42,7 +43,8 @@ function validar_(d) {
   if (typeof d.id!=='string' || !/^[a-f0-9-]{36}$/i.test(d.id)) throw new Error('El identificador de envío no es válido. Recarga la página.');
   const equipo=texto_(d.equipo,3,60,'el nombre del equipo');
   if (clave_(equipo).length<3) throw new Error('El nombre del equipo debe contener al menos tres letras o números.');
-  if (!DOCENTES.includes(d.docente)) throw new Error('Selecciona un docente de referencia.');
+  // Compatibilidad con comprobantes anteriores; los registros nuevos no solicitan docente.
+  const docente=DOCENTES.includes(d.docente)?d.docente:'';
   if (!Array.isArray(d.integrantes) || ![3,4].includes(d.integrantes.length)) throw new Error('El equipo debe tener exactamente 3 o 4 integrantes.');
   const integrantes=d.integrantes.map((m,i)=>{
     if (!m || typeof m!=='object') throw new Error('Revisa los datos del integrante '+(i+1)+'.');
@@ -54,12 +56,12 @@ function validar_(d) {
     }
     const nombre=partes.nombres+' '+partes.apellidoPaterno+' '+partes.apellidoMaterno;
     const grupo=texto_(m.grupo,4,4,'el grupo del integrante '+(i+1));
-    if (!/^\d{4}$/.test(grupo)) throw new Error('El grupo debe tener cuatro dígitos.');
+    if (!GRUPOS.includes(grupo)) throw new Error('El grupo debe ser 3010, 3020, 3030, 3040, 3050, 3060, 3070 o 3080.');
     return {...partes,nombre,grupo};
   });
   const claves=integrantes.map(m=>clave_(m.nombre)+'|'+m.grupo);
   if (new Set(claves).size!==claves.length) throw new Error('Hay integrantes repetidos en este equipo.');
-  return {equipo,docente:d.docente,integrantes,claves};
+  return {equipo,docente,integrantes,claves};
 }
 function seguro_(s) { return /^[=+\-@]/.test(s)?"'"+s:s; }
 function firma_(d) {
