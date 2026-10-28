@@ -1,6 +1,6 @@
 'use strict';
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyzXCZRbDaDYC9gavs-rn814J2UmN4gRLc6LtIYoHMCPy72QG-0IX2ff9c4pMBGrQKA/exec';
-const CIERRE = '2026-10-30T23:00:00-06:00';
+const CIERRE = '2026-11-03T23:00:00-06:00';
 const DRAFT_KEY='catapultas-2026-borrador-v1', PENDING_KEY='catapultas-2026-envio-v1';
 const $=id=>document.getElementById(id);
 let abierto=false, enviando=false, pendiente=null, recibo=null;
@@ -20,7 +20,7 @@ function addMember(data={}){
     const box=document.createElement('div'), l=document.createElement('label'), input=document.createElement('input');
     input.id=`${key}-${i}`;input.name=`${key}-${i}`;input.required=true;input.maxLength=max;input.autocomplete='off';input.dataset.field=key;input.value=data[key]||'';
     if(key==='nombre'){input.minLength=5;input.placeholder='Nombre(s) y apellidos';}else{input.pattern='[0-9]{4}';input.inputMode='numeric';input.placeholder='0000';input.title='Grupo de cuatro dígitos';}
-    l.htmlFor=input.id;l.textContent=label;box.append(l,input);fields.append(box);
+    l.htmlFor=input.id;l.textContent=label+' del integrante '+(i+1);box.append(l,input);fields.append(box);
   }
   row.append(caption,fields);$('integrantes').append(row);updateMembers();
 }
@@ -34,7 +34,7 @@ async function availability(){
     const response=await fetch(ENDPOINT+'?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(20000)});
     const data=await response.json();
     if(!response.ok||!data.ok)throw new Error('No disponible');
-    abierto=data.abierto===true;$('estado').textContent=abierto?'Inscripciones abiertas · Cierre: 30 oct, 23:00 h':'Inscripciones cerradas · 30 de octubre, 23:00 h';$('estado').className='status'+(abierto?' open':'');
+    abierto=data.abierto===true;$('estado').textContent=abierto?'Inscripciones abiertas · Cierre: 3 nov, 23:00 h':'Inscripciones cerradas · 3 de noviembre, 23:00 h';$('estado').className='status'+(abierto?' open':'');
     $('campos').disabled=!abierto||!!pendiente;
     if(pendiente){$('enviar').disabled=false;mensaje('Hay un envío pendiente de confirmar en este dispositivo. Reintenta para recuperar su folio.');showRetry();}
   }catch(_){$('estado').textContent='No pudimos comprobar el registro. Puedes reintentar la conexión.';const b=document.createElement('button');b.type='button';b.className='outline';b.textContent='Reintentar conexión';b.addEventListener('click',()=>{b.remove();availability();});$('estado').append(document.createElement('br'),b);}
