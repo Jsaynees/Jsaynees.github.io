@@ -5,6 +5,7 @@ const DRAFT_KEY='catapultas-2026-borrador-v1', PENDING_KEY='catapultas-2026-envi
 const $=id=>document.getElementById(id);
 let abierto=false, enviando=false, pendiente=null, recibo=null;
 const normal=s=>s.trim().replace(/\s+/g,' ');
+const nombreCompleto=m=>m.nombres?`${m.nombres} ${m.apellidoPaterno} ${m.apellidoMaterno}`:m.nombre;
 function storageRead(key){try{return JSON.parse(localStorage.getItem(key)||'null');}catch(_){return null;}}
 function storageWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch(_){}}
 function storageRemove(key){try{localStorage.removeItem(key);}catch(_){}}
@@ -16,16 +17,16 @@ function addMember(data={}){
   const title=document.createElement('span');title.textContent=i===0?'Integrante 1 · Representante':`Integrante ${i+1}`;caption.append(title);
   if(i===3){const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='Quitar';remove.addEventListener('click',()=>{row.remove();updateMembers();saveDraft();});caption.append(remove);}
   const fields=document.createElement('div');fields.className='member-fields';
-  for(const [key,label,max] of [['nombre','Nombre completo',100],['grupo','Grupo',4]]){
+  for(const [key,label,max] of [['apellidoPaterno','Apellido paterno',80],['apellidoMaterno','Apellido materno',80],['nombres','Nombre(s)',80],['grupo','Grupo',4]]){
     const box=document.createElement('div'), l=document.createElement('label'), input=document.createElement('input');
     input.id=`${key}-${i}`;input.name=`${key}-${i}`;input.required=true;input.maxLength=max;input.autocomplete='off';input.dataset.field=key;input.value=data[key]||'';
-    if(key==='nombre'){input.minLength=5;input.placeholder='Nombre(s) y apellidos';}else{input.pattern='[0-9]{4}';input.inputMode='numeric';input.placeholder='0000';input.title='Grupo de cuatro dígitos';}
+    if(key==='grupo'){input.pattern='[0-9]{4}';input.inputMode='numeric';input.placeholder='0000';input.title='Grupo de cuatro dígitos';}else{input.minLength=1;input.placeholder=label;input.pattern="[\\p{L}\\p{M}][\\p{L}\\p{M} '\u2019\\-]*";input.title='Campo obligatorio: escribe '+label.toLowerCase()+' con letras';}
     l.htmlFor=input.id;l.textContent=label+' del integrante '+(i+1);box.append(l,input);fields.append(box);
   }
   row.append(caption,fields);$('integrantes').append(row);updateMembers();
 }
 function updateMembers(){const n=$('integrantes').children.length;$('cantidad').textContent=`${n} de 4`;$('agregar').hidden=n===4;}
-function fields(){return {equipo:normal($('equipo').value),docente:$('docente').value,integrantes:[...$('integrantes').children].map(row=>({nombre:normal(row.querySelector('[data-field=nombre]').value),grupo:normal(row.querySelector('[data-field=grupo]').value)})),acepta:$('acepta').checked};}
+function fields(){return {equipo:normal($('equipo').value),docente:$('docente').value,integrantes:[...$('integrantes').children].map(row=>Object.fromEntries(['apellidoPaterno','apellidoMaterno','nombres','grupo'].map(key=>[key,normal(row.querySelector('[data-field='+key+']').value)]))),acepta:$('acepta').checked};}
 function saveDraft(){if(!pendiente)storageWrite(DRAFT_KEY,fields());}
 function loadDraft(){const d=storageRead(DRAFT_KEY);if(!d)return;$('equipo').value=d.equipo||'';$('docente').value=d.docente||'';if(Array.isArray(d.integrantes)&&d.integrantes.length>=3&&d.integrantes.length<=4){$('integrantes').replaceChildren();d.integrantes.forEach(addMember);} $('acepta').checked=d.acepta===true;}
 function mensaje(text){$('mensaje').textContent=text;$('mensaje').hidden=false;$('mensaje').focus();}
@@ -45,7 +46,7 @@ function confirm(data,payload){
   $('equipo-form').hidden=true;$('mensaje').hidden=true;$('comprobante').hidden=false;$('estado').textContent='Registro guardado correctamente';
   $('equipo-confirmado').textContent=payload.equipo;$('folio').textContent=data.folio;
   $('fecha-confirmada').textContent=new Date(data.fecha).toLocaleString('es-MX',{timeZone:'America/Mexico_City',dateStyle:'long',timeStyle:'short'})+' · Ciudad de México';
-  $('miembros-confirmados').replaceChildren();payload.integrantes.forEach((m,i)=>{const li=document.createElement('li');li.textContent=`${m.nombre} · ${m.grupo}${i===0?' · Representante':''}`;$('miembros-confirmados').append(li);});$('comprobante').focus();
+  $('miembros-confirmados').replaceChildren();payload.integrantes.forEach((m,i)=>{const li=document.createElement('li');li.textContent=`${nombreCompleto(m)} · ${m.grupo}${i===0?' · Representante':''}`;$('miembros-confirmados').append(li);});$('comprobante').focus();
 }
 async function send(payload){
   if(enviando||!payload)return;enviando=true;$('campos').disabled=true;$('mensaje').hidden=true;$('estado').textContent='Guardando el registro. Espera la confirmación…';const retry=$('reintentar-envio');if(retry)retry.disabled=true;
@@ -65,6 +66,6 @@ async function send(payload){
 $('agregar').addEventListener('click',()=>{addMember();saveDraft();});
 for(let i=0;i<3;i++)addMember();loadDraft();pendiente=storageRead(PENDING_KEY);
 $('equipo-form').addEventListener('input',saveDraft);
-$('equipo-form').addEventListener('submit',e=>{e.preventDefault();if(!abierto||enviando)return;if(!$('equipo-form').reportValidity())return;const d=fields();const keys=d.integrantes.map(m=>m.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'')+'|'+m.grupo);if(new Set(keys).size!==keys.length){mensaje('Hay integrantes repetidos. Revisa los nombres y grupos.');return;}send({...d,id:crypto.randomUUID(),website:$('website').value});});
-$('descargar').addEventListener('click',()=>{if(!recibo)return;const text=['COMPROBANTE DE INSCRIPCIÓN · CATAPULTAS 2026',`Folio: ${recibo.folio}`,`Equipo: ${recibo.equipo}`,`Fecha: ${$('fecha-confirmada').textContent}`,`Docente de referencia: ${recibo.docente}`,'',...recibo.integrantes.map((m,i)=>`${i+1}. ${m.nombre} · Grupo ${m.grupo}${i===0?' · Representante':''}`),'','Evento: 20 de noviembre de 2026 · Cancha de básquetbol.','Para corregir datos, consulta a tu docente.'].join('\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=recibo.folio+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('equipo-form').addEventListener('submit',e=>{e.preventDefault();if(!abierto||enviando)return;if(!$('equipo-form').reportValidity())return;const d=fields();if(![3,4].includes(d.integrantes.length)){mensaje('El equipo debe tener exactamente 3 o 4 integrantes.');return;}if(!d.equipo||d.integrantes.some(m=>!m.apellidoPaterno||!m.apellidoMaterno||!m.nombres||!m.grupo)){mensaje('Completa el nombre del equipo y el apellido paterno, apellido materno, nombre(s) y grupo de TODOS los integrantes.');return;}const keys=d.integrantes.map(m=>nombreCompleto(m).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'')+'|'+m.grupo);if(new Set(keys).size!==keys.length){mensaje('Hay integrantes repetidos. Revisa los nombres y grupos.');return;}send({...d,id:crypto.randomUUID(),website:$('website').value});});
+$('descargar').addEventListener('click',()=>{if(!recibo)return;const text=['COMPROBANTE DE INSCRIPCIÓN · CATAPULTAS 2026',`Folio: ${recibo.folio}`,`Equipo: ${recibo.equipo}`,`Fecha: ${$('fecha-confirmada').textContent}`,`Docente de referencia: ${recibo.docente}`,'',...recibo.integrantes.map((m,i)=>`${i+1}. ${nombreCompleto(m)} · Grupo ${m.grupo}${i===0?' · Representante':''}`),'','Evento: 20 de noviembre de 2026 · Cancha de básquetbol.','Para corregir datos, consulta a tu docente.'].join('\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=recibo.folio+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 availability();

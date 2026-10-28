@@ -28,7 +28,7 @@ function prepararRegistro() {
 function salida_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 function doGet() {
   const listo = !!PropertiesService.getScriptProperties().getProperty('REGISTRO_SHEET_ID');
-  return salida_({ok:listo,abierto:listo && Date.now()<Date.parse(CIERRE),cierre:CIERRE,version:'catapultas-2026-v2'});
+  return salida_({ok:listo,abierto:listo && Date.now()<Date.parse(CIERRE),cierre:CIERRE,version:'catapultas-2026-v3'});
 }
 function texto_(value,min,max,label) {
   if (typeof value!=='string') throw new Error('Revisa '+label+'.');
@@ -43,13 +43,19 @@ function validar_(d) {
   const equipo=texto_(d.equipo,3,60,'el nombre del equipo');
   if (clave_(equipo).length<3) throw new Error('El nombre del equipo debe contener al menos tres letras o números.');
   if (!DOCENTES.includes(d.docente)) throw new Error('Selecciona un docente de referencia.');
-  if (!Array.isArray(d.integrantes) || d.integrantes.length<3 || d.integrantes.length>4) throw new Error('El equipo debe tener 3 o 4 integrantes.');
-  const integrantes=d.integrantes.map(m=>{
-    const nombre=texto_(m.nombre,5,100,'el nombre completo de cada integrante');
-    const grupo=texto_(m.grupo,4,4,'el grupo de cada integrante');
+  if (!Array.isArray(d.integrantes) || ![3,4].includes(d.integrantes.length)) throw new Error('El equipo debe tener exactamente 3 o 4 integrantes.');
+  const integrantes=d.integrantes.map((m,i)=>{
+    if (!m || typeof m!=='object') throw new Error('Revisa los datos del integrante '+(i+1)+'.');
+    const partes={};
+    for (const [campo,etiqueta] of [['apellidoPaterno','apellido paterno'],['apellidoMaterno','apellido materno'],['nombres','nombre(s)']]) {
+      const valor=texto_(m[campo],1,80,'el '+etiqueta+' del integrante '+(i+1));
+      if (!/^[\p{L}\p{M}][\p{L}\p{M} '\u2019-]*$/u.test(valor) || !/\p{L}/u.test(valor)) throw new Error('Revisa el '+etiqueta+' del integrante '+(i+1)+': utiliza letras, sin números ni campos vacíos.');
+      partes[campo]=valor;
+    }
+    const nombre=partes.nombres+' '+partes.apellidoPaterno+' '+partes.apellidoMaterno;
+    const grupo=texto_(m.grupo,4,4,'el grupo del integrante '+(i+1));
     if (!/^\d{4}$/.test(grupo)) throw new Error('El grupo debe tener cuatro dígitos.');
-    if (!/^[\p{L}\p{M} .'-]+$/u.test(nombre) || clave_(nombre).length<5) throw new Error('Escribe nombres completos, sin números ni símbolos.');
-    return {nombre,grupo};
+    return {...partes,nombre,grupo};
   });
   const claves=integrantes.map(m=>clave_(m.nombre)+'|'+m.grupo);
   if (new Set(claves).size!==claves.length) throw new Error('Hay integrantes repetidos en este equipo.');
