@@ -1,6 +1,6 @@
 'use strict';
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyzXCZRbDaDYC9gavs-rn814J2UmN4gRLc6LtIYoHMCPy72QG-0IX2ff9c4pMBGrQKA/exec';
-const CIERRE = '2026-11-03T23:00:00-06:00';
+const CIERRE = '2026-11-06T23:00:00-06:00';
 const GRUPOS = ['3010','3020','3030','3040','3050','3060','3070','3080'];
 const DRAFT_KEY='catapultas-2026-borrador-v1', PENDING_KEY='catapultas-2026-envio-v1';
 const $=id=>document.getElementById(id);
@@ -37,7 +37,7 @@ async function availability(){
     const response=await fetch(ENDPOINT+'?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(20000)});
     const data=await response.json();
     if(!response.ok||!data.ok)throw new Error('No disponible');
-    abierto=data.abierto===true;$('estado').textContent=abierto?'Inscripciones abiertas · Cierre: 3 nov, 23:00 h':'Inscripciones cerradas · 3 de noviembre, 23:00 h';$('estado').className='status'+(abierto?' open':'');
+    abierto=data.abierto===true;$('estado').textContent=abierto?'Inscripciones abiertas · Cierre: 6 nov, 23:00 h':'Inscripciones cerradas · 6 de noviembre, 23:00 h';$('estado').className='status'+(abierto?' open':'');
     $('campos').disabled=!abierto||!!pendiente;
     if(pendiente){$('enviar').disabled=false;mensaje('Hay un envío pendiente de confirmar en este dispositivo. Reintenta para recuperar su folio.');showRetry();}
   }catch(_){$('estado').textContent='No pudimos comprobar el registro. Puedes reintentar la conexión.';const b=document.createElement('button');b.type='button';b.className='outline';b.textContent='Reintentar conexión';b.addEventListener('click',()=>{b.remove();availability();});$('estado').append(document.createElement('br'),b);}

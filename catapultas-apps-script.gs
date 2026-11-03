@@ -1,5 +1,5 @@
 /** Registro privado de equipos · Bachillerato UNAM-Descartes, 2026. */
-const CIERRE = '2026-11-03T23:00:00-06:00';
+const CIERRE = '2026-11-06T23:00:00-06:00';
 const DOCENTES = ['M.C. José Luis López Saynes','Ing. Jorge Roberto Pascacio Ruiz','Mtra. Julissa Farrera Molina','LEI. Ameth Cruz Fuentes'];
 const GRUPOS = ['3010','3020','3030','3040','3050','3060','3070','3080'];
 const COLUMNAS = ['ID de envío','Folio','Fecha de registro','Equipo','Docente de referencia','Representante','Integrantes (JSON)','Firma de envío','Claves de integrantes (JSON)','Integrante 1','Grupo 1','Integrante 2','Grupo 2','Integrante 3','Grupo 3','Integrante 4','Grupo 4'];
@@ -85,7 +85,7 @@ function doPost(e) {
       if (previo[7]!==firma) return salida_({ok:false,error:'Este envío ya se guardó con otros datos. No lo modifiques al reintentar.'});
       return salida_({ok:true,folio:previo[1],fecha:previo[2],duplicado:true});
     }
-    if (Date.now()>=Date.parse(CIERRE)) return salida_({ok:false,error:'Las inscripciones cerraron el 3 de noviembre de 2026 a las 23:00 h, hora de Ciudad de México.'});
+    if (Date.now()>=Date.parse(CIERRE)) return salida_({ok:false,error:'Las inscripciones cerraron el 6 de noviembre de 2026 a las 23:00 h, hora de Ciudad de México.'});
     if (rows.some(r=>clave_(String(r[3]))===clave_(v.equipo))) return salida_({ok:false,error:'Ese nombre de equipo ya está registrado. Elige otro nombre.'});
     const usados=new Set(rows.flatMap(r=>{try{return JSON.parse(r[8]);}catch(_){return [];}}));
     if (v.claves.some(k=>usados.has(k))) return salida_({ok:false,error:'Uno o más integrantes ya aparecen en un equipo registrado. Consulta a tu docente antes de volver a inscribirlos.'});
