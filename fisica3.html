@@ -177,7 +177,7 @@
 <!-- PRACTICA-V9-ASSET:START -->
 <link rel="stylesheet" href="assets/practica-v9.css?v=20260723-9">
 <!-- PRACTICA-V9-ASSET:END -->
-</head>
+<link rel="stylesheet" href="assets/desafio/cierre.css?v=20261105-1"><link rel="stylesheet" href="assets/fisica-ajustes.css?v=20261105-1"></head>
 <body data-portal-page="fisica3">
 <!-- PORTAL-LOADER:START -->
 <div id="portal-loader" role="status" aria-live="polite" aria-label="Cargando página">
@@ -246,7 +246,7 @@
     <div id="proximos-examenes"></div>
   </div>
 
-  <div class="tab-panel" id="tab-integradora"><div class="welcome-box" style="border-left:4px solid #b69a59"><p style="font-size:12px;letter-spacing:.12em;font-weight:700">ACTIVIDAD INTEGRADORA · FLUIDOS</p><h2>Conecta las ideas. Ponlas en práctica.</h2><p>Resuelve situaciones sobre densidad, gravedad específica, presión y el principio de Pascal. Elige tu grupo para ver los bloques que te corresponden.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0"><div style="background:white;padding:20px;border:1px solid #d8dfe7;border-radius:8px"><strong>Grupo 5060</strong><p>Propiedades de los fluidos · Presión y Pascal.</p></div><div style="background:white;padding:20px;border:1px solid #d8dfe7;border-radius:8px"><strong>Grupo 5010</strong><p>Los dos bloques comunes y Lectura de manómetros.</p></div></div><p>20 preguntas por bloque · 50 minutos · 2 intentos · Resultados y procedimientos al terminar. Puedes responder desde tu celular con el teclado numérico integrado.</p><a href="integradora-fisica3.html" style="display:inline-block;background:#17334e;color:#fff;padding:14px 22px;border-radius:7px;text-decoration:none;font-weight:700">Entrar a la actividad ↗</a></div></div>
+  <div class="tab-panel" id="tab-integradora"><section class="challenge-closing" data-challenge-deadlines="5010,5060" aria-label="Fechas de cierre de la actividad"></section><div class="welcome-box" style="border-left:4px solid #b69a59"><p style="font-size:12px;letter-spacing:.12em;font-weight:700">ACTIVIDAD INTEGRADORA · FLUIDOS</p><h2>Conecta las ideas. Ponlas en práctica.</h2><p>Resuelve situaciones sobre densidad, gravedad específica, presión y el principio de Pascal. Elige tu grupo para ver los bloques que te corresponden.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0"><div style="background:white;padding:20px;border:1px solid #d8dfe7;border-radius:8px"><strong>Grupo 5060</strong><p>Propiedades de los fluidos · Presión y Pascal.</p></div><div style="background:white;padding:20px;border:1px solid #d8dfe7;border-radius:8px"><strong>Grupo 5010</strong><p>Los dos bloques comunes y Lectura de manómetros.</p></div></div><p>20 preguntas por bloque · 50 minutos · 2 intentos · Resultados y procedimientos al terminar. Puedes responder desde tu celular con el teclado numérico integrado.</p><a href="integradora-fisica3.html" style="display:inline-block;background:#17334e;color:#fff;padding:14px 22px;border-radius:7px;text-decoration:none;font-weight:700">Entrar a la actividad ↗</a></div></div>
   <!-- ENCUADRE-PANEL:START -->
   <div class="tab-panel" id="tab-encuadre">
 <style>
@@ -1126,6 +1126,7 @@ function switchTab(id, scroll = true) {
     b.classList.toggle('active', b === button);
     b.setAttribute('aria-pressed', String(b === button));
   });
+  button.scrollIntoView({block:'nearest',inline:'nearest'});
   if (id === 'simuladores') resizeCanvases();
   if (scroll) window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
 }
@@ -1525,5 +1526,5 @@ window.addEventListener('load', ()=>{ renderCalendario(); renderProximos(); rend
   window.addEventListener('hashchange', openHash);
 })();
 </script>
-</body>
+<script src="assets/desafio/cierre.js?v=20261105-1"></script></body>
 </html>
