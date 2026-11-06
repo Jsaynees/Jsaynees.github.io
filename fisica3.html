@@ -1104,10 +1104,10 @@ function renderProximos(){
   const cont=document.getElementById('proximos-examenes'); let ev=[];
   PERIODOS.forEach(p=>{ const reg=EXAMENES[p];
     if(reg['todos']){ const [iso,hora]=reg['todos']; ev.push({periodo:p,iso,hora,grupos:['ambos grupos']}); }
-    else { const pf={}; GRUPOS.forEach(g=>{ const [iso,hora]=reg[g]; (pf[iso]=pf[iso]||{h:new Set(),g:[]}); pf[iso].g.push(g); pf[iso].h.add(hora); });
-      Object.entries(pf).forEach(([iso,info])=>{ ev.push({periodo:p,iso,hora:[...info.h].sort()[0],grupos:info.g}); }); }
+    else { const pf={}; GRUPOS.forEach(g=>{ const [iso,hora]=reg[g],key=iso+'|'+hora; (pf[key]=pf[key]||{iso,hora,grupos:[]}).grupos.push(g); });
+      Object.values(pf).forEach(info=>{ ev.push({periodo:p,...info}); }); }
   });
-  ev=ev.filter(e=>new Date(e.iso+'T00:00:00').getTime()>=HOY.getTime()).sort((a,b)=>new Date(a.iso)-new Date(b.iso)).slice(0,4);
+  ev=ev.filter(e=>new Date(e.iso+'T00:00:00').getTime()>=HOY.getTime()).sort((a,b)=>(a.iso+'T'+a.hora).localeCompare(b.iso+'T'+b.hora)).slice(0,4);
   if(!ev.length){ cont.innerHTML='<p style="color:var(--muted);font-size:.9rem;">No hay exámenes próximos programados.</p>'; return; }
   cont.innerHTML=ev.map(e=>{ const d=new Date(e.iso+'T00:00:00'), dias=Math.round((d-HOY)/86400000), cd=dias===0?'Hoy':dias===1?'Mañana':'En '+dias+' días';
     const grupos=e.grupos[0]==='ambos grupos'?'Ambos grupos':'Grupo'+(e.grupos.length>1?'s':'')+' '+e.grupos.join(', ');

@@ -1430,19 +1430,19 @@ function renderCalendario(){
 /* Próximos exámenes (se actualiza solo según la fecha de hoy) */
 function renderProximos(){
   const cont = document.getElementById('proximos-examenes');
-  // construir lista de eventos agrupados por periodo+fecha
+  // construir lista de eventos agrupados por periodo, fecha y hora
   let eventos = [];
   PERIODOS.forEach(p=>{
     const reg = EXAMENES[p];
     if(reg['todos']){ const [iso,hora]=reg['todos']; eventos.push({periodo:p,iso,hora,grupos:['todos los grupos']}); }
     else {
       const porFecha = {};
-      GRUPOS.forEach(g=>{ const [iso,hora]=reg[g]; (porFecha[iso]=porFecha[iso]||{horas:new Set(),grupos:[]}); porFecha[iso].grupos.push(g); porFecha[iso].horas.add(hora); });
-      Object.entries(porFecha).forEach(([iso,info])=>{ eventos.push({periodo:p,iso,hora:[...info.horas].sort()[0],grupos:info.grupos}); });
+      GRUPOS.forEach(g=>{ const [iso,hora]=reg[g],key=iso+'|'+hora; (porFecha[key]=porFecha[key]||{iso,hora,grupos:[]}).grupos.push(g); });
+      Object.values(porFecha).forEach(info=>{ eventos.push({periodo:p,...info}); });
     }
   });
   eventos = eventos.filter(e=> new Date(e.iso+'T00:00:00').getTime() >= HOY.getTime())
-                   .sort((a,b)=> new Date(a.iso)-new Date(b.iso)).slice(0,4);
+                   .sort((a,b)=> (a.iso+'T'+a.hora).localeCompare(b.iso+'T'+b.hora)).slice(0,4);
   if(eventos.length===0){ cont.innerHTML='<p style="color:var(--muted);font-size:.9rem;">No hay exámenes próximos programados.</p>'; return; }
   cont.innerHTML = eventos.map(e=>{
     const d = new Date(e.iso+'T00:00:00');
